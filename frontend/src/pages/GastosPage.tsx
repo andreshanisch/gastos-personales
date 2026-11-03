@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { HojaGasto } from '../components/HojaGasto'
-import { PanelCategorias } from '../components/PanelCategorias'
 import { ReglaCategorias } from '../components/ReglaCategorias'
 import { SelectorMes } from '../components/SelectorMes'
 import { etiquetaDia, formatearMonto, nombreMes } from '../formato'
@@ -37,8 +36,7 @@ export function GastosPage() {
   const porDia = agruparPorDia(gastos ?? [])
 
   return (
-    <div className="pagina-con-panel">
-      <div className="pagina-con-panel__cabecera">
+    <>
       <SelectorMes />
 
       <section className="total" aria-label="Total del mes">
@@ -50,11 +48,6 @@ export function GastosPage() {
         {resumen && <Comparacion resumen={resumen} />}
         <ReglaCategorias categorias={resumen?.porCategoria ?? []} ingresos={resumen?.ingresosARS ?? 0} />
       </section>
-      </div>
-
-      <PanelCategorias resumen={resumen} />
-
-      <div className="pagina-con-panel__lista">
 
       {error && (
         <div className="aviso" role="alert">
@@ -93,7 +86,6 @@ export function GastosPage() {
           </ul>
         </section>
       ))}
-      </div>
 
       <button
         type="button"
@@ -116,7 +108,7 @@ export function GastosPage() {
           cargar()
         }}
       />
-    </div>
+    </>
   )
 }
 
