@@ -5,6 +5,8 @@ services:
     name: gastos-api
     runtime: docker
     plan: free
+    # La base de Neon está en São Paulo; Virginia es la región de Render más cercana
+    region: virginia
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
