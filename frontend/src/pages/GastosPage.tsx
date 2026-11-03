@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { HojaGasto } from '../components/HojaGasto'
+import { PanelCategorias } from '../components/PanelCategorias'
 import { ReglaCategorias } from '../components/ReglaCategorias'
 import { SelectorMes } from '../components/SelectorMes'
 import { etiquetaDia, formatearMonto, nombreMes } from '../formato'
@@ -36,7 +37,8 @@ export function GastosPage() {
   const porDia = agruparPorDia(gastos ?? [])
 
   return (
-    <>
+    <div className="pagina-con-panel">
+      <div className="pagina-con-panel__cabecera">
       <SelectorMes />
 
       <section className="total" aria-label="Total del mes">
@@ -48,6 +50,11 @@ export function GastosPage() {
         {resumen && <Comparacion resumen={resumen} />}
         <ReglaCategorias categorias={resumen?.porCategoria ?? []} ingresos={resumen?.ingresosARS ?? 0} />
       </section>
+      </div>
+
+      <PanelCategorias resumen={resumen} />
+
+      <div className="pagina-con-panel__lista">
 
       {error && (
         <div className="aviso" role="alert">
@@ -76,8 +83,8 @@ export function GastosPage() {
                 <button type="button" className="gasto" onClick={() => setHoja({ abierta: true, gasto: g })}>
                   <span className="gasto__punto" style={{ background: g.categoriaColor }} aria-hidden="true" />
                   <span className="gasto__texto">
-                    <span className="gasto__descripcion">{g.descripcion}</span>
-                    <span className="gasto__categoria">{g.categoriaNombre}</span>
+                    <span className="gasto__descripcion">{g.descripcion || g.categoriaNombre}</span>
+                    {g.descripcion && <span className="gasto__categoria">{g.categoriaNombre}</span>}
                   </span>
                   <span className="gasto__monto">{formatearMonto(g.monto, g.moneda)}</span>
                 </button>
@@ -86,6 +93,7 @@ export function GastosPage() {
           </ul>
         </section>
       ))}
+      </div>
 
       <button
         type="button"
@@ -108,7 +116,7 @@ export function GastosPage() {
           cargar()
         }}
       />
-    </>
+    </div>
   )
 }
 

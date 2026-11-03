@@ -18,6 +18,10 @@
   --radio-chico: 8px;
   --radio: 14px;
   --ancho-max: 560px;
+  --ancho-panel: 340px;
+  --separacion-panel: 56px;
+  /* Ancho total de la página con panel lateral (columna + separación + panel + márgenes) */
+  --ancho-amplio: calc(var(--ancho-max) + var(--separacion-panel) + var(--ancho-panel) + 32px);
 
   color-scheme: light;
 }
@@ -78,7 +82,7 @@ button:disabled { cursor: default; opacity: 0.45; }
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px max(16px, calc((100vw - var(--ancho-max)) / 2));
+  padding: 8px max(16px, calc((100vw - var(--ancho-amplio)) / 2 + 16px));
   background: var(--superficie);
   border-bottom: 1px solid var(--linea);
 }
@@ -117,7 +121,92 @@ button:disabled { cursor: default; opacity: 0.45; }
   max-width: var(--ancho-max);
   margin: 0 auto;
   padding: 32px 16px 120px;
+  box-sizing: content-box;
 }
+.contenido:has(.pagina-con-panel) { max-width: calc(var(--ancho-amplio) - 32px); }
+
+/* ---------- Gastos con panel lateral ---------- */
+.pagina-con-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "cabecera" "panel" "lista";
+}
+.pagina-con-panel__cabecera { grid-area: cabecera; min-width: 0; }
+.pagina-con-panel__lista { grid-area: lista; min-width: 0; }
+.pagina-con-panel > .panel { grid-area: panel; margin-bottom: 8px; }
+
+@media (min-width: 1000px) {
+  .pagina-con-panel {
+    grid-template-columns: minmax(0, var(--ancho-max)) var(--ancho-panel);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "cabecera panel" "lista panel";
+    column-gap: var(--separacion-panel);
+  }
+  .pagina-con-panel > .panel {
+    align-self: start;
+    position: sticky;
+    top: 88px;
+    margin-bottom: 0;
+  }
+  /* El botón queda en el borde derecho de la columna de gastos, no encima del panel */
+  .pagina-con-panel .boton-flotante {
+    right: auto;
+    left: calc((100vw - var(--ancho-amplio)) / 2 + 16px + var(--ancho-max));
+    transform: translateX(-100%);
+  }
+}
+
+/* ---------- Panel por categoría ---------- */
+.panel {
+  padding: 20px;
+  border-radius: var(--radio);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+}
+.panel__titulo { font-size: 1.0625rem; margin-bottom: 12px; }
+.panel__vacio, .panel__nota { color: var(--tinta-suave); font-size: 0.875rem; }
+.panel__nota { margin-top: 12px; }
+.panel__enlace {
+  display: inline-block;
+  margin-top: 14px;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--accion);
+}
+
+.tabla-categorias {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.tabla-categorias thead th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tinta-suave);
+  text-align: left;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--linea);
+}
+.tabla-categorias tbody th,
+.tabla-categorias tbody td {
+  padding: 9px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--linea) 55%, transparent);
+  vertical-align: middle;
+}
+.tabla-categorias tbody th { font-weight: 500; text-align: left; }
+.tabla-categorias__categoria { display: flex; align-items: center; gap: 10px; }
+.tabla-categorias__nombre { overflow-wrap: anywhere; }
+.tabla-categorias__numero { text-align: right !important; padding-left: 12px !important; white-space: nowrap; }
+.tabla-categorias__monto {
+  font-family: var(--fuente-cifras);
+  font-size: 1.125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.tabla-categorias__porcentaje { color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+.tabla-categorias tfoot th,
+.tabla-categorias tfoot td { padding-top: 10px; font-weight: 700; text-align: left; }
+.tabla-categorias tfoot .tabla-categorias__monto { font-weight: 600; }
 
 @media (max-width: 600px) {
   .navegacion__marca { font-size: 1.125rem; }
@@ -447,6 +536,9 @@ button:disabled { cursor: default; opacity: 0.45; }
 .chip:has(input:focus-visible) { outline: 3px solid var(--resaltador); outline-offset: 2px; }
 .chip__punto { width: 10px; height: 10px; border-radius: 50%; }
 
+.campo__opcional { font-weight: 400; }
+.campo__ayuda { font-size: 0.8125rem; color: var(--tinta-suave); margin-top: 4px; }
+
 .error { color: var(--alerta); font-weight: 500; }
 
 /* ---------- Estados ---------- */
@@ -575,5 +667,17 @@ button:disabled { cursor: default; opacity: 0.45; }
 }
 .paleta__opcion input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .paleta__opcion:has(input:checked) { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--tinta); }
+.paleta__opcion--usada::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1.5px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+}
 .paleta__opcion:has(input:focus-visible) { outline: 3px solid var(--resaltador); outline-offset: 4px; }
 

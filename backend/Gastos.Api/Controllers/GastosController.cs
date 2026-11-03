@@ -49,7 +49,7 @@ public class GastosController(AppDbContext db) : ControllerBase
             Fecha = request.Fecha!.Value,
             Monto = request.Monto!.Value,
             Moneda = request.Moneda,
-            Descripcion = request.Descripcion.Trim(),
+            Descripcion = request.Descripcion?.Trim() ?? "",
             CategoriaId = categoria.Id,
             Categoria = categoria
         };
@@ -75,7 +75,7 @@ public class GastosController(AppDbContext db) : ControllerBase
         gasto.Fecha = request.Fecha!.Value;
         gasto.Monto = request.Monto!.Value;
         gasto.Moneda = request.Moneda;
-        gasto.Descripcion = request.Descripcion.Trim();
+        gasto.Descripcion = request.Descripcion?.Trim() ?? "";
         gasto.CategoriaId = categoria.Id;
         gasto.Categoria = categoria;
         await db.SaveChangesAsync();

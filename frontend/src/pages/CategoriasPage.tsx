@@ -2,9 +2,25 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { api } from '../api'
 import type { Categoria } from '../types'
 
+// Ordenados por tono; los claros y oscuros se distinguen bien de los intermedios
 const COLORES = [
-  '#16a34a', '#0f766e', '#0284c7', '#4f46e5', '#7c3aed',
-  '#db2777', '#dc2626', '#ea580c', '#ca8a04', '#64748b',
+  '#dc2626', // rojo
+  '#881337', // bordó
+  '#f9a8d4', // rosa claro
+  '#db2777', // fucsia
+  '#c4b5fd', // lavanda
+  '#7c3aed', // violeta
+  '#4f46e5', // índigo
+  '#0284c7', // azul
+  '#67e8f9', // celeste
+  '#0f766e', // verde azulado
+  '#16a34a', // verde
+  '#a3e635', // lima
+  '#facc15', // amarillo
+  '#ca8a04', // mostaza
+  '#ea580c', // naranja
+  '#92400e', // marrón
+  '#64748b', // gris
 ]
 
 export function CategoriasPage() {
@@ -41,6 +57,7 @@ export function CategoriasPage() {
 
       {editando === 'nueva' && (
         <FormCategoria
+          otras={categorias ?? []}
           alTerminar={() => { setEditando(null); cargar() }}
           alCancelar={() => setEditando(null)}
         />
@@ -52,6 +69,7 @@ export function CategoriasPage() {
             <li key={c.id}>
               <FormCategoria
                 categoria={c}
+                otras={(categorias ?? []).filter((o) => o.id !== c.id)}
                 alTerminar={() => { setEditando(null); cargar() }}
                 alCancelar={() => setEditando(null)}
               />
@@ -83,13 +101,18 @@ export function CategoriasPage() {
 
 interface FormProps {
   categoria?: Categoria
+  /** Las demás categorías activas, para marcar qué colores ya están en uso */
+  otras: Categoria[]
   alTerminar: () => void
   alCancelar: () => void
 }
 
-function FormCategoria({ categoria, alTerminar, alCancelar }: FormProps) {
+function FormCategoria({ categoria, otras, alTerminar, alCancelar }: FormProps) {
+  // Color -> nombre de la categoría que ya lo usa
+  const enUso = new Map(otras.filter((o) => !o.archivada).map((o) => [o.color.toLowerCase(), o.nombre]))
+  const primerLibre = COLORES.find((c) => !enUso.has(c)) ?? COLORES[0]
   const [nombre, setNombre] = useState(categoria?.nombre ?? '')
-  const [color, setColor] = useState(categoria?.color ?? COLORES[0])
+  const [color, setColor] = useState(categoria?.color ?? primerLibre)
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
@@ -131,18 +154,32 @@ function FormCategoria({ categoria, alTerminar, alCancelar }: FormProps) {
       <fieldset className="campo">
         <legend className="campo__etiqueta">Color</legend>
         <div className="paleta">
-          {COLORES.map((c) => (
-            <label key={c} className="paleta__opcion" style={{ background: c }}>
-              <input
-                type="radio"
-                name="color"
-                checked={color.toLowerCase() === c}
-                onChange={() => setColor(c)}
-                aria-label={c}
-              />
-            </label>
-          ))}
+          {COLORES.map((c) => {
+            const usadoPor = enUso.get(c)
+            return (
+              <label
+                key={c}
+                className={`paleta__opcion ${usadoPor ? 'paleta__opcion--usada' : ''}`}
+                style={{ background: c }}
+                title={usadoPor ? `Ya lo usa "${usadoPor}"` : 'Libre'}
+              >
+                <input
+                  type="radio"
+                  name="color"
+                  checked={color.toLowerCase() === c}
+                  onChange={() => setColor(c)}
+                  aria-label={usadoPor ? `${c}, ya lo usa ${usadoPor}` : `${c}, libre`}
+                />
+              </label>
+            )
+          })}
         </div>
+        {enUso.has(color.toLowerCase()) && (
+          <p className="campo__ayuda">
+            Este color ya lo usa "{enUso.get(color.toLowerCase())}": en la barra no se van a poder distinguir.
+          </p>
+        )}
+        <p className="campo__ayuda">Los colores con una marca blanca ya están en uso.</p>
       </fieldset>
 
       {error && <p className="error" role="alert">{error}</p>}

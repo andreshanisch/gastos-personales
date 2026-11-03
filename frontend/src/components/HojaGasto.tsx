@@ -47,7 +47,6 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
     e.preventDefault()
     const valor = parsearMonto(monto)
     if (valor === null) return setError('Escribí un monto mayor a cero, por ejemplo 12.300 o 4500,50.')
-    if (!descripcion.trim()) return setError('Agregá una descripción corta, por ejemplo "Súper Coto".')
     if (categoriaId === null) return setError('Elegí una categoría.')
 
     setGuardando(true)
@@ -65,7 +64,7 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
   }
 
   async function eliminar() {
-    if (!gasto || !confirm(`¿Eliminar "${gasto.descripcion}"?`)) return
+    if (!gasto || !confirm(`¿Eliminar "${gasto.descripcion || gasto.categoriaNombre}"?`)) return
     setGuardando(true)
     try {
       await api.eliminarGasto(gasto.id)
@@ -120,12 +119,12 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
         </div>
 
         <label className="campo">
-          <span className="campo__etiqueta">Descripción</span>
+          <span className="campo__etiqueta">Descripción <span className="campo__opcional">(opcional)</span></span>
           <input
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             maxLength={200}
-            placeholder="Súper Coto, nafta, Netflix…"
+            placeholder="Si la dejás vacía, se muestra la categoría"
           />
         </label>
 

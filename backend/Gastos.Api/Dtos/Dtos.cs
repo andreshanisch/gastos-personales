@@ -32,8 +32,9 @@ public class GastoRequest
 
     public Moneda Moneda { get; set; } = Moneda.ARS;
 
-    [Required, StringLength(200, MinimumLength = 1)]
-    public string Descripcion { get; set; } = "";
+    /// <summary>Opcional: si no se escribe, en la lista se muestra el nombre de la categoría.</summary>
+    [StringLength(200)]
+    public string? Descripcion { get; set; }
 
     [Required] public int? CategoriaId { get; set; }
 }
