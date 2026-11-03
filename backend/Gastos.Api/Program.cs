@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Gastos.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,12 +19,23 @@ builder.Services
 
 var app = builder.Build();
 
-// Aplica migraciones pendientes y carga las categorías iniciales
-using (var scope = app.Services.CreateScope())
+// Aplica migraciones pendientes y carga las categorías iniciales.
+// Si Docker recién arranca, la base puede tardar unos segundos en aceptar conexiones: se reintenta.
+for (var intento = 1; ; intento++)
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
-    await SeedData.CargarAsync(db);
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
+        await SeedData.CargarAsync(db);
+        break;
+    }
+    catch (Exception ex) when (intento < 20 && ex is NpgsqlException or TimeoutException)
+    {
+        app.Logger.LogWarning("La base todavía no responde (intento {Intento} de 20). Reintentando...", intento);
+        await Task.Delay(TimeSpan.FromSeconds(3));
+    }
 }
 
 // La página (React compilado en wwwroot) se sirve desde la misma dirección que la API

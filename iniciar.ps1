@@ -50,6 +50,16 @@ for ($i = 0; $i -lt 30; $i++) {
     Start-Sleep -Seconds 1
 }
 
+# Y a que el puerto 5432 responda desde Windows (Docker lo habilita unos segundos después)
+for ($i = 0; $i -lt 60; $i++) {
+    try {
+        $cliente = [System.Net.Sockets.TcpClient]::new()
+        $cliente.Connect('127.0.0.1', 5432)
+        $cliente.Close()
+        break
+    } catch { Start-Sleep -Seconds 1 }
+}
+
 # ---------- 2. Página (React) ----------
 Paso 'Preparando la página...'
 Push-Location $front
