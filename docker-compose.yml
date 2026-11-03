@@ -1,0 +1,16 @@
+# Base PostgreSQL para desarrollo local (solo en tu compu).
+# Levantar con: docker compose up -d
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: gastos
+      POSTGRES_USER: gastos
+      POSTGRES_PASSWORD: gastos_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - gastos-db:/var/lib/postgresql/data
+
+volumes:
+  gastos-db:

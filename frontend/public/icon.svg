@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2F5D50"/>
+  <!-- Regla de categorías: la misma idea que el resumen del mes -->
+  <rect x="96" y="300" width="132" height="44" rx="10" fill="#E8C547"/>
+  <rect x="236" y="300" width="88" height="44" rx="10" fill="#EEF2F0"/>
+  <rect x="332" y="300" width="84" height="44" rx="10" fill="#9CC4B5"/>
+  <text x="96" y="262" font-family="Arial Narrow, Arial, sans-serif" font-weight="700" font-size="168" fill="#EEF2F0">$</text>
+</svg>
