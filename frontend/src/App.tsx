@@ -1,27 +1,19 @@
-import { useEffect, useState } from 'react'
 import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router'
-import { leerSesion, logout, onSesionExpirada } from './api'
 import { MesProvider } from './MesContext'
 import { CategoriasPage } from './pages/CategoriasPage'
 import { GastosPage } from './pages/GastosPage'
-import { LoginPage } from './pages/LoginPage'
 import { ResumenPage } from './pages/ResumenPage'
 
 export function App() {
-  const [logueado, setLogueado] = useState(() => leerSesion() !== null)
-
-  useEffect(() => {
-    onSesionExpirada(() => setLogueado(false))
-  }, [])
-
-  if (!logueado) return <LoginPage alIngresar={() => setLogueado(true)} />
-
   return (
-    // HashRouter: las rutas funcionan en cualquier hosting estático sin configuración extra
     <HashRouter>
       <MesProvider>
         <div className="app">
           <nav className="navegacion" aria-label="Secciones">
+            <span className="navegacion__marca">
+              <img src="/icon.svg" alt="" width="28" height="28" />
+              Mis gastos
+            </span>
             <NavLink to="/" end className="navegacion__enlace">
               <IconoLista />
               Gastos
@@ -39,10 +31,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<GastosPage />} />
               <Route path="/resumen" element={<ResumenPage />} />
-              <Route
-                path="/categorias"
-                element={<CategoriasPage alCerrarSesion={() => { logout(); setLogueado(false) }} />}
-              />
+              <Route path="/categorias" element={<CategoriasPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
@@ -53,7 +42,7 @@ export function App() {
 }
 
 const propsIcono = {
-  width: 22, height: 22, viewBox: '0 0 22 22', fill: 'none', stroke: 'currentColor',
+  width: 20, height: 20, viewBox: '0 0 22 22', fill: 'none', stroke: 'currentColor',
   strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true,
 }
 

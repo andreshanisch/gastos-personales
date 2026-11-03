@@ -2,54 +2,7 @@ import type {
   Categoria, CategoriaRequest, Gasto, GastoRequest, ResumenMensual,
 } from './types'
 
-const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:5080').replace(/\/$/, '')
-const CLAVE_SESION = 'gastos.sesion'
-
-interface Sesion {
-  token: string
-  expira: string
-}
-
-// ---------- Sesión ----------
-// El token se guarda en este navegador para no tener que loguearse cada vez.
-
-export function leerSesion(): Sesion | null {
-  try {
-    const crudo = localStorage.getItem(CLAVE_SESION)
-    if (!crudo) return null
-    const sesion = JSON.parse(crudo) as Sesion
-    if (new Date(sesion.expira) <= new Date()) {
-      localStorage.removeItem(CLAVE_SESION)
-      return null
-    }
-    return sesion
-  } catch {
-    return null
-  }
-}
-
-function guardarSesion(sesion: Sesion) {
-  try {
-    localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion))
-  } catch {
-    // Sin almacenamiento (modo privado): la sesión dura mientras la pestaña esté abierta
-  }
-}
-
-export function cerrarSesion() {
-  try {
-    localStorage.removeItem(CLAVE_SESION)
-  } catch { /* nada que limpiar */ }
-}
-
-let tokenEnMemoria: string | null = leerSesion()?.token ?? null
-let alExpirar: () => void = () => {}
-
-export function onSesionExpirada(callback: () => void) {
-  alExpirar = callback
-}
-
-// ---------- Cliente HTTP ----------
+// La página y la API comparten dirección (http://localhost:5080), así que las rutas son relativas
 
 export class ErrorApi extends Error {
   constructor(public status: number, mensaje: string) {
@@ -60,20 +13,12 @@ export class ErrorApi extends Error {
 async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   const headers = new Headers(opciones.headers)
   if (opciones.body) headers.set('Content-Type', 'application/json')
-  if (tokenEnMemoria) headers.set('Authorization', `Bearer ${tokenEnMemoria}`)
 
   let respuesta: Response
   try {
-    respuesta = await fetch(`${BASE}${ruta}`, { ...opciones, headers })
+    respuesta = await fetch(ruta, { ...opciones, headers })
   } catch {
-    throw new ErrorApi(0, 'No se pudo conectar con el servidor. Si recién lo abriste, puede tardar un minuto en despertar.')
-  }
-
-  if (respuesta.status === 401 && ruta !== '/api/auth/login') {
-    tokenEnMemoria = null
-    cerrarSesion()
-    alExpirar()
-    throw new ErrorApi(401, 'La sesión expiró. Volvé a iniciar sesión.')
+    throw new ErrorApi(0, 'No se pudo conectar con la app. Revisá que la ventana de "Mis gastos" siga abierta.')
   }
 
   if (!respuesta.ok) {
@@ -85,7 +30,6 @@ async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
 }
 
 async function extraerMensaje(respuesta: Response): Promise<string> {
-  if (respuesta.status === 429) return 'Demasiados intentos. Esperá un minuto y probá de nuevo.'
   try {
     const cuerpo = await respuesta.json()
     if (cuerpo?.mensaje) return cuerpo.mensaje
@@ -99,22 +43,6 @@ async function extraerMensaje(respuesta: Response): Promise<string> {
 }
 
 const json = (cuerpo: unknown) => JSON.stringify(cuerpo)
-
-// ---------- Endpoints ----------
-
-export async function login(usuario: string, password: string) {
-  const sesion = await pedir<Sesion>('/api/auth/login', {
-    method: 'POST',
-    body: json({ usuario, password }),
-  })
-  tokenEnMemoria = sesion.token
-  guardarSesion(sesion)
-}
-
-export function logout() {
-  tokenEnMemoria = null
-  cerrarSesion()
-}
 
 export const api = {
   gastos: (anio: number, mes: number) =>

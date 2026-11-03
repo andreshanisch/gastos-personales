@@ -1,8 +1,10 @@
-# Base PostgreSQL para desarrollo local (solo en tu compu).
-# Levantar con: docker compose up -d
+# Base PostgreSQL de la app (solo en tu compu). Los datos quedan en el volumen gastos-db.
+# iniciar.cmd la levanta sola; a mano: docker compose up -d
 services:
   db:
     image: postgres:17
+    # Arranca sola cada vez que se abre Docker Desktop
+    restart: unless-stopped
     environment:
       POSTGRES_DB: gastos
       POSTGRES_USER: gastos

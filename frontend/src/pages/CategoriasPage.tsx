@@ -7,11 +7,7 @@ const COLORES = [
   '#db2777', '#dc2626', '#ea580c', '#ca8a04', '#64748b',
 ]
 
-interface Props {
-  alCerrarSesion: () => void
-}
-
-export function CategoriasPage({ alCerrarSesion }: Props) {
+export function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[] | null>(null)
   const [verArchivadas, setVerArchivadas] = useState(false)
   const [editando, setEditando] = useState<Categoria | 'nueva' | null>(null)
@@ -81,12 +77,6 @@ export function CategoriasPage({ alCerrarSesion }: Props) {
           {verArchivadas ? 'Ocultar archivadas' : 'Mostrar archivadas'}
         </button>
       )}
-
-      <div className="pie-pagina">
-        <button type="button" className="boton boton--secundario" onClick={alCerrarSesion}>
-          Cerrar sesión
-        </button>
-      </div>
     </>
   )
 }

@@ -3,16 +3,6 @@ using Gastos.Api.Models;
 
 namespace Gastos.Api.Dtos;
 
-// ---------- Auth ----------
-
-public class LoginRequest
-{
-    [Required] public string Usuario { get; set; } = "";
-    [Required] public string Password { get; set; } = "";
-}
-
-public record LoginResponse(string Token, DateTime Expira);
-
 // ---------- Categorías ----------
 
 public class CategoriaRequest

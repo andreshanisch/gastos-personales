@@ -18,6 +18,7 @@ obj/
 *.db-wal
 
 # ---------- Node / Vite ----------
+backend/Gastos.Api/wwwroot/
 node_modules/
 dist/
 dev-dist/
