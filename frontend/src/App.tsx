@@ -2,6 +2,7 @@ import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router'
 import { MesProvider } from './MesContext'
 import { CategoriasPage } from './pages/CategoriasPage'
 import { GastosPage } from './pages/GastosPage'
+import { IngresosPage } from './pages/IngresosPage'
 import { ResumenPage } from './pages/ResumenPage'
 
 export function App() {
@@ -18,6 +19,10 @@ export function App() {
               <IconoLista />
               Gastos
             </NavLink>
+            <NavLink to="/ingresos" className="navegacion__enlace">
+              <IconoIngreso />
+              Ingresos
+            </NavLink>
             <NavLink to="/resumen" className="navegacion__enlace">
               <IconoBarras />
               Resumen
@@ -30,6 +35,7 @@ export function App() {
           <main className="contenido">
             <Routes>
               <Route path="/" element={<GastosPage />} />
+              <Route path="/ingresos" element={<IngresosPage />} />
               <Route path="/resumen" element={<ResumenPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -48,6 +54,9 @@ const propsIcono = {
 
 function IconoLista() {
   return <svg {...propsIcono}><path d="M7 6h11M7 11h11M7 16h11" /><circle cx="3.5" cy="6" r=".6" /><circle cx="3.5" cy="11" r=".6" /><circle cx="3.5" cy="16" r=".6" /></svg>
+}
+function IconoIngreso() {
+  return <svg {...propsIcono}><path d="M11 18V5M5.5 10.5 11 5l5.5 5.5" /></svg>
 }
 function IconoBarras() {
   return <svg {...propsIcono}><path d="M3 6h9M3 11h15M3 16h6" /></svg>

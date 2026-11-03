@@ -20,6 +20,7 @@ export function ResumenPage() {
     return () => { vigente = false }
   }, [anio, mes])
 
+  const disponible = resumen ? resumen.ingresosARS - resumen.totalARS : 0
   const maximo = Math.max(0, ...(resumen?.porCategoria.map((c) => c.totalARS) ?? []))
 
   return (
@@ -33,16 +34,40 @@ export function ResumenPage() {
         <>
           <dl className="cifras">
             <div>
-              <dt>Total en pesos</dt>
-              <dd>{formatearMonto(resumen.totalARS)}</dd>
+              <dt>Ingresos</dt>
+              <dd>{formatearMonto(resumen.ingresosARS)}</dd>
             </div>
             <div>
-              <dt>{capitalizarMes(resumen.mes === 1 ? 12 : resumen.mes - 1)}</dt>
+              <dt>Gastos</dt>
+              <dd>{formatearMonto(resumen.totalARS)}</dd>
+            </div>
+            {resumen.ingresosARS > 0 && (
+              <div>
+                <dt>{disponible >= 0 ? 'Disponible' : 'Excedido'}</dt>
+                <dd className={disponible >= 0 ? 'cifras__positivo' : 'cifras__negativo'}>
+                  {formatearMonto(Math.abs(disponible))}
+                </dd>
+              </div>
+            )}
+            {resumen.ingresosARS > 0 && (
+              <div>
+                <dt>Del ingreso, gastado</dt>
+                <dd>{Math.round((resumen.totalARS / resumen.ingresosARS) * 100)}%</dd>
+              </div>
+            )}
+            <div>
+              <dt>Gastos de {nombreMes(resumen.mes === 1 ? 12 : resumen.mes - 1)}</dt>
               <dd>{formatearMonto(resumen.totalARSMesAnterior)}</dd>
             </div>
+            {resumen.ingresosUSD > 0 && (
+              <div>
+                <dt>Ingresos en dólares</dt>
+                <dd>{formatearMonto(resumen.ingresosUSD, 'USD')}</dd>
+              </div>
+            )}
             {resumen.totalUSD > 0 && (
               <div>
-                <dt>Total en dólares</dt>
+                <dt>Gastos en dólares</dt>
                 <dd>{formatearMonto(resumen.totalUSD, 'USD')}</dd>
               </div>
             )}
@@ -59,7 +84,9 @@ export function ResumenPage() {
               <h2 className="seccion-titulo">Por categoría</h2>
               <ul className="ranking">
                 {resumen.porCategoria.map((c) => {
-                  const porcentaje = resumen.totalARS > 0 ? Math.round((c.totalARS / resumen.totalARS) * 100) : 0
+                  // Con ingresos cargados, el porcentaje es sobre lo que ingresó; si no, sobre lo gastado
+                  const base = resumen.ingresosARS > 0 ? resumen.ingresosARS : resumen.totalARS
+                  const porcentaje = base > 0 ? Math.round((c.totalARS / base) * 100) : 0
                   const soloDolares = c.totalARS === 0 && c.totalUSD > 0
                   return (
                     <li key={c.categoriaId} className="ranking__fila">
@@ -73,7 +100,7 @@ export function ResumenPage() {
                         <span style={{ width: `${maximo ? (c.totalARS / maximo) * 100 : 0}%`, background: c.color }} />
                       </div>
                       <p className="ranking__detalle">
-                        {soloDolares ? 'En dólares' : `${porcentaje}% del mes`}, {c.cantidad} {c.cantidad === 1 ? 'gasto' : 'gastos'}
+                        {soloDolares ? 'En dólares' : `${porcentaje}% ${resumen.ingresosARS > 0 ? 'de tus ingresos' : 'del mes'}`}, {c.cantidad} {c.cantidad === 1 ? 'gasto' : 'gastos'}
                         {c.totalUSD > 0 && !soloDolares && ` y ${formatearMonto(c.totalUSD, 'USD')}`}
                       </p>
                     </li>
@@ -86,9 +113,4 @@ export function ResumenPage() {
       )}
     </>
   )
-}
-
-function capitalizarMes(mes: number) {
-  const nombre = nombreMes(mes)
-  return nombre.charAt(0).toUpperCase() + nombre.slice(1)
 }

@@ -26,6 +26,21 @@ export interface GastoRequest {
   categoriaId: number
 }
 
+export interface Ingreso {
+  id: number
+  fecha: string // yyyy-MM-dd
+  monto: number
+  moneda: Moneda
+  descripcion: string
+}
+
+export interface IngresoRequest {
+  fecha: string
+  monto: number
+  moneda: Moneda
+  descripcion: string
+}
+
 export interface CategoriaRequest {
   nombre: string
   color: string
@@ -48,5 +63,7 @@ export interface ResumenMensual {
   totalUSD: number
   cantidadGastos: number
   totalARSMesAnterior: number
+  ingresosARS: number
+  ingresosUSD: number
   porCategoria: TotalPorCategoria[]
 }

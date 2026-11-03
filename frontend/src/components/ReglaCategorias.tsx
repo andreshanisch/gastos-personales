@@ -1,20 +1,27 @@
 import type { TotalPorCategoria } from '../types'
 
-/** Barra horizontal dividida por categoría según cuánto se gastó en pesos en cada una. */
-export function ReglaCategorias({ categorias }: { categorias: TotalPorCategoria[] }) {
-  const conPesos = categorias.filter((c) => c.totalARS > 0)
-  const total = conPesos.reduce((suma, c) => suma + c.totalARS, 0)
+interface Props {
+  categorias: TotalPorCategoria[]
+  /** Ingresos del mes en pesos. Si se pasa, la barra entera representa el ingreso y el resto queda vacío. */
+  ingresos?: number
+}
 
-  if (total === 0) return <div className="regla regla--vacia" aria-hidden="true" />
+/** Barra horizontal dividida por categoría según cuánto se gastó en pesos en cada una. */
+export function ReglaCategorias({ categorias, ingresos = 0 }: Props) {
+  const conPesos = categorias.filter((c) => c.totalARS > 0)
+  const gastado = conPesos.reduce((suma, c) => suma + c.totalARS, 0)
+  const escala = Math.max(gastado, ingresos)
+
+  if (escala === 0) return <div className="regla regla--vacia" aria-hidden="true" />
+
+  const disponible = ingresos - gastado
+  const descripcion = conPesos
+    .map((c) => `${c.nombre}: ${Math.round((c.totalARS / escala) * 100)}%`)
+    .concat(disponible > 0 ? [`Disponible: ${Math.round((disponible / escala) * 100)}%`] : [])
+    .join(', ')
 
   return (
-    <div
-      className="regla"
-      role="img"
-      aria-label={conPesos
-        .map((c) => `${c.nombre}: ${Math.round((c.totalARS / total) * 100)}%`)
-        .join(', ')}
-    >
+    <div className="regla" role="img" aria-label={descripcion}>
       {conPesos.map((c) => (
         <span
           key={c.categoriaId}
@@ -23,6 +30,9 @@ export function ReglaCategorias({ categorias }: { categorias: TotalPorCategoria[
           title={c.nombre}
         />
       ))}
+      {disponible > 0 && (
+        <span className="regla__tramo regla__tramo--disponible" style={{ flexGrow: disponible }} title="Disponible" />
+      )}
     </div>
   )
 }

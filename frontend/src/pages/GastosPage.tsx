@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { api } from '../api'
 import { HojaGasto } from '../components/HojaGasto'
 import { ReglaCategorias } from '../components/ReglaCategorias'
@@ -43,8 +44,9 @@ export function GastosPage() {
         {resumen && resumen.totalUSD > 0 && (
           <p className="total__usd">y {formatearMonto(resumen.totalUSD, 'USD')}</p>
         )}
+        {resumen && <Saldo resumen={resumen} />}
         {resumen && <Comparacion resumen={resumen} />}
-        <ReglaCategorias categorias={resumen?.porCategoria ?? []} />
+        <ReglaCategorias categorias={resumen?.porCategoria ?? []} ingresos={resumen?.ingresosARS ?? 0} />
       </section>
 
       {error && (
@@ -107,6 +109,28 @@ export function GastosPage() {
         }}
       />
     </>
+  )
+}
+
+/** Cuánto queda del ingreso del mes (o cuánto se pasó), en pesos. */
+function Saldo({ resumen }: { resumen: ResumenMensual }) {
+  if (resumen.ingresosARS === 0) {
+    return (
+      <p className="saldo">
+        <Link to="/ingresos" className="saldo__enlace">Cargá tus ingresos del mes</Link> para ver cuánto te queda.
+      </p>
+    )
+  }
+
+  const disponible = resumen.ingresosARS - resumen.totalARS
+  const porcentaje = Math.round((resumen.totalARS / resumen.ingresosARS) * 100)
+  return (
+    <p className={`saldo ${disponible < 0 ? 'saldo--excedido' : ''}`}>
+      {disponible >= 0
+        ? <>Te quedan <strong>{formatearMonto(disponible)}</strong></>
+        : <>Te pasaste por <strong>{formatearMonto(-disponible)}</strong></>}
+      {' '}de {formatearMonto(resumen.ingresosARS)} de ingresos ({porcentaje}% gastado)
+    </p>
   )
 }
 

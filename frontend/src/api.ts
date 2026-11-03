@@ -1,5 +1,5 @@
 import type {
-  Categoria, CategoriaRequest, Gasto, GastoRequest, ResumenMensual,
+  Categoria, CategoriaRequest, Gasto, GastoRequest, Ingreso, IngresoRequest, ResumenMensual,
 } from './types'
 
 // La página y la API comparten dirección (http://localhost:5080), así que las rutas son relativas
@@ -53,6 +53,17 @@ export const api = {
     pedir<Gasto>(`/api/gastos/${id}`, { method: 'PUT', body: json(g) }),
   eliminarGasto: (id: number) =>
     pedir<void>(`/api/gastos/${id}`, { method: 'DELETE' }),
+
+  ingresos: (anio: number, mes: number) =>
+    pedir<Ingreso[]>(`/api/ingresos?anio=${anio}&mes=${mes}`),
+  crearIngreso: (i: IngresoRequest) =>
+    pedir<Ingreso>('/api/ingresos', { method: 'POST', body: json(i) }),
+  editarIngreso: (id: number, i: IngresoRequest) =>
+    pedir<Ingreso>(`/api/ingresos/${id}`, { method: 'PUT', body: json(i) }),
+  eliminarIngreso: (id: number) =>
+    pedir<void>(`/api/ingresos/${id}`, { method: 'DELETE' }),
+  copiarIngresosMesAnterior: (anio: number, mes: number) =>
+    pedir<Ingreso[]>(`/api/ingresos/copiar-mes-anterior?anio=${anio}&mes=${mes}`, { method: 'POST' }),
 
   categorias: (incluirArchivadas = false) =>
     pedir<Categoria[]>(`/api/categorias?incluirArchivadas=${incluirArchivadas}`),

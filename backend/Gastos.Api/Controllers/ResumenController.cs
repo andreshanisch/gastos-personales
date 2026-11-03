@@ -11,8 +11,8 @@ namespace Gastos.Api.Controllers;
 public class ResumenController(AppDbContext db) : ControllerBase
 {
     /// <summary>
-    /// Totales del mes (separados por moneda, sin convertir todavía),
-    /// desglose por categoría y total en pesos del mes anterior para comparar.
+    /// Totales del mes (separados por moneda, sin convertir todavía), desglose por categoría,
+    /// total en pesos del mes anterior para comparar e ingresos del mes.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<ResumenMensualDto>> Mensual([FromQuery] int anio, [FromQuery] int mes)
@@ -45,6 +45,11 @@ public class ResumenController(AppDbContext db) : ControllerBase
             .Where(g => g.Fecha >= desdeAnterior && g.Fecha < desde && g.Moneda == Moneda.ARS)
             .SumAsync(g => g.Monto);
 
+        var ingresos = await db.Ingresos
+            .Where(i => i.Fecha >= desde && i.Fecha < hasta)
+            .Select(i => new { i.Moneda, i.Monto })
+            .ToListAsync();
+
         return new ResumenMensualDto(
             anio,
             mes,
@@ -52,6 +57,8 @@ public class ResumenController(AppDbContext db) : ControllerBase
             porCategoria.Sum(c => c.TotalUSD),
             porCategoria.Sum(c => c.Cantidad),
             totalAnterior,
+            ingresos.Where(i => i.Moneda == Moneda.ARS).Sum(i => i.Monto),
+            ingresos.Where(i => i.Moneda == Moneda.USD).Sum(i => i.Monto),
             porCategoria);
     }
 }

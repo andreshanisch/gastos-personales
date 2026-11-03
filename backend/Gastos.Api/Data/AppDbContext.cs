@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Gasto> Gastos => Set<Gasto>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<Ingreso> Ingresos => Set<Ingreso>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany(c => c.Gastos)
                 .HasForeignKey(g => g.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Ingreso>(e =>
+        {
+            e.Property(i => i.Descripcion).HasMaxLength(100);
+            e.Property(i => i.Monto).HasPrecision(14, 2);
+            e.Property(i => i.Moneda).HasConversion<string>().HasMaxLength(3);
+            e.HasIndex(i => i.Fecha);
         });
     }
 }

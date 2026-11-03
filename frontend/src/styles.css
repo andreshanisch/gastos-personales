@@ -9,6 +9,7 @@
   --accion-texto: #ffffff;
   --resaltador: #e8c547;
   --alerta: #b4432f;
+  --positivo: #1f7a4d;
   --sombra-hoja: 0 -12px 40px rgb(26 43 38 / 0.18);
 
   --fuente-ui: 'Schibsted Grotesk', system-ui, sans-serif;
@@ -31,6 +32,7 @@
     --accion: #7fb8a4;
     --accion-texto: #101917;
     --alerta: #e27a63;
+    --positivo: #6cc495;
     --sombra-hoja: 0 -12px 40px rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
@@ -86,6 +88,7 @@ button:disabled { cursor: default; opacity: 0.45; }
   align-items: center;
   gap: 10px;
   margin-right: auto;
+  white-space: nowrap;
   font-family: var(--fuente-cifras);
   font-size: 1.375rem;
   font-weight: 600;
@@ -172,6 +175,27 @@ button:disabled { cursor: default; opacity: 0.45; }
   margin-top: 4px;
 }
 
+.total__etiqueta {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--tinta-suave);
+  margin-bottom: 4px;
+}
+
+.saldo {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: var(--tinta-suave);
+}
+.saldo strong {
+  font-family: var(--fuente-cifras);
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--positivo);
+}
+.saldo--excedido strong { color: var(--alerta); }
+.saldo__enlace { color: var(--accion); font-weight: 700; }
+
 .total__comparacion {
   margin-top: 8px;
   font-size: 0.9375rem;
@@ -186,6 +210,10 @@ button:disabled { cursor: default; opacity: 0.45; }
   margin-top: 20px;
 }
 .regla__tramo { min-width: 6px; border-radius: 4px; }
+.regla__tramo--disponible {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--linea);
+}
 .regla--vacia { background: var(--linea); border-radius: 4px; }
 
 /* ---------- Lista de gastos ---------- */
@@ -218,6 +246,8 @@ button:disabled { cursor: default; opacity: 0.45; }
   height: 10px;
   border-radius: 50%;
 }
+
+.gasto__punto--ingreso { background: var(--positivo); }
 
 .gasto__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
@@ -422,6 +452,8 @@ button:disabled { cursor: default; opacity: 0.45; }
 /* ---------- Estados ---------- */
 .cargando { color: var(--tinta-suave); margin-top: 24px; }
 
+.vacio__acciones { display: flex; flex-wrap: wrap; gap: 12px; }
+
 .vacio {
   display: flex;
   flex-direction: column;
@@ -452,6 +484,8 @@ button:disabled { cursor: default; opacity: 0.45; }
   margin: 20px 0 36px;
 }
 .cifras dt { font-size: 0.875rem; color: var(--tinta-suave); }
+.cifras .cifras__positivo { color: var(--positivo); }
+.cifras .cifras__negativo { color: var(--alerta); }
 .cifras dd {
   margin: 0;
   font-family: var(--fuente-cifras);

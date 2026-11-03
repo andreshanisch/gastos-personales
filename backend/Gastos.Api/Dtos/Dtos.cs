@@ -48,6 +48,26 @@ public record GastoDto(
     string CategoriaNombre,
     string CategoriaColor);
 
+// ---------- Ingresos ----------
+
+public class IngresoRequest
+{
+    [Required] public DateOnly? Fecha { get; set; }
+
+    [Required]
+    [Range(typeof(decimal), "0.01", "999999999999",
+        ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true,
+        ErrorMessage = "El monto debe ser mayor a cero.")]
+    public decimal? Monto { get; set; }
+
+    public Moneda Moneda { get; set; } = Moneda.ARS;
+
+    [Required, StringLength(100, MinimumLength = 1)]
+    public string Descripcion { get; set; } = "";
+}
+
+public record IngresoDto(int Id, DateOnly Fecha, decimal Monto, Moneda Moneda, string Descripcion);
+
 // ---------- Resumen ----------
 
 public record TotalPorCategoriaDto(
@@ -65,4 +85,6 @@ public record ResumenMensualDto(
     decimal TotalUSD,
     int CantidadGastos,
     decimal TotalARSMesAnterior,
+    decimal IngresosARS,
+    decimal IngresosUSD,
     List<TotalPorCategoriaDto> PorCategoria);
