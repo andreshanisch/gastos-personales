@@ -78,9 +78,15 @@ Abrí `http://localhost:5173`.
 | `Auth__Usuario` | `andres` |
 | `Auth__PasswordHash` | Salida de `dotnet run -- hash-password` |
 | `Auth__JwtKey` | Cadena aleatoria de 32+ caracteres |
-| `Cors__Origenes` | URL del front, por ejemplo `https://andres.github.io` |
+| `Cors__Origenes` | URL del front: `https://andreshanisch.github.io` |
 
 Del lado del front, `VITE_API_URL` con la URL pública de la API.
+
+## Publicar online
+
+- **Base:** Neon (plan gratuito). Se crea un proyecto y se copia la conexión `postgresql://...`.
+- **API:** Render, con el Blueprint de `render.yaml`. Las variables marcadas como secretas se cargan en el panel de Render. El plan gratuito se duerme tras 15 minutos sin uso y tarda cerca de un minuto en despertar.
+- **Front:** GitHub Pages, con el workflow `deploy-front.yml`. Necesita la variable de repositorio `VITE_API_URL` (Settings > Secrets and variables > Actions > Variables) con la URL pública de la API.
 
 ## Estructura
 

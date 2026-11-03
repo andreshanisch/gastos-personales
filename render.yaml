@@ -1,0 +1,22 @@
+# Configuración de la API en Render (Blueprint).
+# Los valores con "sync: false" se cargan a mano en el panel de Render: nunca van en el repo.
+services:
+  - type: web
+    name: gastos-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: Auth__Usuario
+        sync: false
+      - key: Auth__PasswordHash
+        sync: false
+      - key: Auth__JwtKey
+        sync: false
+      - key: Cors__Origenes
+        value: https://andreshanisch.github.io
