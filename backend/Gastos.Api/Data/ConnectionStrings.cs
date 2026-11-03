@@ -21,9 +21,15 @@ public static class ConnectionStrings
             Port = uri.IsDefaultPort || uri.Port <= 0 ? 5432 : uri.Port,
             Username = Uri.UnescapeDataString(credenciales[0]),
             Password = credenciales.Length > 1 ? Uri.UnescapeDataString(credenciales[1]) : null,
-            Database = uri.AbsolutePath.TrimStart('/'),
+            Database = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/')),
+            // Neon exige SSL; Npgsql envía el nombre del host (SNI), así que no hace falta el parámetro "options=endpoint"
             SslMode = SslMode.Require
         };
+        if (uri.Host.Contains("-pooler"))
+        {
+            // El pooler de Neon (PgBouncer en modo transacción) no admite estado de sesión
+            builder.NoResetOnClose = true;
+        }
         return builder.ConnectionString;
     }
 }

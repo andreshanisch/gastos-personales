@@ -42,8 +42,15 @@ builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOpt
 builder.Services.AddSingleton<TokenService>();
 
 // ---------- Base de datos ----------
+// Orden: ConnectionStrings__Default (local / Render) y, si no está, las variables que escribe `neon env pull`.
+// Se prefiere DATABASE_URL_UNPOOLED (conexión directa) porque la app aplica migraciones al arrancar y
+// eso no funciona bien a través del pooler de Neon (PgBouncer en modo transacción). Al ser un servidor
+// de larga duración, Npgsql ya mantiene su propio pool de conexiones.
 var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException("Falta configurar ConnectionStrings__Default. Ver README.");
+    ?? builder.Configuration["DATABASE_URL_UNPOOLED"]
+    ?? builder.Configuration["DATABASE_URL"]
+    ?? throw new InvalidOperationException(
+        "Falta configurar la base: ConnectionStrings__Default o DATABASE_URL_UNPOOLED. Ver README.");
 builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(ConnectionStrings.Normalizar(connectionString)));
 
 // ---------- Autenticación: todo requiere login salvo lo marcado con [AllowAnonymous] ----------

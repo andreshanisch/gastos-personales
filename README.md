@@ -84,7 +84,7 @@ Del lado del front, `VITE_API_URL` con la URL pública de la API.
 
 ## Publicar online
 
-- **Base:** Neon (plan gratuito). Se crea un proyecto y se copia la conexión `postgresql://...`.
+- **Base:** Neon, configurado en `neon.ts` (proyecto `fancy-math-25196212`, branch `production`). Con `npx neon@latest deploy` se aprovisiona y con `npx neon@latest env pull` se bajan `DATABASE_URL` (pooled) y `DATABASE_URL_UNPOOLED` (directa) a `.env.local`. La API usa la **directa**, porque aplica migraciones al arrancar; en Render va en `ConnectionStrings__Default` (el host **sin** `-pooler`).
 - **API:** Render, con el Blueprint de `render.yaml`. Las variables marcadas como secretas se cargan en el panel de Render. El plan gratuito se duerme tras 15 minutos sin uso y tarda cerca de un minuto en despertar.
 - **Front:** GitHub Pages, con el workflow `deploy-front.yml`. Necesita la variable de repositorio `VITE_API_URL` (Settings > Secrets and variables > Actions > Variables) con la URL pública de la API.
 

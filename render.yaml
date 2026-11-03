@@ -10,6 +10,7 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
+      # Conexión DIRECTA de Neon (host sin "-pooler"): la API aplica migraciones al arrancar
       - key: ConnectionStrings__Default
         sync: false
       - key: Auth__Usuario
