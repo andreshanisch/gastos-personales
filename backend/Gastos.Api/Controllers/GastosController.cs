@@ -30,6 +30,52 @@ public class GastosController(AppDbContext db) : ControllerBase
             .ToListAsync();
     }
 
+    private const int MaximoResultados = 2000;
+
+    /// <summary>
+    /// Busca gastos por texto (en la descripción o el nombre de la categoría), categoría,
+    /// rango de fechas y moneda. Todos los filtros son opcionales. Del más reciente al más viejo.
+    /// </summary>
+    [HttpGet("buscar")]
+    public async Task<ActionResult<ResultadoBusquedaDto>> Buscar(
+        [FromQuery] string? texto,
+        [FromQuery] int? categoriaId,
+        [FromQuery] DateOnly? desde,
+        [FromQuery] DateOnly? hasta,
+        [FromQuery] Moneda? moneda)
+    {
+        if (desde is not null && hasta is not null && desde > hasta)
+            return BadRequest(new { mensaje = "La fecha \"desde\" no puede ser posterior a \"hasta\"." });
+
+        var consulta = db.Gastos.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(texto))
+        {
+            // Se escapan los comodines de LIKE para buscar el texto tal cual
+            var patron = "%" + texto.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
+            consulta = consulta.Where(g =>
+                EF.Functions.ILike(g.Descripcion, patron, "\\") ||
+                EF.Functions.ILike(g.Categoria!.Nombre, patron, "\\"));
+        }
+        if (categoriaId is not null) consulta = consulta.Where(g => g.CategoriaId == categoriaId);
+        if (desde is not null) consulta = consulta.Where(g => g.Fecha >= desde);
+        if (hasta is not null) consulta = consulta.Where(g => g.Fecha <= hasta);
+        if (moneda is not null) consulta = consulta.Where(g => g.Moneda == moneda);
+
+        var gastos = await consulta
+            .OrderByDescending(g => g.Fecha)
+            .ThenByDescending(g => g.Id)
+            .Take(MaximoResultados + 1)
+            .Select(g => new GastoDto(
+                g.Id, g.Fecha, g.Monto, g.Moneda, g.Descripcion,
+                g.CategoriaId, g.Categoria!.Nombre, g.Categoria!.Color))
+            .ToListAsync();
+
+        var recortado = gastos.Count > MaximoResultados;
+        if (recortado) gastos.RemoveAt(gastos.Count - 1);
+        return new ResultadoBusquedaDto(gastos, recortado);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<GastoDto>> Obtener(int id)
     {

@@ -108,3 +108,20 @@ public class DecisionRequest
     /// <summary>null borra la decisión y la semana vuelve a quedar pendiente.</summary>
     public DecisionSobrante? Decision { get; set; }
 }
+
+// ---------- Historial ----------
+
+public record TotalCategoriaMesDto(int CategoriaId, decimal Total);
+
+public record MesHistorialDto(
+    int Anio,
+    int Mes,
+    decimal IngresosARS,
+    decimal GastosARS,
+    List<TotalCategoriaMesDto> PorCategoria);
+
+public record HistorialDto(List<MesHistorialDto> Meses, List<CategoriaDto> Categorias);
+
+// ---------- Búsqueda ----------
+
+public record ResultadoBusquedaDto(List<GastoDto> Gastos, bool Recortado);
