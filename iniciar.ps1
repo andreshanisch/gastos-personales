@@ -60,6 +60,17 @@ for ($i = 0; $i -lt 60; $i++) {
     } catch { Start-Sleep -Seconds 1 }
 }
 
+# ---------- Copia de seguridad (una por día, en OneDrive) ----------
+. (Join-Path $raiz 'copias.ps1')
+Paso 'Guardando la copia de seguridad...'
+try {
+    $copia = Guardar-Copia -Compose $compose
+    Write-Host "  Copia guardada en $copia"
+} catch {
+    Write-Host "  No se pudo guardar la copia de seguridad: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host '  La app abre igual; se intenta de nuevo la próxima vez.' -ForegroundColor Yellow
+}
+
 # ---------- 2. Página (React) ----------
 Paso 'Preparando la página...'
 Push-Location $front
