@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { useAcciones } from '../Acciones'
 import { api } from '../api'
+import { useAvisos } from '../components/Avisos'
+import { EncabezadoPagina } from '../components/EncabezadoPagina'
+import { Monto } from '../components/Monto'
 import { exportarExcel } from '../exportar'
-import { formatearMonto, hoyISO } from '../formato'
+import { hoyISO } from '../formato'
 import type { Categoria, Moneda, ResultadoBusqueda } from '../types'
 
 interface Filtros {
@@ -36,6 +39,8 @@ const RANGOS = [
 const fechaLegible = (f: string) => f.split('-').reverse().join('/')
 
 export function BuscarPage() {
+  const { version, editarGasto } = useAcciones()
+  const avisar = useAvisos()
   const [filtros, setFiltros] = useState<Filtros>({ texto: '', categoriaId: '', moneda: '', ...rango('mes') })
   const [textoDemorado, setTextoDemorado] = useState('')
   const [categorias, setCategorias] = useState<Categoria[]>([])
@@ -66,7 +71,7 @@ export function BuscarPage() {
       .then((r) => { if (vigente) setResultado(r) })
       .catch((err: Error) => { if (vigente) setError(err.message) })
     return () => { vigente = false }
-  }, [textoDemorado, filtros.categoriaId, filtros.desde, filtros.hasta, filtros.moneda])
+  }, [textoDemorado, filtros.categoriaId, filtros.desde, filtros.hasta, filtros.moneda, version])
 
   const cambiar = (cambios: Partial<Filtros>) => setFiltros((f) => ({ ...f, ...cambios }))
 
@@ -87,6 +92,7 @@ export function BuscarPage() {
         ? `${filtros.desde || 'inicio'}_a_${filtros.hasta || hoyISO()}`
         : 'todos'
       await exportarExcel(gastos, `gastos_${periodo}.xlsx`)
+      avisar('Excel descargado')
     } catch (err) {
       setError(`No se pudo generar el Excel: ${(err as Error).message}`)
     } finally {
@@ -96,19 +102,23 @@ export function BuscarPage() {
 
   return (
     <>
-      <div className="encabezado-pagina">
-        <h1>Buscar gastos</h1>
-        <Link to="/gastos" className="boton-texto">Volver a gastos</Link>
-      </div>
+      <EncabezadoPagina
+        titulo="Buscar"
+        subtitulo="Encontrá gastos de cualquier fecha y exportalos a Excel."
+      />
 
-      <div className="filtros">
-        <label className="campo filtros__texto">
-          <span className="campo__etiqueta">Texto</span>
+      <div className="panel filtros">
+        <label className="filtros__texto buscador">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" />
+            <path d="m13 13 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="sr-only">Buscar por texto</span>
           <input
             type="search"
             value={filtros.texto}
             onChange={(e) => cambiar({ texto: e.target.value })}
-            placeholder="Descripción o categoría, por ejemplo: coto, nafta, uber"
+            placeholder="Buscá por descripción o categoría: coto, nafta, uber…"
             autoFocus
           />
         </label>
@@ -160,14 +170,17 @@ export function BuscarPage() {
       {error && <div className="aviso" role="alert"><p>{error}</p></div>}
 
       {resultado && (
-        <div className="resultados__resumen">
-          <p aria-live="polite">
+        <div className="resultados">
+          <p className="resultados__cantidad" aria-live="polite">
             <strong>{gastos.length}</strong> {gastos.length === 1 ? 'gasto' : 'gastos'}
             {[...totales].map(([moneda, total]) => (
-              <span key={moneda} className="resultados__total">{formatearMonto(total, moneda)}</span>
+              <Monto key={moneda} valor={total} moneda={moneda} className="resultados__total" />
             ))}
           </p>
           <button type="button" className="boton boton--primario" onClick={exportar} disabled={exportando || gastos.length === 0}>
+            <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 3v9M6 8.5l4 4 4-4M4 16h12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             {exportando ? 'Generando…' : 'Exportar a Excel'}
           </button>
         </div>
@@ -177,10 +190,15 @@ export function BuscarPage() {
         <p className="aviso aviso--suave">Hay más resultados de los que se muestran. Acotá la búsqueda con fechas o una categoría.</p>
       )}
 
-      {resultado && gastos.length === 0 && <p className="vacio">No hay gastos con esos filtros.</p>}
+      {resultado && gastos.length === 0 && (
+        <div className="vacio">
+          <h2 className="vacio__titulo">No hay gastos con esos filtros</h2>
+          <p className="vacio__texto">Probá con otro texto o ampliá las fechas con "Todo".</p>
+        </div>
+      )}
 
       {gastos.length > 0 && (
-        <div className="tabla-contenedor">
+        <div className="panel tabla-contenedor">
           <table className="tabla tabla--resultados">
             <thead>
               <tr>
@@ -192,16 +210,20 @@ export function BuscarPage() {
             </thead>
             <tbody>
               {gastos.map((g) => (
-                <tr key={g.id}>
+                <tr key={g.id} className="tabla__fila-clic" onClick={() => editarGasto(g)} title="Editar gasto">
                   <td className="tabla__suave">{fechaLegible(g.fecha)}</td>
-                  <td className={`tabla__descripcion ${g.descripcion ? '' : 'tabla__suave'}`}>{g.descripcion || 'Sin descripción'}</td>
+                  <td className={`tabla__descripcion ${g.descripcion ? '' : 'tabla__suave'}`}>
+                    <button type="button" className="tabla__enlace" onClick={(e) => { e.stopPropagation(); editarGasto(g) }}>
+                      {g.descripcion || 'Sin descripción'}
+                    </button>
+                  </td>
                   <td>
                     <span className="tabla__categoria">
-                      <span className="gasto__punto" style={{ background: g.categoriaColor }} aria-hidden="true" />
+                      <span className="fila__punto" style={{ background: g.categoriaColor }} aria-hidden="true" />
                       {g.categoriaNombre}
                     </span>
                   </td>
-                  <td className="tabla__numero tabla__monto">{formatearMonto(g.monto, g.moneda)}</td>
+                  <td className="tabla__numero"><Monto valor={g.monto} moneda={g.moneda} className="tabla__monto" /></td>
                 </tr>
               ))}
             </tbody>

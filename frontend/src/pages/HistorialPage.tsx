@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
+import { EncabezadoPagina } from '../components/EncabezadoPagina'
+import { Esqueleto } from '../components/Esqueleto'
 import { GraficoBarras } from '../components/GraficoBarras'
+import { Monto } from '../components/Monto'
 import { capitalizar, formatearMonto, nombreMes } from '../formato'
 import type { Historial } from '../types'
 
@@ -37,8 +40,24 @@ export function HistorialPage() {
 
   const elegida = categoriasConGastos.find((c) => c.id === categoriaId) ?? categoriasConGastos[0] ?? null
 
-  if (error) return <div className="aviso" role="alert"><p>{error}</p></div>
-  if (!historial) return <p className="cargando">Cargando historial…</p>
+  const encabezado = (
+    <EncabezadoPagina
+      titulo="Historial"
+      subtitulo="Cómo vienen tus ingresos y gastos, mes a mes."
+      acciones={
+        <div className="segmentado" role="radiogroup" aria-label="Período">
+          {RANGOS.map((r) => (
+            <button key={r} type="button" role="radio" aria-checked={rango === r} className="segmentado__opcion" onClick={() => setRango(r)}>
+              {r} meses
+            </button>
+          ))}
+        </div>
+      }
+    />
+  )
+
+  if (error) return <>{encabezado}<div className="aviso" role="alert"><p>{error}</p></div></>
+  if (!historial) return <>{encabezado}<Esqueleto filas={4} conTitular={false} /></>
 
   const meses = historial.meses
   const cruzaAnios = meses.length > 0 && meses[0].anio !== meses[meses.length - 1].anio
@@ -56,35 +75,29 @@ export function HistorialPage() {
 
   return (
     <>
-      <div className="encabezado-pagina">
-        <h1>Historial</h1>
-        <div className="segmentado" role="radiogroup" aria-label="Período">
-          {RANGOS.map((r) => (
-            <button key={r} type="button" role="radio" aria-checked={rango === r} className="segmentado__opcion" onClick={() => setRango(r)}>
-              {r} meses
-            </button>
-          ))}
-        </div>
-      </div>
+      {encabezado}
 
       {conMovimientos.length === 0 ? (
-        <p className="vacio">Todavía no hay ingresos ni gastos en los últimos {rango} meses.</p>
+        <div className="vacio">
+          <h2 className="vacio__titulo">Todavía no hay movimientos</h2>
+          <p className="vacio__texto">Cuando cargues ingresos y gastos, acá vas a ver cómo evolucionan en los últimos {rango} meses.</p>
+        </div>
       ) : (
         <>
           <dl className="cifras">
             <div>
               <dt>Promedio de gastos por mes</dt>
-              <dd>{pesos(promedioGastos)}</dd>
+              <dd><Monto valor={promedioGastos} /></dd>
             </div>
             <div>
               <dt>Ingresos menos gastos del período</dt>
               <dd className={totalIngresos - totalGastos >= 0 ? 'cifras__positivo' : 'cifras__negativo'}>
-                {pesos(totalIngresos - totalGastos)}
+                <Monto valor={totalIngresos - totalGastos} conSigno />
               </dd>
             </div>
             <div>
               <dt>Mes con más gastos</dt>
-              <dd className="cifras__texto">{nombreLargo(mayor)}<span>{pesos(mayor.gastosARS)}</span></dd>
+              <dd className="cifras__texto">{nombreLargo(mayor)}<small><Monto valor={mayor.gastosARS} /></small></dd>
             </div>
             <div>
               <dt>Meses con movimientos</dt>
@@ -92,12 +105,14 @@ export function HistorialPage() {
             </div>
           </dl>
 
-          <section className="seccion-historial">
-            <h2 className="seccion-titulo">Ingresos y gastos por mes</h2>
-            <ul className="leyenda" aria-label="Referencias">
+          <section className="panel">
+            <div className="panel__encabezado">
+              <h2 className="panel__titulo">Ingresos y gastos por mes</h2>
+              <ul className="leyenda" aria-label="Referencias">
               <li><span className="leyenda__marca" style={{ background: 'var(--serie-ingresos)' }} />Ingresos</li>
-              <li><span className="leyenda__marca" style={{ background: 'var(--serie-gastos)' }} />Gastos</li>
-            </ul>
+                <li><span className="leyenda__marca" style={{ background: 'var(--serie-gastos)' }} />Gastos</li>
+              </ul>
+            </div>
             <GraficoBarras
               etiquetas={etiquetas}
               series={[
@@ -121,8 +136,10 @@ export function HistorialPage() {
           </section>
 
           {elegida && (
-            <section className="seccion-historial">
-              <h2 className="seccion-titulo">Evolución de una categoría</h2>
+            <section className="panel">
+              <div className="panel__encabezado">
+                <h2 className="panel__titulo">Evolución de una categoría</h2>
+              </div>
               <div className="chips chips--compactos" role="radiogroup" aria-label="Categoría">
                 {categoriasConGastos.map((c) => (
                   <label key={c.id} className="chip">
@@ -147,8 +164,10 @@ export function HistorialPage() {
             </section>
           )}
 
-          <section className="seccion-historial">
-            <h2 className="seccion-titulo">Mes por mes</h2>
+          <section className="panel">
+            <div className="panel__encabezado">
+              <h2 className="panel__titulo">Mes por mes</h2>
+            </div>
             <div className="tabla-contenedor">
               <table className="tabla">
                 <thead>
@@ -166,9 +185,9 @@ export function HistorialPage() {
                     return (
                       <tr key={`${m.anio}-${m.mes}`}>
                         <th scope="row">{nombreLargo(m)}</th>
-                        <td className="tabla__numero">{pesos(m.ingresosARS)}</td>
-                        <td className="tabla__numero">{pesos(m.gastosARS)}</td>
-                        <td className={`tabla__numero ${saldo < 0 ? 'tabla__negativo' : ''}`}>{saldo < 0 ? '−' : ''}{pesos(Math.abs(saldo))}</td>
+                        <td className="tabla__numero"><Monto valor={m.ingresosARS} className="tabla__monto" /></td>
+                        <td className="tabla__numero"><Monto valor={m.gastosARS} className="tabla__monto" /></td>
+                        <td className={`tabla__numero ${saldo < 0 ? 'tabla__negativo' : ''}`}><Monto valor={saldo} conSigno className="tabla__monto" /></td>
                         <td className="tabla__numero tabla__suave">
                           {m.ingresosARS > 0 ? `${Math.round((m.gastosARS / m.ingresosARS) * 100)}%` : '—'}
                         </td>
@@ -178,7 +197,7 @@ export function HistorialPage() {
                 </tbody>
               </table>
             </div>
-            <p className="nota-plan">Solo montos en pesos.</p>
+            <p className="nota">Solo montos en pesos.</p>
           </section>
         </>
       )}

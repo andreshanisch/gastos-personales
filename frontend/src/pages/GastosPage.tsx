@@ -1,28 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { useAcciones } from '../Acciones'
 import { api } from '../api'
-import { HojaGasto } from '../components/HojaGasto'
+import { EncabezadoPagina } from '../components/EncabezadoPagina'
+import { Esqueleto } from '../components/Esqueleto'
+import { Monto } from '../components/Monto'
 import { ReglaCategorias } from '../components/ReglaCategorias'
-import { SelectorMes } from '../components/SelectorMes'
-import { etiquetaDia, formatearMonto, nombreMes } from '../formato'
+import { etiquetaDia, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
-import type { Categoria, Gasto, ResumenMensual } from '../types'
+import type { Gasto, ResumenMensual } from '../types'
 
 export function GastosPage() {
   const { anio, mes } = useMes()
+  const { version, nuevoGasto, editarGasto } = useAcciones()
   const [gastos, setGastos] = useState<Gasto[] | null>(null)
   const [resumen, setResumen] = useState<ResumenMensual | null>(null)
-  const [categorias, setCategorias] = useState<Categoria[]>([])
   const [error, setError] = useState('')
-  const [hoja, setHoja] = useState<{ abierta: boolean; gasto: Gasto | null }>({ abierta: false, gasto: null })
 
   const cargar = useCallback(async () => {
     setError('')
     try {
-      const [g, r, c] = await Promise.all([api.gastos(anio, mes), api.resumen(anio, mes), api.categorias()])
+      const [g, r] = await Promise.all([api.gastos(anio, mes), api.resumen(anio, mes)])
       setGastos(g)
       setResumen(r)
-      setCategorias(c)
     } catch (err) {
       setError((err as Error).message)
     }
@@ -30,33 +30,29 @@ export function GastosPage() {
 
   useEffect(() => {
     setGastos(null)
-    cargar()
-  }, [cargar])
+    setResumen(null)
+  }, [anio, mes])
+
+  useEffect(() => { cargar() }, [cargar, version])
 
   const porDia = agruparPorDia(gastos ?? [])
 
   return (
     <>
-      <div className="fila-mes">
-        <SelectorMes />
-        <Link to="/buscar" className="boton boton--secundario boton--chico">
-          <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
-            <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" />
-            <path d="m13 13 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          Buscar y exportar
-        </Link>
-      </div>
-
-      <section className="total" aria-label="Total del mes">
-        <p className="total__monto">{resumen ? formatearMonto(resumen.totalARS) : '—'}</p>
-        {resumen && resumen.totalUSD > 0 && (
-          <p className="total__usd">y {formatearMonto(resumen.totalUSD, 'USD')}</p>
-        )}
-        {resumen && <Saldo resumen={resumen} />}
-        {resumen && <Comparacion resumen={resumen} />}
-        <ReglaCategorias categorias={resumen?.porCategoria ?? []} ingresos={resumen?.ingresosARS ?? 0} />
-      </section>
+      <EncabezadoPagina
+        titulo="Gastos"
+        subtitulo="Todo lo que gastaste en el mes, día por día."
+        acciones={
+          <Link to="/buscar" className="boton boton--secundario boton--chico">
+            <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path d="m13 13 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            Buscar y exportar
+          </Link>
+        }
+        conMes
+      />
 
       {error && (
         <div className="aviso" role="alert">
@@ -65,59 +61,73 @@ export function GastosPage() {
         </div>
       )}
 
-      {gastos === null && !error && <p className="cargando">Cargando gastos…</p>}
+      {!resumen && !error && <Esqueleto filas={5} />}
+
+      {resumen && (
+        <section className="titular" aria-label="Total del mes">
+          <p className="titular__etiqueta">Gastaste en {nombreMes(mes)}</p>
+          <Monto valor={resumen.totalARS} className="titular__monto" />
+          {resumen.totalUSD > 0 && (
+            <p className="titular__secundario">y <Monto valor={resumen.totalUSD} moneda="USD" /></p>
+          )}
+          <Saldo resumen={resumen} />
+          <Comparacion resumen={resumen} />
+          <ReglaCategorias categorias={resumen.porCategoria} ingresos={resumen.ingresosARS} />
+        </section>
+      )}
 
       {gastos?.length === 0 && (
         <div className="vacio">
-          <p>No hay gastos en {nombreMes(mes)}.</p>
-          <button type="button" className="boton boton--primario" onClick={() => setHoja({ abierta: true, gasto: null })}>
-            Agregar el primero
-          </button>
+          <h2 className="vacio__titulo">Todavía no hay gastos en {nombreMes(mes)}</h2>
+          <p className="vacio__texto">Cargá el primero con el botón de abajo o apretando la tecla N desde cualquier pantalla.</p>
+          <div className="vacio__acciones">
+            <button type="button" className="boton boton--primario" onClick={nuevoGasto}>Cargar un gasto</button>
+          </div>
         </div>
       )}
 
       {porDia.map(([fecha, delDia]) => (
-        <section key={fecha} className="dia">
-          <h2 className="dia__titulo">{etiquetaDia(fecha)}</h2>
-          <ul className="lista-gastos">
+        <section key={fecha} className="dia" aria-label={etiquetaDia(fecha)}>
+          <div className="dia__encabezado">
+            <h2 className="dia__titulo">{etiquetaDia(fecha)}</h2>
+            <TotalDia gastos={delDia} />
+          </div>
+          <ul>
             {delDia.map((g) => (
               <li key={g.id}>
-                <button type="button" className="gasto" onClick={() => setHoja({ abierta: true, gasto: g })}>
-                  <span className="gasto__punto" style={{ background: g.categoriaColor }} aria-hidden="true" />
-                  <span className="gasto__texto">
-                    <span className="gasto__descripcion">{g.descripcion || g.categoriaNombre}</span>
-                    {g.descripcion && <span className="gasto__categoria">{g.categoriaNombre}</span>}
+                <button
+                  type="button"
+                  className="fila"
+                  onClick={() => editarGasto(g)}
+                  aria-label={`${g.descripcion || g.categoriaNombre}, ${g.categoriaNombre}. Editar`}
+                >
+                  <span className="fila__punto" style={{ background: g.categoriaColor }} aria-hidden="true" />
+                  <span className="fila__texto">
+                    <span className="fila__principal">{g.descripcion || g.categoriaNombre}</span>
+                    {g.descripcion && <span className="fila__secundario">{g.categoriaNombre}</span>}
                   </span>
-                  <span className="gasto__monto">{formatearMonto(g.monto, g.moneda)}</span>
+                  <Monto valor={g.monto} moneda={g.moneda} className="fila__monto" />
+                  <Chevron />
                 </button>
               </li>
             ))}
           </ul>
         </section>
       ))}
-
-      <button
-        type="button"
-        className="boton-flotante"
-        onClick={() => setHoja({ abierta: true, gasto: null })}
-      >
-        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-          <path d="M11 4v14M4 11h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-        Agregar gasto
-      </button>
-
-      <HojaGasto
-        abierta={hoja.abierta}
-        gasto={hoja.gasto}
-        categorias={categorias}
-        alCerrar={() => setHoja((h) => ({ ...h, abierta: false }))}
-        alGuardar={() => {
-          setHoja((h) => ({ ...h, abierta: false }))
-          cargar()
-        }}
-      />
     </>
+  )
+}
+
+/** Total del día en pesos (y en dólares si hay) */
+function TotalDia({ gastos }: { gastos: Gasto[] }) {
+  const ars = gastos.filter((g) => g.moneda === 'ARS').reduce((s, g) => s + g.monto, 0)
+  const usd = gastos.filter((g) => g.moneda === 'USD').reduce((s, g) => s + g.monto, 0)
+  return (
+    <span className="dia__total">
+      {ars > 0 && <Monto valor={ars} />}
+      {ars > 0 && usd > 0 && ' y '}
+      {usd > 0 && <Monto valor={usd} moneda="USD" />}
+    </span>
   )
 }
 
@@ -135,10 +145,9 @@ function Saldo({ resumen }: { resumen: ResumenMensual }) {
   const porcentaje = Math.round((resumen.totalARS / resumen.ingresosARS) * 100)
   return (
     <p className={`saldo ${disponible < 0 ? 'saldo--excedido' : ''}`}>
-      {disponible >= 0
-        ? <>Te quedan <strong>{formatearMonto(disponible)}</strong></>
-        : <>Te pasaste por <strong>{formatearMonto(-disponible)}</strong></>}
-      {' '}de {formatearMonto(resumen.ingresosARS)} de ingresos ({porcentaje}% gastado)
+      {disponible >= 0 ? 'Te quedan ' : 'Te pasaste por '}
+      <Monto valor={Math.abs(disponible)} />
+      {' '}de tus ingresos de <Monto valor={resumen.ingresosARS} className="saldo__ingreso" />. Gastaste el {porcentaje}%.
     </p>
   )
 }
@@ -146,17 +155,21 @@ function Saldo({ resumen }: { resumen: ResumenMensual }) {
 function Comparacion({ resumen }: { resumen: ResumenMensual }) {
   const anterior = resumen.totalARSMesAnterior
   const mesAnterior = nombreMes(resumen.mes === 1 ? 12 : resumen.mes - 1)
-  if (anterior === 0) return <p className="total__comparacion">Sin gastos en {mesAnterior} para comparar</p>
+  if (anterior === 0) return <p className="comparacion">Sin gastos en {mesAnterior} para comparar.</p>
 
   const variacion = Math.round(((resumen.totalARS - anterior) / anterior) * 100)
   const texto = variacion === 0
-    ? `Igual que en ${mesAnterior}`
-    : `${Math.abs(variacion)}% ${variacion > 0 ? 'más' : 'menos'} que en ${mesAnterior}`
+    ? `Igual que en ${mesAnterior}.`
+    : `${Math.abs(variacion)}% ${variacion > 0 ? 'más' : 'menos'} que en ${mesAnterior}.`
 
+  return <p className={`comparacion ${variacion > 0 ? 'comparacion--sube' : ''}`}>{texto}</p>
+}
+
+function Chevron() {
   return (
-    <p className={`total__comparacion ${variacion > 0 ? 'total__comparacion--sube' : ''}`}>
-      {texto}
-    </p>
+    <svg className="fila__chevron" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M7.5 4l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 

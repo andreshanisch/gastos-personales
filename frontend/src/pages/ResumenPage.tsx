@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useAcciones } from '../Acciones'
 import { api } from '../api'
-import { SelectorMes } from '../components/SelectorMes'
+import { EncabezadoPagina } from '../components/EncabezadoPagina'
+import { Esqueleto } from '../components/Esqueleto'
+import { Monto } from '../components/Monto'
 import { formatearMonto, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
 import type { Gasto, ResumenMensual } from '../types'
 
 export function ResumenPage() {
   const { anio, mes } = useMes()
+  const { version, editarGasto } = useAcciones()
   const [resumen, setResumen] = useState<ResumenMensual | null>(null)
   const [gastos, setGastos] = useState<Gasto[]>([])
   const [abiertas, setAbiertas] = useState<Set<number>>(new Set())
@@ -14,13 +18,17 @@ export function ResumenPage() {
 
   useEffect(() => {
     let vigente = true
-    setResumen(null)
-    setAbiertas(new Set())
     setError('')
     Promise.all([api.resumen(anio, mes), api.gastos(anio, mes)])
       .then(([r, g]) => { if (vigente) { setResumen(r); setGastos(g) } })
       .catch((err: Error) => { if (vigente) setError(err.message) })
     return () => { vigente = false }
+  }, [anio, mes, version])
+
+  // Al cambiar de mes se limpia lo anterior y se cierran las categorías abiertas
+  useEffect(() => {
+    setResumen(null)
+    setAbiertas(new Set())
   }, [anio, mes])
 
   function alternar(categoriaId: number) {
@@ -37,27 +45,31 @@ export function ResumenPage() {
 
   return (
     <>
-      <SelectorMes />
+      <EncabezadoPagina
+        titulo="Resumen"
+        subtitulo="En qué se fue la plata del mes. Tocá una categoría para ver sus gastos."
+        conMes
+      />
 
       {error && <div className="aviso" role="alert"><p>{error}</p></div>}
-      {!resumen && !error && <p className="cargando">Calculando resumen…</p>}
+      {!resumen && !error && <Esqueleto filas={5} conTitular={false} />}
 
       {resumen && (
         <>
           <dl className="cifras">
             <div>
               <dt>Ingresos</dt>
-              <dd>{formatearMonto(resumen.ingresosARS)}</dd>
+              <dd><Monto valor={resumen.ingresosARS} /></dd>
             </div>
             <div>
               <dt>Gastos</dt>
-              <dd>{formatearMonto(resumen.totalARS)}</dd>
+              <dd><Monto valor={resumen.totalARS} /></dd>
             </div>
             {resumen.ingresosARS > 0 && (
               <div>
                 <dt>{disponible >= 0 ? 'Disponible' : 'Excedido'}</dt>
                 <dd className={disponible >= 0 ? 'cifras__positivo' : 'cifras__negativo'}>
-                  {formatearMonto(Math.abs(disponible))}
+                  <Monto valor={Math.abs(disponible)} />
                 </dd>
               </div>
             )}
@@ -69,18 +81,18 @@ export function ResumenPage() {
             )}
             <div>
               <dt>Gastos de {nombreMes(resumen.mes === 1 ? 12 : resumen.mes - 1)}</dt>
-              <dd>{formatearMonto(resumen.totalARSMesAnterior)}</dd>
+              <dd><Monto valor={resumen.totalARSMesAnterior} /></dd>
             </div>
             {resumen.ingresosUSD > 0 && (
               <div>
                 <dt>Ingresos en dólares</dt>
-                <dd>{formatearMonto(resumen.ingresosUSD, 'USD')}</dd>
+                <dd><Monto valor={resumen.ingresosUSD} moneda="USD" /></dd>
               </div>
             )}
             {resumen.totalUSD > 0 && (
               <div>
                 <dt>Gastos en dólares</dt>
-                <dd>{formatearMonto(resumen.totalUSD, 'USD')}</dd>
+                <dd><Monto valor={resumen.totalUSD} moneda="USD" /></dd>
               </div>
             )}
             <div>
@@ -90,15 +102,22 @@ export function ResumenPage() {
           </dl>
 
           {resumen.porCategoria.length === 0 ? (
-            <p className="vacio">No hay gastos en {nombreMes(mes)} todavía.</p>
+            <div className="vacio">
+              <h2 className="vacio__titulo">Todavía no hay gastos en {nombreMes(mes)}</h2>
+              <p className="vacio__texto">Cuando cargues gastos, acá vas a ver cuánto se llevó cada categoría.</p>
+            </div>
           ) : (
-            <section>
-              <h2 className="seccion-titulo">Por categoría</h2>
+            <section className="panel">
+              <div className="panel__encabezado">
+                <h2 className="panel__titulo">Por categoría</h2>
+                <span className="panel__ayuda" style={{ margin: 0 }}>De mayor a menor</span>
+              </div>
               <ul className="ranking">
                 {resumen.porCategoria.map((c) => {
                   // Con ingresos cargados, el porcentaje es sobre lo que ingresó; si no, sobre lo gastado
                   const base = resumen.ingresosARS > 0 ? resumen.ingresosARS : resumen.totalARS
                   const porcentaje = base > 0 ? Math.round((c.totalARS / base) * 100) : 0
+                  const textoPorcentaje = porcentaje === 0 && c.totalARS > 0 ? 'Menos del 1%' : `${porcentaje}%`
                   const soloDolares = c.totalARS === 0 && c.totalUSD > 0
                   const abierta = abiertas.has(c.categoriaId)
                   const idDetalle = `categoria-${c.categoriaId}-gastos`
@@ -116,27 +135,29 @@ export function ResumenPage() {
                             <Flecha />
                             {c.nombre}
                           </span>
-                          <span className="ranking__monto">
-                            {soloDolares ? formatearMonto(c.totalUSD, 'USD') : formatearMonto(c.totalARS)}
-                          </span>
+                          {soloDolares
+                            ? <Monto valor={c.totalUSD} moneda="USD" className="ranking__monto" />
+                            : <Monto valor={c.totalARS} className="ranking__monto" />}
                         </div>
                         <div className="ranking__barra" aria-hidden="true">
                           <span style={{ width: `${maximo ? (c.totalARS / maximo) * 100 : 0}%`, background: c.color }} />
                         </div>
                         <p className="ranking__detalle">
-                          {soloDolares ? 'En dólares' : `${porcentaje}% ${resumen.ingresosARS > 0 ? 'de tus ingresos' : 'del mes'}`}, {c.cantidad} {c.cantidad === 1 ? 'gasto' : 'gastos'}
+                          {soloDolares ? 'En dólares' : `${textoPorcentaje} ${resumen.ingresosARS > 0 ? 'de tus ingresos' : 'del mes'}`}, {c.cantidad} {c.cantidad === 1 ? 'gasto' : 'gastos'}
                           {c.totalUSD > 0 && !soloDolares && ` y ${formatearMonto(c.totalUSD, 'USD')}`}
                         </p>
                       </button>
                       {abierta && (
                         <ul id={idDetalle} className="ranking__gastos">
                           {gastosDeCategoria(gastos, c.categoriaId).map((g) => (
-                            <li key={g.id} className="ranking__gasto">
-                              <span className="ranking__gasto-fecha">{fechaCorta(g.fecha)}</span>
-                              <span className={`ranking__gasto-descripcion ${g.descripcion ? '' : 'ranking__gasto-descripcion--vacia'}`}>
-                                {g.descripcion || 'Sin descripción'}
-                              </span>
-                              <span className="ranking__gasto-monto">{formatearMonto(g.monto, g.moneda)}</span>
+                            <li key={g.id}>
+                              <button type="button" className="ranking__gasto" onClick={() => editarGasto(g)} aria-label={`${g.descripcion || 'Sin descripción'}. Editar`}>
+                                <span className="ranking__gasto-fecha">{fechaCorta(g.fecha)}</span>
+                                <span className={`ranking__gasto-descripcion ${g.descripcion ? '' : 'ranking__gasto-descripcion--vacia'}`}>
+                                  {g.descripcion || 'Sin descripción'}
+                                </span>
+                                <Monto valor={g.monto} moneda={g.moneda} className="ranking__gasto-monto" />
+                              </button>
                             </li>
                           ))}
                         </ul>

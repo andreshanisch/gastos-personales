@@ -61,3 +61,26 @@ export function parsearMonto(texto: string): number | null {
   const valor = Number(limpio)
   return valor > 0 ? valor : null
 }
+
+/**
+ * Formatea lo que se escribe en un campo de monto: puntos de miles automáticos y coma decimal.
+ * "12300" -> "12.300", "4500,5" -> "4.500,5". Ignora cualquier otro carácter.
+ */
+export function formatearAlEscribir(texto: string): string {
+  const limpio = texto.replace(/[^\d,]/g, '')
+  const [enteros, ...resto] = limpio.split(',')
+  const decimales = resto.join('').slice(0, 2)
+  const sinCeros = enteros.replace(/^0+(?=\d)/, '')
+  const conPuntos = sinCeros.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return limpio.includes(',') ? `${conPuntos || '0'},${decimales}` : conPuntos
+}
+
+/** Monto guardado -> texto para editar: 12300.5 -> "12.300,5" */
+export function montoParaEditar(monto: number): string {
+  return formatearAlEscribir(String(monto).replace('.', ','))
+}
+
+/** "Noviembre 2026" */
+export function nombreMesAnio(anio: number, mes: number) {
+  return `${capitalizar(nombreMes(mes))} ${anio}`
+}
