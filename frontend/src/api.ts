@@ -1,5 +1,6 @@
 import type {
-  Categoria, CategoriaRequest, Gasto, GastoRequest, Ingreso, IngresoRequest, ResumenMensual,
+  Categoria, CategoriaRequest, DecisionSobrante, Gasto, GastoRequest, Ingreso, IngresoRequest, PlanMes,
+  ResumenMensual,
 } from './types'
 
 // La página y la API comparten dirección (http://localhost:5080), así que las rutas son relativas
@@ -73,6 +74,15 @@ export const api = {
     pedir<Categoria>(`/api/categorias/${id}`, { method: 'PUT', body: json(c) }),
   eliminarCategoria: (id: number) =>
     pedir<void>(`/api/categorias/${id}`, { method: 'DELETE' }),
+  marcarObligatoria: (id: number, obligatoria: boolean) =>
+    pedir<Categoria>(`/api/categorias/${id}/obligatoria`, { method: 'PUT', body: json({ obligatoria }) }),
+
+  plan: (anio: number, mes: number) =>
+    pedir<PlanMes>(`/api/plan?anio=${anio}&mes=${mes}`),
+  guardarPresupuestos: (anio: number, mes: number, montos: { categoriaId: number; monto: number }[]) =>
+    pedir<PlanMes>(`/api/plan/presupuestos?anio=${anio}&mes=${mes}`, { method: 'PUT', body: json(montos) }),
+  guardarDecision: (anio: number, mes: number, semana: number, decision: DecisionSobrante | null) =>
+    pedir<PlanMes>(`/api/plan/decisiones?anio=${anio}&mes=${mes}`, { method: 'PUT', body: json({ semana, decision }) }),
 
   resumen: (anio: number, mes: number) =>
     pedir<ResumenMensual>(`/api/resumen?anio=${anio}&mes=${mes}`),

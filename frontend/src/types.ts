@@ -5,6 +5,8 @@ export interface Categoria {
   nombre: string
   color: string
   archivada: boolean
+  /** Gasto que no se puede evitar: el plan le reserva un monto al principio del mes */
+  obligatoria: boolean
 }
 
 export interface Gasto {
@@ -66,4 +68,13 @@ export interface ResumenMensual {
   ingresosARS: number
   ingresosUSD: number
   porCategoria: TotalPorCategoria[]
+}
+
+export type DecisionSobrante = 'Ahorrar' | 'Repartir'
+
+export interface PlanMes {
+  anio: number
+  mes: number
+  presupuestos: { categoriaId: number; monto: number }[]
+  decisiones: { semana: number; decision: DecisionSobrante }[]
 }

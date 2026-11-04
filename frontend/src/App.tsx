@@ -3,6 +3,7 @@ import { MesProvider } from './MesContext'
 import { CategoriasPage } from './pages/CategoriasPage'
 import { GastosPage } from './pages/GastosPage'
 import { IngresosPage } from './pages/IngresosPage'
+import { PlanPage } from './pages/PlanPage'
 import { ResumenPage } from './pages/ResumenPage'
 
 export function App() {
@@ -16,6 +17,10 @@ export function App() {
               Mis gastos
             </span>
             <NavLink to="/" end className="navegacion__enlace">
+              <IconoPlan />
+              Plan
+            </NavLink>
+            <NavLink to="/gastos" className="navegacion__enlace">
               <IconoLista />
               Gastos
             </NavLink>
@@ -34,7 +39,8 @@ export function App() {
           </nav>
           <main className="contenido">
             <Routes>
-              <Route path="/" element={<GastosPage />} />
+              <Route path="/" element={<PlanPage />} />
+              <Route path="/gastos" element={<GastosPage />} />
               <Route path="/ingresos" element={<IngresosPage />} />
               <Route path="/resumen" element={<ResumenPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
@@ -52,6 +58,9 @@ const propsIcono = {
   strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true,
 }
 
+function IconoPlan() {
+  return <svg {...propsIcono}><rect x="3" y="4" width="16" height="15" rx="2" /><path d="M3 9h16M8 2.5v3M14 2.5v3" /></svg>
+}
 function IconoLista() {
   return <svg {...propsIcono}><path d="M7 6h11M7 11h11M7 16h11" /><circle cx="3.5" cy="6" r=".6" /><circle cx="3.5" cy="11" r=".6" /><circle cx="3.5" cy="16" r=".6" /></svg>
 }
