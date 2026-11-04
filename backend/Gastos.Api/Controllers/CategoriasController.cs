@@ -15,7 +15,7 @@ public class CategoriasController(AppDbContext db) : ControllerBase
         await db.Categorias
             .Where(c => incluirArchivadas || !c.Archivada)
             .OrderBy(c => c.Nombre)
-            .Select(c => new CategoriaDto(c.Id, c.Nombre, c.Color, c.Archivada))
+            .Select(c => new CategoriaDto(c.Id, c.Nombre, c.Color, c.Archivada, c.Obligatoria))
             .ToListAsync();
 
     [HttpPost]
@@ -68,5 +68,17 @@ public class CategoriasController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
-    private static CategoriaDto ADto(Categoria c) => new(c.Id, c.Nombre, c.Color, c.Archivada);
+    /// <summary>Marca o desmarca una categoría como gasto obligatorio para el plan semanal.</summary>
+    [HttpPut("{id:int}/obligatoria")]
+    public async Task<ActionResult<CategoriaDto>> MarcarObligatoria(int id, ObligatoriaRequest request)
+    {
+        var categoria = await db.Categorias.FindAsync(id);
+        if (categoria is null) return NotFound();
+
+        categoria.Obligatoria = request.Obligatoria;
+        await db.SaveChangesAsync();
+        return ADto(categoria);
+    }
+
+    private static CategoriaDto ADto(Categoria c) => new(c.Id, c.Nombre, c.Color, c.Archivada, c.Obligatoria);
 }

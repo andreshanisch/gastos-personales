@@ -16,7 +16,12 @@ public class CategoriaRequest
     public bool Archivada { get; set; }
 }
 
-public record CategoriaDto(int Id, string Nombre, string Color, bool Archivada);
+public record CategoriaDto(int Id, string Nombre, string Color, bool Archivada, bool Obligatoria);
+
+public class ObligatoriaRequest
+{
+    public bool Obligatoria { get; set; }
+}
 
 // ---------- Gastos ----------
 
@@ -89,3 +94,30 @@ public record ResumenMensualDto(
     decimal IngresosARS,
     decimal IngresosUSD,
     List<TotalPorCategoriaDto> PorCategoria);
+
+// ---------- Plan semanal ----------
+
+public record PresupuestoDto(int CategoriaId, decimal Monto);
+
+public record DecisionDto(int Semana, DecisionSobrante Decision);
+
+public record PlanMesDto(int Anio, int Mes, List<PresupuestoDto> Presupuestos, List<DecisionDto> Decisiones);
+
+public class PresupuestoRequest
+{
+    [Required] public int? CategoriaId { get; set; }
+
+    [Required]
+    [Range(typeof(decimal), "0", "999999999999",
+        ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true,
+        ErrorMessage = "El monto no puede ser negativo.")]
+    public decimal? Monto { get; set; }
+}
+
+public class DecisionRequest
+{
+    [Range(1, 4)] public int Semana { get; set; }
+
+    /// <summary>null borra la decisión y la semana vuelve a quedar pendiente.</summary>
+    public DecisionSobrante? Decision { get; set; }
+}

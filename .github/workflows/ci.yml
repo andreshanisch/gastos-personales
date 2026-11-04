@@ -19,6 +19,10 @@ jobs:
           dotnet-version: '10.0.x'
       - run: dotnet restore
       - run: dotnet build --no-restore -c Release
+      - name: Verificar que las migraciones coinciden con el modelo
+        run: |
+          dotnet tool install --global dotnet-ef --version "10.*"
+          dotnet ef migrations has-pending-model-changes
 
   frontend:
     name: Frontend (React)

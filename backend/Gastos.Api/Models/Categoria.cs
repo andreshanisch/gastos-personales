@@ -14,5 +14,11 @@ public class Categoria
     /// </summary>
     public bool Archivada { get; set; }
 
+    /// <summary>
+    /// Gasto que no se puede evitar (alquiler, servicios, tarjeta...). El plan semanal le reserva
+    /// un monto al principio del mes y reparte el resto del ingreso entre las semanas.
+    /// </summary>
+    public bool Obligatoria { get; set; }
+
     public List<Gasto> Gastos { get; set; } = [];
 }

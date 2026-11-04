@@ -43,12 +43,45 @@ namespace Gastos.Api.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
+                    b.Property<bool>("Obligatoria")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
 
                     b.ToTable("Categorias");
+                });
+
+            modelBuilder.Entity("Gastos.Api.Models.CierreSemana", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Anio")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Semana")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Anio", "Mes", "Semana")
+                        .IsUnique();
+
+                    b.ToTable("CierresSemana");
                 });
 
             modelBuilder.Entity("Gastos.Api.Models.Gasto", b =>
@@ -126,12 +159,52 @@ namespace Gastos.Api.Migrations
                     b.ToTable("Ingresos");
                 });
 
+            modelBuilder.Entity("Gastos.Api.Models.Presupuesto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Anio")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Monto")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId", "Anio", "Mes")
+                        .IsUnique();
+
+                    b.ToTable("Presupuestos");
+                });
+
             modelBuilder.Entity("Gastos.Api.Models.Gasto", b =>
                 {
                     b.HasOne("Gastos.Api.Models.Categoria", "Categoria")
                         .WithMany("Gastos")
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("Gastos.Api.Models.Presupuesto", b =>
+                {
+                    b.HasOne("Gastos.Api.Models.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Categoria");
