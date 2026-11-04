@@ -77,3 +77,23 @@ export interface PlanMes {
   mes: number
   decisiones: { semana: number; decision: DecisionSobrante }[]
 }
+
+export interface MesHistorial {
+  anio: number
+  mes: number
+  ingresosARS: number
+  gastosARS: number
+  porCategoria: { categoriaId: number; total: number }[]
+}
+
+export interface Historial {
+  meses: MesHistorial[]
+  categorias: Categoria[]
+}
+
+export interface ResultadoBusqueda {
+  gastos: Gasto[]
+  /** true si había más resultados que el máximo y se cortó la lista */
+  recortado: boolean
+}
+

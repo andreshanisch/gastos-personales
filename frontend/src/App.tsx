@@ -2,6 +2,7 @@ import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router'
 import { MesProvider } from './MesContext'
 import { CategoriasPage } from './pages/CategoriasPage'
 import { GastosPage } from './pages/GastosPage'
+import { HistorialPage } from './pages/HistorialPage'
 import { IngresosPage } from './pages/IngresosPage'
 import { PlanPage } from './pages/PlanPage'
 import { ResumenPage } from './pages/ResumenPage'
@@ -32,6 +33,10 @@ export function App() {
               <IconoBarras />
               Resumen
             </NavLink>
+            <NavLink to="/historial" className="navegacion__enlace">
+              <IconoHistorial />
+              Historial
+            </NavLink>
             <NavLink to="/categorias" className="navegacion__enlace">
               <IconoEtiqueta />
               Categorías
@@ -43,6 +48,7 @@ export function App() {
               <Route path="/gastos" element={<GastosPage />} />
               <Route path="/ingresos" element={<IngresosPage />} />
               <Route path="/resumen" element={<ResumenPage />} />
+              <Route path="/historial" element={<HistorialPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -69,6 +75,9 @@ function IconoIngreso() {
 }
 function IconoBarras() {
   return <svg {...propsIcono}><path d="M3 6h9M3 11h15M3 16h6" /></svg>
+}
+function IconoHistorial() {
+  return <svg {...propsIcono}><path d="M4 18V11M9 18V6M14 18v-9M19 18V4" /></svg>
 }
 function IconoEtiqueta() {
   return <svg {...propsIcono}><path d="M3 3h7.5l8.5 8.5-7.5 7.5L3 10.5z" /><circle cx="7.5" cy="7.5" r="1.2" /></svg>

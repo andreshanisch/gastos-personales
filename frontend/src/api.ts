@@ -1,6 +1,6 @@
 import type {
-  Categoria, CategoriaRequest, DecisionSobrante, Gasto, GastoRequest, Ingreso, IngresoRequest, PlanMes,
-  ResumenMensual,
+  Categoria, CategoriaRequest, DecisionSobrante, Gasto, GastoRequest, Historial, Ingreso, IngresoRequest, PlanMes,
+  ResultadoBusqueda, ResumenMensual,
 } from './types'
 
 // La página y la API comparten dirección (http://localhost:5080), así que las rutas son relativas
@@ -81,6 +81,16 @@ export const api = {
     pedir<PlanMes>(`/api/plan?anio=${anio}&mes=${mes}`),
   guardarDecision: (anio: number, mes: number, semana: number, decision: DecisionSobrante | null) =>
     pedir<PlanMes>(`/api/plan/decisiones?anio=${anio}&mes=${mes}`, { method: 'PUT', body: json({ semana, decision }) }),
+
+  historial: (meses: number) =>
+    pedir<Historial>(`/api/historial?meses=${meses}`),
+  buscarGastos: (filtros: { texto?: string; categoriaId?: number; desde?: string; hasta?: string; moneda?: string }) => {
+    const parametros = new URLSearchParams()
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor !== undefined && valor !== '') parametros.set(clave, String(valor))
+    }
+    return pedir<ResultadoBusqueda>(`/api/gastos/buscar?${parametros}`)
+  },
 
   resumen: (anio: number, mes: number) =>
     pedir<ResumenMensual>(`/api/resumen?anio=${anio}&mes=${mes}`),
