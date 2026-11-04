@@ -37,7 +37,16 @@ export function GastosPage() {
 
   return (
     <>
-      <SelectorMes />
+      <div className="fila-mes">
+        <SelectorMes />
+        <Link to="/buscar" className="boton boton--secundario boton--chico">
+          <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" />
+            <path d="m13 13 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Buscar y exportar
+        </Link>
+      </div>
 
       <section className="total" aria-label="Total del mes">
         <p className="total__monto">{resumen ? formatearMonto(resumen.totalARS) : '—'}</p>

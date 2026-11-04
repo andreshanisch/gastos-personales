@@ -1,5 +1,6 @@
 import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router'
 import { MesProvider } from './MesContext'
+import { BuscarPage } from './pages/BuscarPage'
 import { CategoriasPage } from './pages/CategoriasPage'
 import { GastosPage } from './pages/GastosPage'
 import { HistorialPage } from './pages/HistorialPage'
@@ -46,6 +47,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<PlanPage />} />
               <Route path="/gastos" element={<GastosPage />} />
+              <Route path="/buscar" element={<BuscarPage />} />
               <Route path="/ingresos" element={<IngresosPage />} />
               <Route path="/resumen" element={<ResumenPage />} />
               <Route path="/historial" element={<HistorialPage />} />

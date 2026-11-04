@@ -58,7 +58,7 @@ body {
 
 h1, h2, p { margin: 0; }
 ul { list-style: none; margin: 0; padding: 0; }
-button, input { font: inherit; color: inherit; }
+button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; opacity: 0.45; }
 
@@ -816,4 +816,51 @@ button:disabled { cursor: default; opacity: 0.45; }
 .tabla .tabla__numero { text-align: right; font-variant-numeric: tabular-nums; }
 .tabla__negativo { color: var(--alerta); }
 .tabla__suave { color: var(--tinta-suave); }
+
+/* ---------- Buscar ---------- */
+.fila-mes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.boton--chico { min-height: 38px; padding: 0 14px; gap: 8px; font-size: 0.875rem; text-decoration: none; }
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin-bottom: 20px;
+}
+.filtros__texto, .filtros__rangos { grid-column: 1 / -1; }
+.filtros__rangos { display: flex; flex-wrap: wrap; gap: 8px; }
+.campo select {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+}
+.campo select:focus-visible { outline: none; border-color: var(--accion); box-shadow: 0 0 0 3px color-mix(in srgb, var(--resaltador) 60%, transparent); }
+
+.chip--boton { background: transparent; font-weight: 500; }
+.chip--activo { border-color: var(--tinta); background: color-mix(in srgb, var(--resaltador) 35%, transparent); font-weight: 700; }
+
+.resultados__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--linea);
+}
+.resultados__total {
+  margin-left: 14px;
+  font-family: var(--fuente-cifras);
+  font-size: 1.375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla--resultados td { vertical-align: middle; }
+.tabla__descripcion { white-space: normal; min-width: 12ch; }
+.tabla__categoria { display: inline-flex; align-items: center; gap: 8px; }
+.tabla__monto { font-family: var(--fuente-cifras); font-size: 1.125rem; font-weight: 500; }
 
