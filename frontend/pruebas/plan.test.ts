@@ -1,7 +1,7 @@
 // Pruebas del cálculo del plan semanal. Se corren con: npm test
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
-import { calcularPlan, type EntradaPlan, type GastoPlan } from '../src/plan.ts'
+import { calcularDesdeHoy, calcularPlan, type EntradaPlan, type GastoPlan } from '../src/plan.ts'
 
 const ALQUILER = 1
 const SUPER = 2
@@ -174,4 +174,55 @@ test('las semanas cubren el mes: la 4 termina el último día', () => {
   assert.deepEqual(calcularPlan(entrada()).semanas.map((s) => [s.desde, s.hasta]), [[1, 7], [8, 14], [15, 21], [22, 30]])
   const febrero = calcularPlan(entrada({ anio: 2027, mes: 2, hoy: '2027-02-01', ingresos: [], gastos: [] }))
   assert.equal(febrero.semanas[3].hasta, 28)
+})
+
+// ---------- Lo que tengo hoy, en N semanas ----------
+
+test('reparte lo que hay hoy en 2 semanas desde la actual', () => {
+  const r = calcularDesdeHoy(entrada({
+    ingresos: [
+      { fecha: '2026-11-01', monto: 800_000 },
+      { fecha: '2026-11-15', monto: 400_000 }, // todavía no se cobró: no cuenta
+    ],
+  }), 2, 0)!
+  assert.equal(r.cobrado, 800_000)
+  assert.equal(r.porCobrar, 400_000)
+  assert.equal(r.disponible, 600_000) // 800.000 - 200.000 de alquiler
+  assert.deepEqual(r.semanas.map((s) => [s.numero, s.asignado]), [[1, 300_000], [2, 300_000]])
+  assert.equal(r.cubreHasta, 14)
+})
+
+test('lo gastado esta semana se ve como gastado, y lo de semanas anteriores ya se descontó', () => {
+  const r = calcularDesdeHoy(entrada({
+    hoy: '2026-11-10',
+    gastos: [
+      alquilerDia1,
+      { fecha: '2026-11-04', monto: 100_000, categoriaId: SUPER }, // semana 1: se resta antes
+      { fecha: '2026-11-09', monto: 50_000, categoriaId: SUPER }, // semana 2: gastado de la actual
+    ],
+  }), 2, 0)!
+  assert.equal(r.gastadoAntes, 100_000)
+  assert.equal(r.disponible, 500_000)
+  assert.deepEqual(r.semanas.map((s) => [s.numero, s.asignado, s.gastado, s.saldo]), [
+    [2, 250_000, 50_000, 200_000],
+    [3, 250_000, 0, 250_000],
+  ])
+})
+
+test('lo ahorrado no se vuelve a repartir', () => {
+  const r = calcularDesdeHoy(entrada({ hoy: '2026-11-10' }), 1, 60_000)!
+  assert.equal(r.disponible, 540_000)
+  assert.equal(r.semanas[0].asignado, 540_000)
+})
+
+test('no se pueden elegir más semanas que las que quedan en el mes', () => {
+  const r = calcularDesdeHoy(entrada({ hoy: '2026-11-20' }), 4, 0)!
+  assert.equal(r.maximoSemanas, 2)
+  assert.equal(r.semanasElegidas, 2)
+  assert.deepEqual(r.semanas.map((s) => s.numero), [3, 4])
+  assert.equal(r.cubreHasta, 30)
+})
+
+test('solo aplica al mes en curso', () => {
+  assert.equal(calcularDesdeHoy(entrada({ hoy: '2026-12-02' }), 2, 0), null)
 })

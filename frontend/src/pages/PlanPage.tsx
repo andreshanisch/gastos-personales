@@ -4,7 +4,7 @@ import { api } from '../api'
 import { SelectorMes } from '../components/SelectorMes'
 import { formatearMonto, hoyISO, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
-import { calcularPlan, type Decision, type SemanaPlan } from '../plan'
+import { calcularDesdeHoy, calcularPlan, type Decision, type EntradaPlan, type SemanaPlan } from '../plan'
 import type { Categoria, Gasto, Ingreso, PlanMes } from '../types'
 
 interface Datos {
@@ -16,11 +16,33 @@ interface Datos {
 
 const pesos = (n: number) => formatearMonto(Math.round(n))
 
+/** 'mes' = plan de todo el mes; un número = repartir lo que hay hoy en esa cantidad de semanas */
+type Modo = 'mes' | 1 | 2 | 3 | 4
+const CLAVE_MODO = 'gastos.plan.modo'
+
+function leerModo(): Modo {
+  try {
+    const valor = localStorage.getItem(CLAVE_MODO)
+    if (valor === '1' || valor === '2' || valor === '3' || valor === '4') return Number(valor) as Modo
+  } catch { /* sin almacenamiento: se usa el plan del mes */ }
+  return 'mes'
+}
+
+function guardarModo(modo: Modo) {
+  try { localStorage.setItem(CLAVE_MODO, String(modo)) } catch { /* no pasa nada si no se guarda */ }
+}
+
 export function PlanPage() {
   const { anio, mes } = useMes()
   const [datos, setDatos] = useState<Datos | null>(null)
   const [error, setError] = useState('')
   const [eligiendo, setEligiendo] = useState(false)
+  const [modo, setModo] = useState<Modo>(leerModo)
+
+  function cambiarModo(nuevo: Modo) {
+    setModo(nuevo)
+    guardarModo(nuevo)
+  }
 
   const cargar = useCallback(async () => {
     setError('')
@@ -45,9 +67,9 @@ export function PlanPage() {
 
   const obligatorias = useMemo(() => datos?.categorias.filter((c) => c.obligatoria) ?? [], [datos])
 
-  const resultado = useMemo(() => {
+  const entradaPlan = useMemo<EntradaPlan | null>(() => {
     if (!datos) return null
-    return calcularPlan({
+    return {
       anio,
       mes,
       hoy: hoyISO(),
@@ -55,8 +77,16 @@ export function PlanPage() {
       gastos: datos.gastos.filter((g) => g.moneda === 'ARS'),
       obligatorias: new Set(obligatorias.map((c) => c.id)),
       decisiones: new Map(datos.plan.decisiones.map((d) => [d.semana, d.decision])),
-    })
+    }
   }, [datos, obligatorias, anio, mes])
+
+  const resultado = useMemo(() => (entradaPlan ? calcularPlan(entradaPlan) : null), [entradaPlan])
+
+  // "Lo que tengo hoy, en N semanas": solo para el mes en curso
+  const desdeHoy = useMemo(() => {
+    if (!entradaPlan || !resultado || modo === 'mes') return null
+    return calcularDesdeHoy(entradaPlan, modo, resultado.ahorrado)
+  }, [entradaPlan, resultado, modo])
 
   async function decidir(semana: number, decision: Decision | null) {
     setError('')
@@ -91,7 +121,11 @@ export function PlanPage() {
 
   const sinIngresos = resultado.ingresos === 0
   const sinObligatorias = obligatorias.length === 0
-  const actual = resultado.semanaActual ? resultado.semanas[resultado.semanaActual - 1] : null
+  const actual = desdeHoy
+    ? desdeHoy.semanas[0]
+    : resultado.semanaActual ? resultado.semanas[resultado.semanaActual - 1] : null
+  const semanasVisibles = desdeHoy ? desdeHoy.semanas : resultado.semanas
+  const maximoSemanas = resultado.semanaActual ? 5 - resultado.semanaActual : 0
   // Las decisiones van en orden: repartir el sobrante de una semana cambia lo que le sobra a la siguiente
   const pendientes = resultado.semanas.filter((s) => s.decisionPendiente).slice(0, 1)
   const otrasPendientes = resultado.semanas.filter((s) => s.decisionPendiente).length - pendientes.length
@@ -124,6 +158,41 @@ export function PlanPage() {
           </>
         )}
       </section>
+
+      {resultado.semanaActual !== null && (
+        <div className="selector-modo">
+          <p className="selector-modo__pregunta" id="modo-titulo">¿Cómo querés administrar la plata?</p>
+          <div className="segmentado segmentado--ancho" role="radiogroup" aria-labelledby="modo-titulo">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={modo === 'mes' || !desdeHoy}
+              className="segmentado__opcion"
+              onClick={() => cambiarModo('mes')}
+            >
+              Todo el mes
+            </button>
+            {[1, 2, 3, 4].filter((n) => n <= maximoSemanas).map((n) => (
+              <button
+                key={n}
+                type="button"
+                role="radio"
+                aria-checked={desdeHoy?.semanasElegidas === n}
+                className="segmentado__opcion"
+                onClick={() => cambiarModo(n as Modo)}
+              >
+                {n === 1 ? '1 semana' : `${n} semanas`}
+              </button>
+            ))}
+          </div>
+          <p className="selector-modo__ayuda">
+            {desdeHoy
+              ? <>Reparte lo que tenés hoy en {desdeHoy.semanasElegidas === 1 ? 'esta semana' : `${desdeHoy.semanasElegidas} semanas`}, hasta el {desdeHoy.cubreHasta} de {nombreMes(mes)}.
+                {desdeHoy.porCobrar > 0 && <> No cuenta {pesos(desdeHoy.porCobrar)} de ingresos que todavía no cobraste.</>}</>
+              : 'Reparte todos los ingresos del mes en 4 semanas, cada uno desde la fecha en que entra.'}
+          </p>
+        </div>
+      )}
 
       {sinIngresos && (
         <div className="tarjeta tarjeta--paso">
@@ -167,7 +236,35 @@ export function PlanPage() {
         </div>
       ))}
 
-      {/* ---------- Números del mes ---------- */}
+      {/* ---------- Números ---------- */}
+      {desdeHoy ? (
+        <dl className="cifras cifras--plan">
+          <div>
+            <dt>Cobrado hasta hoy</dt>
+            <dd>{pesos(desdeHoy.cobrado)}</dd>
+          </div>
+          <div>
+            <dt>Obligatorios pagados</dt>
+            <dd>{pesos(desdeHoy.obligatoriosPagados)}</dd>
+          </div>
+          {desdeHoy.gastadoAntes > 0 && (
+            <div>
+              <dt>Gastado en semanas anteriores</dt>
+              <dd>{pesos(desdeHoy.gastadoAntes)}</dd>
+            </div>
+          )}
+          {desdeHoy.ahorrado > 0 && (
+            <div>
+              <dt>Ahorrado este mes</dt>
+              <dd className="cifras__positivo">{pesos(desdeHoy.ahorrado)}</dd>
+            </div>
+          )}
+          <div>
+            <dt>Para repartir desde esta semana</dt>
+            <dd>{pesos(desdeHoy.disponible)}</dd>
+          </div>
+        </dl>
+      ) : (
       <dl className="cifras cifras--plan">
         <div>
           <dt>Ingresos</dt>
@@ -186,13 +283,14 @@ export function PlanPage() {
           <dd className={resultado.ahorrado > 0 ? 'cifras__positivo' : ''}>{pesos(resultado.ahorrado)}</dd>
         </div>
       </dl>
+      )}
 
-      {resultado.obligatoriosSinCubrir > 0 && (
+      {!desdeHoy && resultado.obligatoriosSinCubrir > 0 && (
         <p className="aviso aviso--suave">
           Tus ingresos de {nombreMes(mes)} no alcanzan para los gastos obligatorios que pagaste: faltan {pesos(resultado.obligatoriosSinCubrir)}.
         </p>
       )}
-      {resultado.excesoSinCubrir > 0 && (
+      {!desdeHoy && resultado.excesoSinCubrir > 0 && (
         <p className="aviso aviso--suave">
           En la última semana te pasaste por {pesos(resultado.excesoSinCubrir)} y ya no quedan semanas para compensarlo.
         </p>
@@ -202,10 +300,15 @@ export function PlanPage() {
       <section className="seccion-plan">
         <h2 className="seccion-titulo">Semana por semana</h2>
         <ol className="semanas">
-          {resultado.semanas.map((s) => (
+          {semanasVisibles.map((s) => (
             <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
           ))}
         </ol>
+        {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
+          <p className="semanas__fin">
+            Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
+          </p>
+        )}
       </section>
 
       {/* ---------- Obligatorios ---------- */}

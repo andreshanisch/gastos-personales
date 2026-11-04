@@ -235,3 +235,98 @@ export function calcularPlan(e: EntradaPlan): ResultadoPlan {
     semanaActual: mesPlan === mesHoy ? semanaDelDia(hoyD) : null,
   }
 }
+
+// ---------------------------------------------------------------------------------------------
+// "Lo que tengo hoy, en N semanas"
+// ---------------------------------------------------------------------------------------------
+
+export interface ResultadoDesdeHoy {
+  /** Semanas que se pueden elegir: desde la actual hasta la 4 */
+  maximoSemanas: number
+  semanasElegidas: number
+  /** Ingresos con fecha hasta hoy */
+  cobrado: number
+  obligatoriosPagados: number
+  /** Gastos comunes de las semanas anteriores a la actual */
+  gastadoAntes: number
+  ahorrado: number
+  /** Lo que queda al empezar la semana actual: cobrado - obligatorios - gastado antes - ahorrado */
+  disponible: number
+  semanas: SemanaPlan[]
+  /** Último día cubierto; después de esa fecha no hay plata asignada */
+  cubreHasta: number
+  /** Ingresos con fecha posterior a hoy, que no se cuentan */
+  porCobrar: number
+}
+
+/**
+ * Reparte la plata que hay hoy en las próximas N semanas, empezando por la actual.
+ * No cuenta ingresos que todavía no se cobraron. Lo gastado en la semana actual se muestra
+ * como gastado de esa semana (no se resta antes), así se puede seguir como en el plan del mes.
+ * Solo tiene sentido para el mes en curso: si no, devuelve null.
+ */
+export function calcularDesdeHoy(e: EntradaPlan, semanas: number, ahorrado: number): ResultadoDesdeHoy | null {
+  const [hoyA, hoyM, hoyD] = e.hoy.split('-').map(Number)
+  if (hoyA !== e.anio || hoyM !== e.mes) return null
+
+  const actual = semanaDelDia(hoyD)
+  const maximoSemanas = 5 - actual
+  const n = Math.min(Math.max(1, Math.round(semanas)), maximoSemanas)
+  const rangos = rangosDelMes(e.anio, e.mes)
+
+  let cobrado = 0
+  let porCobrar = 0
+  for (const i of e.ingresos) {
+    if (dia(i.fecha) <= hoyD) cobrado += i.monto
+    else porCobrar += i.monto
+  }
+
+  let obligatoriosPagados = 0
+  let gastadoAntes = 0
+  const gastadoSemana = [0, 0, 0, 0, 0]
+  for (const g of e.gastos) {
+    const semana = semanaDelDia(dia(g.fecha))
+    if (e.obligatorias.has(g.categoriaId)) obligatoriosPagados += g.monto
+    else if (semana < actual) gastadoAntes += g.monto
+    else gastadoSemana[semana] += g.monto
+  }
+
+  const disponible = Math.max(0, cobrado - obligatoriosPagados - gastadoAntes - ahorrado)
+  const porSemana = disponible / n
+
+  let acumulado = 0
+  const resultado: SemanaPlan[] = []
+  for (let k = actual; k < actual + n; k++) {
+    const r = rangos[k - 1]
+    const gastado = gastadoSemana[k]
+    acumulado += porSemana
+    resultado.push({
+      numero: r.numero,
+      desde: r.desde,
+      hasta: r.hasta,
+      estado: k === actual ? 'en-curso' : 'proxima',
+      base: centavos(porSemana),
+      ajuste: 0,
+      asignado: centavos(porSemana),
+      gastado: centavos(gastado),
+      saldo: centavos(porSemana - gastado),
+      acumulado: centavos(acumulado),
+      decisionPendiente: false,
+      decision: null,
+      descuentoPorSemanaSiguiente: 0,
+    })
+  }
+
+  return {
+    maximoSemanas,
+    semanasElegidas: n,
+    cobrado: centavos(cobrado),
+    obligatoriosPagados: centavos(obligatoriosPagados),
+    gastadoAntes: centavos(gastadoAntes),
+    ahorrado: centavos(ahorrado),
+    disponible: centavos(disponible),
+    semanas: resultado,
+    cubreHasta: rangos[actual + n - 2].hasta,
+    porCobrar: centavos(porCobrar),
+  }
+}

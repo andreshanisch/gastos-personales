@@ -743,3 +743,18 @@ button:disabled { cursor: default; opacity: 0.45; }
 
 .nota-plan { margin-top: 28px; font-size: 0.8125rem; color: var(--tinta-suave); }
 
+/* ---------- Selector: todo el mes o N semanas ---------- */
+.selector-modo { margin: -8px 0 28px; }
+.selector-modo__pregunta { font-size: 0.9375rem; font-weight: 700; margin-bottom: 8px; }
+.selector-modo__ayuda { margin-top: 8px; font-size: 0.875rem; color: var(--tinta-suave); }
+.segmentado--ancho { display: flex; flex-wrap: wrap; width: 100%; }
+.segmentado--ancho .segmentado__opcion { flex: 1 1 auto; padding: 8px 12px; font-size: 0.9375rem; }
+.semanas__fin {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1.5px dashed var(--linea);
+  border-radius: var(--radio);
+  font-size: 0.875rem;
+  color: var(--tinta-suave);
+}
+
