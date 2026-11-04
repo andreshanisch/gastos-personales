@@ -97,22 +97,9 @@ public record ResumenMensualDto(
 
 // ---------- Plan semanal ----------
 
-public record PresupuestoDto(int CategoriaId, decimal Monto);
-
 public record DecisionDto(int Semana, DecisionSobrante Decision);
 
-public record PlanMesDto(int Anio, int Mes, List<PresupuestoDto> Presupuestos, List<DecisionDto> Decisiones);
-
-public class PresupuestoRequest
-{
-    [Required] public int? CategoriaId { get; set; }
-
-    [Required]
-    [Range(typeof(decimal), "0", "999999999999",
-        ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true,
-        ErrorMessage = "El monto no puede ser negativo.")]
-    public decimal? Monto { get; set; }
-}
+public record PlanMesDto(int Anio, int Mes, List<DecisionDto> Decisiones);
 
 public class DecisionRequest
 {

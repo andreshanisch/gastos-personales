@@ -2,21 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { SelectorMes } from '../components/SelectorMes'
-import { formatearMonto, hoyISO, nombreMes, parsearMonto } from '../formato'
+import { formatearMonto, hoyISO, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
 import { calcularPlan, type Decision, type SemanaPlan } from '../plan'
-import type { Categoria, Gasto, Ingreso, PlanMes, ResumenMensual } from '../types'
+import type { Categoria, Gasto, Ingreso, PlanMes } from '../types'
 
 interface Datos {
   categorias: Categoria[]
   gastos: Gasto[]
   ingresos: Ingreso[]
   plan: PlanMes
-  planAnterior: PlanMes
-  resumenAnterior: ResumenMensual
 }
-
-type OrigenEstimado = 'guardado' | 'mes-anterior' | 'gastado-mes-anterior' | 'sin-datos'
 
 const pesos = (n: number) => formatearMonto(Math.round(n))
 
@@ -25,23 +21,17 @@ export function PlanPage() {
   const [datos, setDatos] = useState<Datos | null>(null)
   const [error, setError] = useState('')
   const [eligiendo, setEligiendo] = useState(false)
-  const [borradores, setBorradores] = useState<Map<number, string>>(new Map())
-  const [guardando, setGuardando] = useState(false)
-
-  const mesAnterior = mes === 1 ? { anio: anio - 1, mes: 12 } : { anio, mes: mes - 1 }
 
   const cargar = useCallback(async () => {
     setError('')
     try {
-      const [categorias, gastos, ingresos, plan, planAnterior, resumenAnterior] = await Promise.all([
+      const [categorias, gastos, ingresos, plan] = await Promise.all([
         api.categorias(),
         api.gastos(anio, mes),
         api.ingresos(anio, mes),
         api.plan(anio, mes),
-        api.plan(mesAnterior.anio, mesAnterior.mes),
-        api.resumen(mesAnterior.anio, mesAnterior.mes),
       ])
-      setDatos({ categorias, gastos, ingresos, plan, planAnterior, resumenAnterior })
+      setDatos({ categorias, gastos, ingresos, plan })
     } catch (err) {
       setError((err as Error).message)
     }
@@ -49,36 +39,11 @@ export function PlanPage() {
 
   useEffect(() => {
     setDatos(null)
-    setBorradores(new Map())
     setEligiendo(false)
     cargar()
   }, [cargar])
 
   const obligatorias = useMemo(() => datos?.categorias.filter((c) => c.obligatoria) ?? [], [datos])
-
-  /** Monto estimado de cada obligatoria y de dónde sale */
-  const estimados = useMemo(() => {
-    const mapa = new Map<number, { monto: number; origen: OrigenEstimado }>()
-    if (!datos) return mapa
-    for (const c of obligatorias) {
-      const guardado = datos.plan.presupuestos.find((p) => p.categoriaId === c.id)
-      const anterior = datos.planAnterior.presupuestos.find((p) => p.categoriaId === c.id)
-      const gastado = datos.resumenAnterior.porCategoria.find((p) => p.categoriaId === c.id)?.totalARS ?? 0
-      if (guardado) mapa.set(c.id, { monto: guardado.monto, origen: 'guardado' })
-      else if (anterior) mapa.set(c.id, { monto: anterior.monto, origen: 'mes-anterior' })
-      else if (gastado > 0) mapa.set(c.id, { monto: gastado, origen: 'gastado-mes-anterior' })
-      else mapa.set(c.id, { monto: 0, origen: 'sin-datos' })
-    }
-    return mapa
-  }, [datos, obligatorias])
-
-  /** Lo que se usa en el cálculo: lo que se está escribiendo, o el estimado */
-  const montoDe = useCallback((id: number) => {
-    const borrador = borradores.get(id)
-    // Vacío, "0" o un texto que no es un monto cuentan como 0
-    if (borrador !== undefined) return parsearMonto(borrador) ?? 0
-    return estimados.get(id)?.monto ?? 0
-  }, [borradores, estimados])
 
   const resultado = useMemo(() => {
     if (!datos) return null
@@ -88,26 +53,10 @@ export function PlanPage() {
       hoy: hoyISO(),
       ingresos: datos.ingresos.filter((i) => i.moneda === 'ARS'),
       gastos: datos.gastos.filter((g) => g.moneda === 'ARS'),
-      obligatorias: new Map(obligatorias.map((c) => [c.id, montoDe(c.id)])),
+      obligatorias: new Set(obligatorias.map((c) => c.id)),
       decisiones: new Map(datos.plan.decisiones.map((d) => [d.semana, d.decision])),
     })
-  }, [datos, obligatorias, montoDe, anio, mes])
-
-  const hayCambiosSinGuardar = borradores.size > 0 || [...estimados.values()].some((e) => e.origen !== 'guardado' && e.monto > 0)
-
-  async function guardarMontos() {
-    setGuardando(true)
-    setError('')
-    try {
-      await api.guardarPresupuestos(anio, mes, obligatorias.map((c) => ({ categoriaId: c.id, monto: montoDe(c.id) })))
-      setBorradores(new Map())
-      await cargar()
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setGuardando(false)
-    }
-  }
+  }, [datos, obligatorias, anio, mes])
 
   async function decidir(semana: number, decision: Decision | null) {
     setError('')
@@ -225,8 +174,8 @@ export function PlanPage() {
           <dd>{pesos(resultado.ingresos)}</dd>
         </div>
         <div>
-          <dt>Reservado para obligatorios</dt>
-          <dd>{pesos(resultado.reservaObligatorios)}</dd>
+          <dt>Obligatorios pagados</dt>
+          <dd>{pesos(resultado.obligatoriosPagados)}</dd>
         </div>
         <div>
           <dt>Libre para gastar</dt>
@@ -240,7 +189,7 @@ export function PlanPage() {
 
       {resultado.obligatoriosSinCubrir > 0 && (
         <p className="aviso aviso--suave">
-          Tus ingresos de {nombreMes(mes)} no alcanzan para los gastos obligatorios: faltan {pesos(resultado.obligatoriosSinCubrir)}.
+          Tus ingresos de {nombreMes(mes)} no alcanzan para los gastos obligatorios que pagaste: faltan {pesos(resultado.obligatoriosSinCubrir)}.
         </p>
       )}
       {resultado.excesoSinCubrir > 0 && (
@@ -269,51 +218,26 @@ export function PlanPage() {
             )}
           </div>
           <p className="seccion-plan__ayuda">
-            Se reservan al principio del mes. Si pagás más de lo estimado, la diferencia se descuenta de la semana en que la pagaste.
+            Se toman de lo que cargás en Gastos en estas categorías. Cada pago se descuenta de la semana en que lo hiciste
+            y de las siguientes, en partes iguales; las semanas anteriores no cambian.
           </p>
           <ul className="obligatorias">
             {obligatorias.map((c) => {
-              const estimado = estimados.get(c.id)!
-              const calculo = resultado.obligatorias.find((o) => o.categoriaId === c.id)
-              const valor = borradores.get(c.id) ?? (estimado.monto ? Math.round(estimado.monto).toLocaleString('es-AR') : '')
+              const pagado = resultado.obligatorias.find((o) => o.categoriaId === c.id)?.pagado ?? 0
               return (
                 <li key={c.id} className="obligatoria">
                   <span className="gasto__punto" style={{ background: c.color }} aria-hidden="true" />
-                  <div className="obligatoria__texto">
-                    <label htmlFor={`estimado-${c.id}`} className="obligatoria__nombre">{c.nombre}</label>
-                    <span className="obligatoria__detalle">
-                      Pagado: {pesos(calculo?.pagado ?? 0)}
-                      {calculo && calculo.excedente > 0 && <span className="obligatoria__excedente"> ({pesos(calculo.excedente)} más de lo estimado)</span>}
-                      {borradores.get(c.id) === undefined && estimado.origen !== 'guardado' && (
-                        <span className="obligatoria__sugerido"> {textoOrigen(estimado.origen, nombreMes(mesAnterior.mes))}</span>
-                      )}
-                    </span>
-                  </div>
-                  <div className="obligatoria__monto">
-                    <span aria-hidden="true">$</span>
-                    <input
-                      id={`estimado-${c.id}`}
-                      inputMode="decimal"
-                      autoComplete="off"
-                      placeholder="0"
-                      value={valor}
-                      onChange={(e) => setBorradores((b) => new Map(b).set(c.id, e.target.value))}
-                    />
-                  </div>
+                  <span className="obligatoria__nombre">{c.nombre}</span>
+                  <span className={`obligatoria__pagado ${pagado === 0 ? 'obligatoria__pagado--cero' : ''}`}>
+                    {pagado === 0 ? 'Sin pagos todavía' : pesos(pagado)}
+                  </span>
                 </li>
               )
             })}
           </ul>
           <div className="seccion-plan__pie">
-            <span>Total reservado: <strong>{pesos(resultado.reservaObligatorios)}</strong></span>
-            <button
-              type="button"
-              className="boton boton--primario"
-              onClick={guardarMontos}
-              disabled={guardando || !hayCambiosSinGuardar}
-            >
-              {guardando ? 'Guardando…' : 'Guardar montos'}
-            </button>
+            <span>Total pagado: <strong>{pesos(resultado.obligatoriosPagados)}</strong></span>
+            <Link to="/gastos" className="boton boton--secundario">Cargar un gasto</Link>
           </div>
         </section>
       )}
@@ -321,15 +245,6 @@ export function PlanPage() {
       <p className="nota-plan">Los ingresos y gastos en dólares no entran en el plan.</p>
     </>
   )
-}
-
-function textoOrigen(origen: OrigenEstimado, mesAnterior: string) {
-  switch (origen) {
-    case 'mes-anterior': return `Sugerido: el monto que usaste en ${mesAnterior}.`
-    case 'gastado-mes-anterior': return `Sugerido: lo que gastaste en ${mesAnterior}.`
-    case 'sin-datos': return 'Escribí cuánto calculás pagar este mes.'
-    default: return ''
-  }
 }
 
 const ESTADOS: Record<SemanaPlan['estado'], string> = {
@@ -412,7 +327,7 @@ function ElegirObligatorias({ categorias, primeraVez, alTerminar, alCancelar }: 
       <h2 className="tarjeta__titulo">¿Qué gastos no podés evitar?</h2>
       <p>
         Marcá las categorías obligatorias, como alquiler, servicios, suscripciones o tarjeta.
-        {primeraVez && ' Se les reserva un monto al principio del mes y el resto se reparte entre las semanas.'}
+        {primeraVez && ' Lo que pagues en ellas se descuenta del plan y el resto de tus ingresos se reparte entre las semanas.'}
       </p>
       <div className="chips">
         {categorias.map((c) => (

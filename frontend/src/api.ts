@@ -79,8 +79,6 @@ export const api = {
 
   plan: (anio: number, mes: number) =>
     pedir<PlanMes>(`/api/plan?anio=${anio}&mes=${mes}`),
-  guardarPresupuestos: (anio: number, mes: number, montos: { categoriaId: number; monto: number }[]) =>
-    pedir<PlanMes>(`/api/plan/presupuestos?anio=${anio}&mes=${mes}`, { method: 'PUT', body: json(montos) }),
   guardarDecision: (anio: number, mes: number, semana: number, decision: DecisionSobrante | null) =>
     pedir<PlanMes>(`/api/plan/decisiones?anio=${anio}&mes=${mes}`, { method: 'PUT', body: json({ semana, decision }) }),
 

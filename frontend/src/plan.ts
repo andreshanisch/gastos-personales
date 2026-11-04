@@ -3,16 +3,16 @@
  *
  * Reglas:
  * - El mes se divide en 4 semanas: días 1-7, 8-14, 15-21 y 22 a fin de mes.
- * - Primero se reserva el monto estimado de cada categoría obligatoria. La reserva se toma de
- *   los primeros ingresos del mes (por fecha).
- * - Lo que queda libre de cada ingreso se reparte en partes iguales desde la semana en que entra
- *   hasta la semana 4. Así, un ingreso del día 15 solo suma a las semanas 3 y 4.
+ * - Cada ingreso se reparte en partes iguales desde la semana en que entra hasta la semana 4.
+ *   Así, un ingreso del día 15 solo suma a las semanas 3 y 4.
+ * - Los gastos obligatorios son los que se cargan en categorías marcadas como obligatorias.
+ *   Cada pago se descuenta en partes iguales desde la semana en que se hizo hasta la semana 4;
+ *   las semanas anteriores no cambian. Un alquiler pagado el día 1 se reparte entre las 4.
  * - Cada semana tiene un monto fijo. Si se gasta de más, el exceso se descuenta en partes iguales
  *   de las semanas siguientes (aunque la semana todavía no haya terminado, porque ya se gastó).
  * - Si a una semana terminada le sobra plata, la persona decide: guardarlo como ahorro o
  *   repartirlo entre las semanas que quedan. Mientras no decide, ese sobrante queda apartado.
- * - Los gastos de categorías obligatorias se descuentan de su reserva. Si una supera lo estimado,
- *   la diferencia cuenta como gasto común de la semana en que ocurrió.
+ * - Si una semana se queda sin plata por los obligatorios, lo que falta pasa a la siguiente.
  * - Solo se consideran montos en pesos.
  */
 
@@ -35,8 +35,8 @@ export interface EntradaPlan {
   hoy: string
   ingresos: MovimientoPlan[]
   gastos: GastoPlan[]
-  /** Categoría obligatoria -> monto estimado para el mes */
-  obligatorias: Map<number, number>
+  /** Categorías marcadas como obligatorias */
+  obligatorias: Set<number>
   /** Semana -> qué hacer con su sobrante */
   decisiones: Map<number, Decision>
 }
@@ -65,19 +65,17 @@ export interface SemanaPlan {
 
 export interface ObligatoriaPlan {
   categoriaId: number
-  estimado: number
   pagado: number
-  /** Lo pagado por encima de lo estimado (cuenta como gasto común) */
-  excedente: number
 }
 
 export interface ResultadoPlan {
   semanas: SemanaPlan[]
   ingresos: number
-  reservaObligatorios: number
+  /** Lo pagado en el mes en categorías obligatorias */
+  obligatoriosPagados: number
   /** Parte de los obligatorios que los ingresos del mes no alcanzan a cubrir */
   obligatoriosSinCubrir: number
-  /** Ingresos menos reserva de obligatorios */
+  /** Ingresos menos obligatorios pagados */
   libre: number
   ahorrado: number
   /** Sobrantes de semanas terminadas que esperan una decisión */
@@ -125,45 +123,43 @@ export function calcularPlan(e: EntradaPlan): ResultadoPlan {
     return 'proxima'
   }
 
-  // ---------- 1. Ingresos por semana y reserva de obligatorios ----------
+  // ---------- 1. Ingresos, obligatorios y gasto común por semana ----------
   const ingresoSemana = [0, 0, 0, 0, 0] // índice 1..4
   for (const i of e.ingresos) ingresoSemana[semanaDelDia(dia(i.fecha))] += i.monto
   const ingresos = ingresoSemana.reduce((s, v) => s + v, 0)
 
-  const reservaObligatorios = [...e.obligatorias.values()].reduce((s, v) => s + Math.max(0, v), 0)
-  let porReservar = reservaObligatorios
-  const libreSemana = [0, 0, 0, 0, 0]
-  for (let w = 1; w <= 4; w++) {
-    const usado = Math.min(porReservar, ingresoSemana[w])
-    libreSemana[w] = ingresoSemana[w] - usado
-    porReservar -= usado
-  }
-
-  // ---------- 2. Monto base de cada semana ----------
-  // Lo libre de un ingreso de la semana w se reparte entre las semanas w..4
-  const base = [0, 0, 0, 0, 0]
-  for (let w = 1; w <= 4; w++) {
-    const parte = libreSemana[w] / (5 - w)
-    for (let k = w; k <= 4; k++) base[k] += parte
-  }
-
-  // ---------- 3. Gasto común por semana ----------
+  const obligatorioSemana = [0, 0, 0, 0, 0]
   const gastadoSemana = [0, 0, 0, 0, 0]
   const pagadoObligatoria = new Map<number, number>()
-  const ordenados = [...e.gastos].sort((a, b) => a.fecha.localeCompare(b.fecha))
-  for (const g of ordenados) {
+  for (const g of e.gastos) {
     const semana = semanaDelDia(dia(g.fecha))
-    const estimado = e.obligatorias.get(g.categoriaId)
-    if (estimado === undefined) {
+    if (e.obligatorias.has(g.categoriaId)) {
+      obligatorioSemana[semana] += g.monto
+      pagadoObligatoria.set(g.categoriaId, (pagadoObligatoria.get(g.categoriaId) ?? 0) + g.monto)
+    } else {
       gastadoSemana[semana] += g.monto
-      continue
     }
-    const pagadoAntes = pagadoObligatoria.get(g.categoriaId) ?? 0
-    const disponibleReserva = Math.max(0, estimado - pagadoAntes)
-    const excedente = Math.max(0, g.monto - disponibleReserva)
-    gastadoSemana[semana] += excedente
-    pagadoObligatoria.set(g.categoriaId, pagadoAntes + g.monto)
   }
+  const obligatoriosPagados = obligatorioSemana.reduce((s, v) => s + v, 0)
+
+  // ---------- 2. Monto base de cada semana ----------
+  // Lo que entra (o sale, si es un obligatorio) en la semana w se reparte entre las semanas w..4
+  const base = [0, 0, 0, 0, 0]
+  for (let w = 1; w <= 4; w++) {
+    const parte = (ingresoSemana[w] - obligatorioSemana[w]) / (5 - w)
+    for (let k = w; k <= 4; k++) base[k] += parte
+  }
+  // Una semana no puede quedar con monto negativo: lo que falta pasa a la siguiente
+  let faltante = 0
+  for (let k = 1; k <= 4; k++) {
+    base[k] -= faltante
+    faltante = 0
+    if (base[k] < 0) {
+      faltante = -base[k]
+      base[k] = 0
+    }
+  }
+  const obligatoriosSinCubrir = faltante
 
   // ---------- 4. Semanas con montos fijos, excesos y sobrantes ----------
   const ajuste = [0, 0, 0, 0, 0]
@@ -221,22 +217,17 @@ export function calcularPlan(e: EntradaPlan): ResultadoPlan {
     })
   }
 
-  const obligatorias: ObligatoriaPlan[] = [...e.obligatorias.entries()].map(([categoriaId, estimado]) => {
-    const pagado = pagadoObligatoria.get(categoriaId) ?? 0
-    return {
-      categoriaId,
-      estimado,
-      pagado: centavos(pagado),
-      excedente: centavos(Math.max(0, pagado - estimado)),
-    }
-  })
+  const obligatorias: ObligatoriaPlan[] = [...e.obligatorias].map((categoriaId) => ({
+    categoriaId,
+    pagado: centavos(pagadoObligatoria.get(categoriaId) ?? 0),
+  }))
 
   return {
     semanas,
     ingresos: centavos(ingresos),
-    reservaObligatorios: centavos(reservaObligatorios),
-    obligatoriosSinCubrir: centavos(porReservar),
-    libre: centavos(Math.max(0, ingresos - reservaObligatorios)),
+    obligatoriosPagados: centavos(obligatoriosPagados),
+    obligatoriosSinCubrir: centavos(obligatoriosSinCubrir),
+    libre: centavos(Math.max(0, ingresos - obligatoriosPagados)),
     ahorrado: centavos(ahorrado),
     apartado: centavos(apartado),
     excesoSinCubrir: centavos(excesoSinCubrir),

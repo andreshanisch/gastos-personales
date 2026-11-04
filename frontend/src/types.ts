@@ -75,6 +75,5 @@ export type DecisionSobrante = 'Ahorrar' | 'Repartir'
 export interface PlanMes {
   anio: number
   mes: number
-  presupuestos: { categoriaId: number; monto: number }[]
   decisiones: { semana: number; decision: DecisionSobrante }[]
 }
