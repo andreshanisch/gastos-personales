@@ -345,29 +345,6 @@ kbd {
 .seccion__titulo { font-size: 1.125rem; font-weight: 700; margin-bottom: 14px; }
 
 
-/* ---------- Filas (Buscar, Categorías, Historial, Resumen) ---------- */
-
-.fila {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 11px 12px;
-  border: 0;
-  border-bottom: 1px solid var(--linea-suave);
-  border-radius: 0;
-  background: transparent;
-  text-align: left;
-}
-.fila:hover { background: var(--superficie); border-radius: var(--radio-chico); }
-.fila__punto { flex: none; width: 10px; height: 10px; border-radius: 50%; }
-.fila__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.fila__principal { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fila__secundario { font-size: 0.8125rem; color: var(--tinta-3); }
-.fila__monto { font-size: 1.3125rem; font-weight: 500; }
-.fila__chevron { color: var(--tinta-3); opacity: 0; transition: opacity 120ms ease; }
-.fila:hover .fila__chevron, .fila:focus-visible .fila__chevron { opacity: 1; }
-
 /* ---------- Formularios ---------- */
 .campo { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .campo--crece { flex: 1; }
@@ -605,60 +582,6 @@ kbd {
 .etiqueta--en-curso { background: var(--billete); color: var(--billete-texto); border-color: transparent; }
 .etiqueta--obligatoria { margin-left: 0; background: var(--laton-tinte); border-color: transparent; color: var(--tinta); }
 
-/* ---------- Tablas ---------- */
-.tabla-contenedor { overflow-x: auto; }
-.tabla { width: 100%; border-collapse: collapse; }
-.tabla th, .tabla td { padding: 10px 10px; border-bottom: 1px solid var(--linea-suave); text-align: left; white-space: nowrap; vertical-align: middle; }
-.tabla thead th { font-size: 0.8125rem; font-weight: 500; color: var(--tinta-3); border-bottom-color: var(--linea); }
-.tabla tbody th { font-weight: 500; }
-.tabla tbody tr:hover td, .tabla tbody tr:hover th { background: var(--superficie-2); }
-.tabla th:first-child, .tabla td:first-child { padding-left: 4px; }
-.tabla th:last-child, .tabla td:last-child { padding-right: 4px; }
-.tabla .tabla__numero { text-align: right; }
-.tabla__monto { font-family: var(--fuente-cifras); font-size: 1.125rem; font-weight: 500; font-variant-numeric: tabular-nums; }
-.tabla__negativo { color: var(--alerta); }
-.tabla__suave { color: var(--tinta-3); }
-.tabla__descripcion { white-space: normal; min-width: 12ch; }
-.tabla__categoria { display: inline-flex; align-items: center; gap: 8px; }
-
-/* ---------- Buscar ---------- */
-.filtros {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px 16px;
-}
-.filtros__texto { grid-column: span 4; }
-.filtros__rangos { grid-column: span 4; display: flex; flex-wrap: wrap; gap: 8px; }
-@media (max-width: 760px) {
-  .filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .filtros__texto, .filtros__rangos { grid-column: span 2; }
-}
-.buscador {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  border: 1.5px solid var(--linea);
-  border-radius: var(--radio);
-  background: var(--superficie);
-}
-.buscador:focus-within { border-color: var(--billete); box-shadow: 0 0 0 3px color-mix(in srgb, var(--laton) 45%, transparent); }
-.buscador svg { flex: none; color: var(--tinta-3); }
-.buscador input { flex: 1; min-width: 0; min-height: 48px; border: 0; background: transparent; font-size: 1rem; }
-.buscador input:focus-visible { outline: none; }
-
-.resultados {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 24px 0 8px;
-}
-.resultados__cantidad { color: var(--tinta-2); }
-.resultados__cantidad strong { color: var(--tinta); }
-.resultados__total { margin-left: 16px; font-size: 1.5rem; font-weight: 600; color: var(--tinta); }
-
 /* ---------- Categorías ---------- */
 .categorias-grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .categoria-tarjeta {
@@ -743,16 +666,5 @@ kbd {
 /* ---------- Ajustes de páginas ---------- */
 
 
-.tabla__fila-clic { cursor: pointer; }
-.tabla__enlace {
-  padding: 0;
-  border: 0;
-  background: none;
-  text-align: left;
-  color: inherit;
-}
-.tabla__fila-clic:hover .tabla__enlace { text-decoration: underline; text-underline-offset: 3px; }
 
-.panel.tabla-contenedor { padding: 8px 14px; }
-.panel.filtros { padding: 18px; }
 
