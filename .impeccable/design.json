@@ -1,386 +1,296 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-05T13:58:11.184Z",
+  "generatedAt": "2026-11-05T21:48:07.618Z",
   "title": "Design System: Mis gastos",
   "extensions": {
     "colorMeta": {
-      "billete": {
-        "role": "primary",
-        "displayName": "Verde billete",
+      "background": {
+        "role": "neutral",
+        "displayName": "Noche lila",
+        "canonical": "oklch(0.15 0.014 300)",
         "tonalRamp": [
-          "oklch(15% 0.032 170)",
-          "oklch(25% 0.049 170)",
-          "oklch(35% 0.063 170)",
-          "oklch(45% 0.070 170)",
-          "oklch(55% 0.070 170)",
-          "oklch(65% 0.060 170)",
-          "oklch(80% 0.035 170)",
-          "oklch(95% 0.011 170)"
-        ],
-        "dark": "#86c4a9"
-      },
-      "billete-hover": {
-        "role": "primary",
-        "displayName": "Verde billete gastado",
-        "tonalRamp": [
-          "oklch(15% 0.029 170)",
-          "oklch(25% 0.045 170)",
-          "oklch(35% 0.059 170)",
-          "oklch(45% 0.065 170)",
-          "oklch(55% 0.065 170)",
-          "oklch(65% 0.055 170)",
-          "oklch(80% 0.033 170)",
-          "oklch(95% 0.010 170)"
-        ],
-        "dark": "#9fd3bb"
-      },
-      "billete-tinte": {
-        "role": "primary",
-        "displayName": "Tinte billete",
-        "tonalRamp": [
-          "oklch(15% 0.013 160)",
-          "oklch(25% 0.021 160)",
-          "oklch(35% 0.027 160)",
-          "oklch(45% 0.030 160)",
-          "oklch(55% 0.030 160)",
-          "oklch(65% 0.025 160)",
-          "oklch(80% 0.015 160)",
-          "oklch(95% 0.004 160)"
-        ],
-        "dark": "#1b2f27"
-      },
-      "billete-texto": {
-        "role": "primary",
-        "displayName": "Texto sobre billete",
-        "tonalRamp": [
-          "oklch(15% 0.000 160)",
-          "oklch(25% 0.000 160)",
-          "oklch(35% 0.000 160)",
-          "oklch(45% 0.000 160)",
-          "oklch(55% 0.000 160)",
-          "oklch(65% 0.000 160)",
-          "oklch(80% 0.000 160)",
-          "oklch(95% 0.000 160)"
-        ],
-        "dark": "#0e1513"
-      },
-      "tarjeta-billete": {
-        "role": "primary",
-        "displayName": "Billete de fondo",
-        "tonalRamp": [
-          "oklch(15% 0.027 168)",
-          "oklch(25% 0.042 168)",
-          "oklch(35% 0.054 168)",
-          "oklch(45% 0.060 168)",
-          "oklch(55% 0.060 168)",
-          "oklch(65% 0.051 168)",
-          "oklch(80% 0.030 168)",
-          "oklch(95% 0.009 168)"
-        ],
-        "dark": "#133a2f"
-      },
-      "tarjeta-billete-2": {
-        "role": "primary",
-        "displayName": "Billete de fondo profundo",
-        "tonalRamp": [
-          "oklch(15% 0.025 168)",
-          "oklch(25% 0.038 168)",
-          "oklch(35% 0.050 168)",
-          "oklch(45% 0.055 168)",
-          "oklch(55% 0.055 168)",
-          "oklch(65% 0.047 168)",
-          "oklch(80% 0.028 168)",
-          "oklch(95% 0.008 168)"
-        ],
-        "dark": "#0f2e25"
-      },
-      "tarjeta-texto": {
-        "role": "primary",
-        "displayName": "Texto del billete",
-        "tonalRamp": [
-          "oklch(15% 0.005 155)",
-          "oklch(25% 0.007 155)",
-          "oklch(35% 0.009 155)",
-          "oklch(45% 0.010 155)",
-          "oklch(55% 0.010 155)",
-          "oklch(65% 0.009 155)",
-          "oklch(80% 0.005 155)",
-          "oklch(95% 0.002 155)"
-        ],
-        "dark": "#eef5f1"
-      },
-      "tarjeta-texto-2": {
-        "role": "primary",
-        "displayName": "Texto suave del billete",
-        "tonalRamp": [
-          "oklch(15% 0.018 160)",
-          "oklch(25% 0.028 160)",
-          "oklch(35% 0.036 160)",
-          "oklch(45% 0.040 160)",
-          "oklch(55% 0.040 160)",
-          "oklch(65% 0.034 160)",
-          "oklch(80% 0.020 160)",
-          "oklch(95% 0.006 160)"
-        ],
-        "dark": "#a3c3b5"
-      },
-      "laton": {
-        "role": "secondary",
-        "displayName": "Latón",
-        "tonalRamp": [
-          "oklch(15% 0.059 80)",
-          "oklch(25% 0.091 80)",
-          "oklch(35% 0.117 80)",
-          "oklch(45% 0.130 80)",
-          "oklch(55% 0.130 80)",
-          "oklch(65% 0.111 80)",
-          "oklch(80% 0.065 80)",
-          "oklch(95% 0.019 80)"
-        ],
-        "dark": "#e0b54c"
-      },
-      "laton-tinte": {
-        "role": "secondary",
-        "displayName": "Tinte latón",
-        "tonalRamp": [
-          "oklch(15% 0.023 85)",
-          "oklch(25% 0.035 85)",
-          "oklch(35% 0.045 85)",
-          "oklch(45% 0.050 85)",
-          "oklch(55% 0.050 85)",
-          "oklch(65% 0.043 85)",
-          "oklch(80% 0.025 85)",
-          "oklch(95% 0.007 85)"
-        ],
-        "dark": "#33291a"
-      },
-      "positivo": {
-        "role": "tertiary",
-        "displayName": "Verde a favor",
-        "tonalRamp": [
-          "oklch(15% 0.050 160)",
-          "oklch(25% 0.077 160)",
-          "oklch(35% 0.099 160)",
-          "oklch(45% 0.110 160)",
-          "oklch(55% 0.110 160)",
-          "oklch(65% 0.093 160)",
-          "oklch(80% 0.055 160)",
-          "oklch(95% 0.017 160)"
-        ],
-        "dark": "#74c69d"
-      },
-      "alerta": {
-        "role": "tertiary",
-        "displayName": "Terracota alerta",
-        "tonalRamp": [
-          "oklch(15% 0.063 35)",
-          "oklch(25% 0.098 35)",
-          "oklch(35% 0.126 35)",
-          "oklch(45% 0.140 35)",
-          "oklch(55% 0.140 35)",
-          "oklch(65% 0.119 35)",
-          "oklch(80% 0.070 35)",
-          "oklch(95% 0.021 35)"
-        ],
-        "dark": "#e88b74"
-      },
-      "alerta-tinte": {
-        "role": "tertiary",
-        "displayName": "Tinte terracota",
-        "tonalRamp": [
-          "oklch(15% 0.018 30)",
-          "oklch(25% 0.028 30)",
-          "oklch(35% 0.036 30)",
-          "oklch(45% 0.040 30)",
-          "oklch(55% 0.040 30)",
-          "oklch(65% 0.034 30)",
-          "oklch(80% 0.020 30)",
-          "oklch(95% 0.006 30)"
-        ],
-        "dark": "#3a201b"
-      },
-      "alerta-en-billete": {
-        "role": "tertiary",
-        "displayName": "Terracota sobre billete",
-        "tonalRamp": [
-          "oklch(15% 0.045 35)",
-          "oklch(25% 0.070 35)",
-          "oklch(35% 0.090 35)",
-          "oklch(45% 0.100 35)",
-          "oklch(55% 0.100 35)",
-          "oklch(65% 0.085 35)",
-          "oklch(80% 0.050 35)",
-          "oklch(95% 0.015 35)"
+          "oklch(15% 0.007 300)",
+          "oklch(25% 0.011 300)",
+          "oklch(35% 0.014 300)",
+          "oklch(45% 0.016 300)",
+          "oklch(55% 0.016 300)",
+          "oklch(65% 0.014 300)",
+          "oklch(80% 0.008 300)",
+          "oklch(95% 0.002 300)"
         ]
       },
-      "serie-ingresos": {
+      "card": {
+        "role": "neutral",
+        "displayName": "Bloque",
+        "canonical": "oklch(0.205 0.015 300)",
+        "tonalRamp": [
+          "oklch(15% 0.007 300)",
+          "oklch(25% 0.011 300)",
+          "oklch(35% 0.014 300)",
+          "oklch(45% 0.016 300)",
+          "oklch(55% 0.016 300)",
+          "oklch(65% 0.014 300)",
+          "oklch(80% 0.008 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "popover": {
+        "role": "neutral",
+        "displayName": "Bloque alto",
+        "canonical": "oklch(0.23 0.015 300)",
+        "tonalRamp": [
+          "oklch(15% 0.007 300)",
+          "oklch(25% 0.011 300)",
+          "oklch(35% 0.014 300)",
+          "oklch(45% 0.016 300)",
+          "oklch(55% 0.016 300)",
+          "oklch(65% 0.014 300)",
+          "oklch(80% 0.008 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Apagado",
+        "canonical": "oklch(0.27 0.016 300)",
+        "tonalRamp": [
+          "oklch(15% 0.007 300)",
+          "oklch(25% 0.011 300)",
+          "oklch(35% 0.014 300)",
+          "oklch(45% 0.016 300)",
+          "oklch(55% 0.016 300)",
+          "oklch(65% 0.014 300)",
+          "oklch(80% 0.008 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "oklch(0.97 0.005 300)",
+        "tonalRamp": [
+          "oklch(15% 0.005 300)",
+          "oklch(25% 0.007 300)",
+          "oklch(35% 0.009 300)",
+          "oklch(45% 0.010 300)",
+          "oklch(55% 0.010 300)",
+          "oklch(65% 0.009 300)",
+          "oklch(80% 0.005 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "foreground-soft": {
+        "role": "neutral",
+        "displayName": "Tinta suave",
+        "canonical": "oklch(0.83 0.012 300)",
+        "tonalRamp": [
+          "oklch(15% 0.005 300)",
+          "oklch(25% 0.008 300)",
+          "oklch(35% 0.011 300)",
+          "oklch(45% 0.012 300)",
+          "oklch(55% 0.012 300)",
+          "oklch(65% 0.010 300)",
+          "oklch(80% 0.006 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Tinta apagada",
+        "canonical": "oklch(0.73 0.014 300)",
+        "tonalRamp": [
+          "oklch(15% 0.006 300)",
+          "oklch(25% 0.010 300)",
+          "oklch(35% 0.013 300)",
+          "oklch(45% 0.014 300)",
+          "oklch(55% 0.014 300)",
+          "oklch(65% 0.012 300)",
+          "oklch(80% 0.007 300)",
+          "oklch(95% 0.002 300)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borde",
+        "canonical": "oklch(1 0 0 / 0.1)",
+        "tonalRamp": [
+          "oklch(15% 0.000 300)",
+          "oklch(25% 0.000 300)",
+          "oklch(35% 0.000 300)",
+          "oklch(45% 0.000 300)",
+          "oklch(55% 0.000 300)",
+          "oklch(65% 0.000 300)",
+          "oklch(80% 0.000 300)",
+          "oklch(95% 0.000 300)"
+        ]
+      },
+      "input": {
+        "role": "neutral",
+        "displayName": "Borde de campo",
+        "canonical": "oklch(1 0 0 / 0.14)",
+        "tonalRamp": [
+          "oklch(15% 0.000 300)",
+          "oklch(25% 0.000 300)",
+          "oklch(35% 0.000 300)",
+          "oklch(45% 0.000 300)",
+          "oklch(55% 0.000 300)",
+          "oklch(65% 0.000 300)",
+          "oklch(80% 0.000 300)",
+          "oklch(95% 0.000 300)"
+        ]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Lima",
+        "canonical": "oklch(0.89 0.2 128)",
+        "tonalRamp": [
+          "oklch(15% 0.090 128)",
+          "oklch(25% 0.140 128)",
+          "oklch(35% 0.180 128)",
+          "oklch(45% 0.200 128)",
+          "oklch(55% 0.200 128)",
+          "oklch(65% 0.170 128)",
+          "oklch(80% 0.100 128)",
+          "oklch(95% 0.030 128)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Lima encendido",
+        "canonical": "oklch(0.93 0.17 128)",
+        "tonalRamp": [
+          "oklch(15% 0.077 128)",
+          "oklch(25% 0.119 128)",
+          "oklch(35% 0.153 128)",
+          "oklch(45% 0.170 128)",
+          "oklch(55% 0.170 128)",
+          "oklch(65% 0.145 128)",
+          "oklch(80% 0.085 128)",
+          "oklch(95% 0.026 128)"
+        ]
+      },
+      "primary-foreground": {
+        "role": "primary",
+        "displayName": "Tinta sobre lima",
+        "canonical": "oklch(0.24 0.06 135)",
+        "tonalRamp": [
+          "oklch(15% 0.027 135)",
+          "oklch(25% 0.042 135)",
+          "oklch(35% 0.054 135)",
+          "oklch(45% 0.060 135)",
+          "oklch(55% 0.060 135)",
+          "oklch(65% 0.051 135)",
+          "oklch(80% 0.030 135)",
+          "oklch(95% 0.009 135)"
+        ]
+      },
+      "primary-tint": {
+        "role": "primary",
+        "displayName": "Tinte lima",
+        "canonical": "color-mix(in oklch, oklch(0.89 0.2 128) 14%, oklch(0.205 0.015 300))",
+        "tonalRamp": [
+          "oklch(15% 0.023 128)",
+          "oklch(25% 0.035 128)",
+          "oklch(35% 0.045 128)",
+          "oklch(45% 0.050 128)",
+          "oklch(55% 0.050 128)",
+          "oklch(65% 0.043 128)",
+          "oklch(80% 0.025 128)",
+          "oklch(95% 0.007 128)"
+        ]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Lila",
+        "canonical": "oklch(0.74 0.12 300)",
+        "tonalRamp": [
+          "oklch(15% 0.054 300)",
+          "oklch(25% 0.084 300)",
+          "oklch(35% 0.108 300)",
+          "oklch(45% 0.120 300)",
+          "oklch(55% 0.120 300)",
+          "oklch(65% 0.102 300)",
+          "oklch(80% 0.060 300)",
+          "oklch(95% 0.018 300)"
+        ]
+      },
+      "secondary-foreground": {
+        "role": "secondary",
+        "displayName": "Tinta sobre lila",
+        "canonical": "oklch(0.2 0.05 295)",
+        "tonalRamp": [
+          "oklch(15% 0.023 295)",
+          "oklch(25% 0.035 295)",
+          "oklch(35% 0.045 295)",
+          "oklch(45% 0.050 295)",
+          "oklch(55% 0.050 295)",
+          "oklch(65% 0.043 295)",
+          "oklch(80% 0.025 295)",
+          "oklch(95% 0.007 295)"
+        ]
+      },
+      "secondary-tint": {
+        "role": "secondary",
+        "displayName": "Tinte lila",
+        "canonical": "color-mix(in oklch, oklch(0.74 0.12 300) 16%, oklch(0.205 0.015 300))",
+        "tonalRamp": [
+          "oklch(15% 0.018 300)",
+          "oklch(25% 0.028 300)",
+          "oklch(35% 0.036 300)",
+          "oklch(45% 0.040 300)",
+          "oklch(55% 0.040 300)",
+          "oklch(65% 0.034 300)",
+          "oklch(80% 0.020 300)",
+          "oklch(95% 0.006 300)"
+        ]
+      },
+      "destructive": {
         "role": "tertiary",
-        "displayName": "Serie ingresos",
+        "displayName": "Rojo",
+        "canonical": "oklch(0.7 0.19 22)",
         "tonalRamp": [
-          "oklch(15% 0.072 255)",
-          "oklch(25% 0.112 255)",
-          "oklch(35% 0.144 255)",
-          "oklch(45% 0.160 255)",
-          "oklch(55% 0.160 255)",
-          "oklch(65% 0.136 255)",
-          "oklch(80% 0.080 255)",
-          "oklch(95% 0.024 255)"
-        ],
-        "dark": "#3987e5"
+          "oklch(15% 0.086 22)",
+          "oklch(25% 0.133 22)",
+          "oklch(35% 0.171 22)",
+          "oklch(45% 0.190 22)",
+          "oklch(55% 0.190 22)",
+          "oklch(65% 0.162 22)",
+          "oklch(80% 0.095 22)",
+          "oklch(95% 0.028 22)"
+        ]
       },
-      "serie-gastos": {
+      "destructive-foreground": {
         "role": "tertiary",
-        "displayName": "Serie gastos",
+        "displayName": "Texto sobre rojo",
+        "canonical": "oklch(0.98 0 0)",
         "tonalRamp": [
-          "oklch(15% 0.077 45)",
-          "oklch(25% 0.119 45)",
-          "oklch(35% 0.153 45)",
-          "oklch(45% 0.170 45)",
-          "oklch(55% 0.170 45)",
-          "oklch(65% 0.145 45)",
-          "oklch(80% 0.085 45)",
-          "oklch(95% 0.026 45)"
-        ],
-        "dark": "#d95926"
-      },
-      "papel": {
-        "role": "neutral",
-        "displayName": "Papel verdoso",
-        "tonalRamp": [
-          "oklch(15% 0.005 130)",
-          "oklch(25% 0.008 130)",
-          "oklch(35% 0.011 130)",
-          "oklch(45% 0.012 130)",
-          "oklch(55% 0.012 130)",
-          "oklch(65% 0.010 130)",
-          "oklch(80% 0.006 130)",
-          "oklch(95% 0.002 130)"
-        ],
-        "dark": "#0e1513"
-      },
-      "superficie": {
-        "role": "neutral",
-        "displayName": "Superficie blanca",
-        "tonalRamp": [
-          "oklch(15% 0.000 130)",
-          "oklch(25% 0.000 130)",
-          "oklch(35% 0.000 130)",
-          "oklch(45% 0.000 130)",
-          "oklch(55% 0.000 130)",
-          "oklch(65% 0.000 130)",
-          "oklch(80% 0.000 130)",
-          "oklch(95% 0.000 130)"
-        ],
-        "dark": "#151f1b"
-      },
-      "superficie-2": {
-        "role": "neutral",
-        "displayName": "Superficie suave",
-        "tonalRamp": [
-          "oklch(15% 0.004 130)",
-          "oklch(25% 0.006 130)",
-          "oklch(35% 0.007 130)",
-          "oklch(45% 0.008 130)",
-          "oklch(55% 0.008 130)",
-          "oklch(65% 0.007 130)",
-          "oklch(80% 0.004 130)",
-          "oklch(95% 0.001 130)"
-        ],
-        "dark": "#1a2622"
-      },
-      "tinta": {
-        "role": "neutral",
-        "displayName": "Tinta verde noche",
-        "tonalRamp": [
-          "oklch(15% 0.009 160)",
-          "oklch(25% 0.014 160)",
-          "oklch(35% 0.018 160)",
-          "oklch(45% 0.020 160)",
-          "oklch(55% 0.020 160)",
-          "oklch(65% 0.017 160)",
-          "oklch(80% 0.010 160)",
-          "oklch(95% 0.003 160)"
-        ],
-        "dark": "#e4ece8"
-      },
-      "tinta-2": {
-        "role": "neutral",
-        "displayName": "Tinta secundaria",
-        "tonalRamp": [
-          "oklch(15% 0.009 160)",
-          "oklch(25% 0.014 160)",
-          "oklch(35% 0.018 160)",
-          "oklch(45% 0.020 160)",
-          "oklch(55% 0.020 160)",
-          "oklch(65% 0.017 160)",
-          "oklch(80% 0.010 160)",
-          "oklch(95% 0.003 160)"
-        ],
-        "dark": "#a8b7b0"
-      },
-      "tinta-3": {
-        "role": "neutral",
-        "displayName": "Tinta terciaria",
-        "tonalRamp": [
-          "oklch(15% 0.007 160)",
-          "oklch(25% 0.011 160)",
-          "oklch(35% 0.014 160)",
-          "oklch(45% 0.016 160)",
-          "oklch(55% 0.016 160)",
-          "oklch(65% 0.014 160)",
-          "oklch(80% 0.008 160)",
-          "oklch(95% 0.002 160)"
-        ],
-        "dark": "#8a9992"
-      },
-      "linea": {
-        "role": "neutral",
-        "displayName": "Línea",
-        "tonalRamp": [
-          "oklch(15% 0.005 150)",
-          "oklch(25% 0.008 150)",
-          "oklch(35% 0.011 150)",
-          "oklch(45% 0.012 150)",
-          "oklch(55% 0.012 150)",
-          "oklch(65% 0.010 150)",
-          "oklch(80% 0.006 150)",
-          "oklch(95% 0.002 150)"
-        ],
-        "dark": "#2a3832"
-      },
-      "linea-suave": {
-        "role": "neutral",
-        "displayName": "Línea suave",
-        "tonalRamp": [
-          "oklch(15% 0.005 140)",
-          "oklch(25% 0.007 140)",
-          "oklch(35% 0.009 140)",
-          "oklch(45% 0.010 140)",
-          "oklch(55% 0.010 140)",
-          "oklch(65% 0.009 140)",
-          "oklch(80% 0.005 140)",
-          "oklch(95% 0.002 140)"
-        ],
-        "dark": "#22302a"
+          "oklch(15% 0.000 22)",
+          "oklch(25% 0.000 22)",
+          "oklch(35% 0.000 22)",
+          "oklch(45% 0.000 22)",
+          "oklch(55% 0.000 22)",
+          "oklch(65% 0.000 22)",
+          "oklch(80% 0.000 22)",
+          "oklch(95% 0.000 22)"
+        ]
       }
     },
-    "colorNote": "Los valores \"dark\" son los de @media (prefers-color-scheme: dark) en frontend/src/styles.css.",
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "El monto protagonista: lo que queda en la tarjeta billete y los titulares de Gastos e Ingresos."
-      },
-      "cifra": {
-        "displayName": "Cifra",
-        "purpose": "Montos en celdas de datos, semanas, filas y rankings."
+        "purpose": "La cifra principal del tablero y la del bloque de Ahorro."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Título de cada página."
+        "purpose": "Título de cada pantalla."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Títulos de panel, tarjeta, diálogo y sección."
+        "purpose": "Títulos de fila, como \"Semana 2\"."
+      },
+      "amount": {
+        "displayName": "Amount",
+        "purpose": "Cifras secundarias dentro de un bloque."
       },
       "body": {
         "displayName": "Body",
@@ -388,61 +298,59 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Etiquetas de campo; rótulos y fechas en peso 400–500 y tinta-3."
+        "purpose": "Título chico de cada bloque."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Notas al pie, etiquetas de datos y píldoras."
       }
     },
     "shadows": [
       {
         "name": "flotante",
-        "value": "0 12px 32px rgb(16 33 27 / 0.16), 0 2px 6px rgb(16 33 27 / 0.08)",
-        "dark": "0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.3)",
-        "purpose": "Solo lo que flota: diálogos, avisos flotantes y el cartel del gráfico."
-      },
-      {
-        "name": "opcion-elegida",
-        "value": "0 1px 2px rgb(0 0 0 / 0.12), 0 0 0 1px var(--linea)",
-        "purpose": "La opción marcada de un control segmentado."
-      },
-      {
-        "name": "halo-foco",
-        "value": "0 0 0 3px color-mix(in srgb, var(--laton) 45%, transparent)",
-        "purpose": "Halo de los campos con foco, junto al borde verde billete."
+        "value": "0 24px 60px -20px oklch(0 0 0 / 0.75), 0 0 0 1px oklch(1 0 0 / 0.06)",
+        "purpose": "Solo lo que flota: diálogos y aviso flotante."
       }
     ],
     "motion": [
       {
+        "name": "salida",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Única curva del tablero: barras, segmentos, medidor y montos."
+      },
+      {
+        "name": "barra",
+        "value": "900ms",
+        "purpose": "Crecimiento de barras y medidor; los días se escalonan 14ms."
+      },
+      {
+        "name": "exceso",
+        "value": "700ms con 500ms de demora",
+        "purpose": "El tramo lila crece después del tramo lima."
+      },
+      {
+        "name": "cuenta",
+        "value": "1100ms",
+        "purpose": "Montos que cuentan hasta su valor."
+      },
+      {
         "name": "estado",
         "value": "120ms ease",
-        "purpose": "Cambios de color y borde en botones, filas e interruptores."
-      },
-      {
-        "name": "aparecer",
-        "value": "180ms cubic-bezier(0.2, 0.8, 0.2, 1)",
-        "purpose": "Entrada de diálogos y avisos: sube 12px y pasa de 0,98 a 1."
-      },
-      {
-        "name": "desplegar",
-        "value": "150ms ease",
-        "purpose": "Giro de la flecha del ranking del Resumen."
-      },
-      {
-        "name": "brillo",
-        "value": "1.4s ease-in-out infinite",
-        "purpose": "Esqueleto de carga. Todo el movimiento se apaga con prefers-reduced-motion."
+        "purpose": "Cambios de color en botones, filas y enlaces."
       }
     ],
     "breakpoints": [
       {
-        "name": "plan-una-columna",
-        "value": "1100px"
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
       },
       {
         "name": "barra-arriba",
         "value": "900px"
-      },
-      {
-        "name": "billete-apilado",
-        "value": "760px"
       },
       {
         "name": "botones-icono",
@@ -450,136 +358,132 @@
       }
     ],
     "layout": {
+      "grilla": "bento de 1, 2 o 4 columnas",
+      "canal": "12px",
       "anchoLateral": "248px",
-      "anchoContenido": "920px"
+      "anchoContenido": "1120px"
     }
   },
   "components": [
     {
-      "name": "Botón primario",
+      "name": "Bloque",
+      "kind": "card",
+      "refersTo": "tile",
+      "description": "La unidad del tablero: responde una pregunta con una cifra.",
+      "html": "<section class=\"ds-tile\"><h3 class=\"ds-tile__titulo\">Esta semana</h3><span class=\"ds-cifra\" style=\"font-size:20px\"><small>$</small>48.500</span></section>",
+      "css": ".ds-tile{position:relative;display:flex;flex-direction:column;min-width:0;padding:20px;border-radius:26px;border:1px solid var(--border,oklch(1 0 0/.1));background:var(--card,oklch(.205 .015 300));color:var(--foreground,oklch(.97 .005 300));font-family:\"Geist Variable\",system-ui,sans-serif}.ds-tile__titulo{margin:0 0 16px;font-size:13px;font-weight:500;color:var(--muted-foreground,oklch(.73 .014 300))}.ds-cifra{font-family:\"Geist Mono Variable\",ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}.ds-cifra small{font-size:.55em;font-weight:500;margin-right:.15em;color:var(--muted-foreground,oklch(.73 .014 300))}"
+    },
+    {
+      "name": "Bloque de Ahorro",
+      "kind": "card",
+      "refersTo": "tile-ahorro",
+      "description": "El único bloque lleno de color.",
+      "html": "<section class=\"ds-ahorro\"><h3>Ahorro del mes</h3><span class=\"ds-cifra\">$<b>25.000</b></span><button>Guardar como ahorro</button></section>",
+      "css": ".ds-ahorro{display:flex;flex-direction:column;gap:12px;width:240px;padding:20px;border-radius:26px;background:var(--primary,oklch(.89 .2 128));color:var(--primary-foreground,oklch(.24 .06 135));font-family:\"Geist Variable\",system-ui,sans-serif}.ds-ahorro h3{margin:0;font-size:13px;font-weight:600;opacity:.75}.ds-ahorro .ds-cifra{font-family:\"Geist Mono Variable\",ui-monospace,monospace;font-size:46px;font-weight:600;letter-spacing:-.05em}.ds-ahorro button{padding:12px;border:0;border-radius:16px;background:var(--primary-foreground,oklch(.24 .06 135));color:var(--primary,oklch(.89 .2 128));font:600 14px \"Geist Variable\",system-ui,sans-serif;cursor:pointer}.ds-ahorro button:focus-visible{outline:2px solid var(--primary-foreground,oklch(.24 .06 135));outline-offset:2px}"
+    },
+    {
+      "name": "Botón principal",
       "kind": "button",
-      "refersTo": "boton-primario",
-      "description": "La acción principal de cada contexto: Nuevo gasto, Guardar.",
-      "html": "<button class=\"ds-boton ds-boton--primario\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M11 4.5v13M4.5 11h13\"/></svg>Nuevo gasto<kbd class=\"ds-kbd\">N</kbd></button>",
-      "css": ".ds-boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:8px;border:1.5px solid transparent;font:700 0.9375rem/1.5 \"Schibsted Grotesk\",system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease,border-color 120ms ease}.ds-boton:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-boton--primario{background:var(--billete,#1d5a48);color:var(--billete-texto,#fff)}.ds-boton--primario:hover{background:var(--billete-hover,#174a3b)}.ds-kbd{margin-left:6px;min-width:22px;padding:1px 6px;border-radius:5px;border:1px solid currentColor;font-size:0.75rem;font-weight:600;opacity:0.6}"
+      "refersTo": "button-primary",
+      "description": "Acción principal en píldora lima.",
+      "html": "<button class=\"ds-boton\">Nuevo gasto</button>",
+      "css": ".ds-boton{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 18px;border:0;border-radius:9999px;background:var(--primary,oklch(.89 .2 128));color:var(--primary-foreground,oklch(.24 .06 135));font:600 15px \"Geist Variable\",system-ui,sans-serif;cursor:pointer;transition:background-color 120ms ease}.ds-boton:hover{background:oklch(.93 .17 128)}.ds-boton:focus-visible{outline:3px solid var(--primary,oklch(.89 .2 128));outline-offset:2px}"
     },
     {
-      "name": "Botón secundario",
-      "kind": "button",
-      "refersTo": "boton-secundario",
-      "description": "Acciones de apoyo: Nuevo ingreso, Exportar.",
-      "html": "<button class=\"ds-boton ds-boton--secundario\">Exportar a Excel</button>",
-      "css": ".ds-boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:8px;border:1.5px solid transparent;font:700 0.9375rem/1.5 \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer;transition:border-color 120ms ease}.ds-boton:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-boton--secundario{background:var(--superficie,#fff);border-color:var(--linea,#d6ddd7);color:var(--tinta,#16211c)}.ds-boton--secundario:hover{border-color:var(--tinta-3,#5e6a64)}"
-    },
-    {
-      "name": "Botón peligro",
-      "kind": "button",
-      "refersTo": "boton-peligro",
-      "description": "Borrar un gasto, ingreso o categoría.",
-      "html": "<button class=\"ds-boton ds-boton--peligro\">Borrar</button>",
-      "css": ".ds-boton{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 18px;border-radius:8px;border:1.5px solid transparent;font:700 0.9375rem/1.5 \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer;transition:background-color 120ms ease}.ds-boton:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-boton--peligro{background:transparent;color:var(--alerta,#b4432f);border-color:color-mix(in srgb,var(--alerta,#b4432f) 45%,transparent)}.ds-boton--peligro:hover{background:var(--alerta-tinte,#f7e4df)}"
-    },
-    {
-      "name": "Campo",
-      "kind": "input",
-      "refersTo": "campo",
-      "description": "Campo de texto o selector con etiqueta arriba.",
-      "html": "<label class=\"ds-campo\"><span class=\"ds-campo__etiqueta\">Descripción <span class=\"ds-campo__opcional\">(opcional)</span></span><input placeholder=\"Supermercado\"></label>",
-      "css": ".ds-campo{display:flex;flex-direction:column;gap:6px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-campo__etiqueta{font-size:0.8125rem;font-weight:700;color:var(--tinta-2,#4b5a53)}.ds-campo__opcional{font-weight:400;color:var(--tinta-3,#5e6a64)}.ds-campo input{min-height:44px;padding:0 12px;border:1.5px solid var(--linea,#d6ddd7);border-radius:8px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:inherit}.ds-campo input:focus-visible{outline:none;border-color:var(--billete,#1d5a48);box-shadow:0 0 0 3px color-mix(in srgb,var(--laton,#c3922a) 45%,transparent)}"
-    },
-    {
-      "name": "Campo de monto",
-      "kind": "input",
-      "refersTo": "campo",
-      "description": "El monto grande del diálogo de gasto o ingreso.",
-      "html": "<label class=\"ds-monto\"><span class=\"ds-monto__simbolo\">$</span><input inputmode=\"decimal\" placeholder=\"0,00\" value=\"12.450,00\"></label>",
-      "css": ".ds-monto{display:flex;align-items:center;gap:14px;padding:4px 0 8px;border-bottom:2px solid var(--linea,#d6ddd7)}.ds-monto:focus-within{border-bottom-color:var(--billete,#1d5a48)}.ds-monto__simbolo{font:500 1.5rem \"Barlow Condensed\",\"Arial Narrow\",sans-serif;color:var(--tinta-3,#5e6a64)}.ds-monto input{flex:1;min-width:0;border:0;background:transparent;color:var(--tinta,#16211c);font:600 3.25rem/1.1 \"Barlow Condensed\",\"Arial Narrow\",sans-serif;font-variant-numeric:tabular-nums;text-align:right}.ds-monto input:focus-visible{outline:none}"
-    },
-    {
-      "name": "Chip de categoría",
+      "name": "Selector en píldoras",
       "kind": "chip",
-      "refersTo": "chip",
-      "description": "Elegir la categoría de un gasto.",
-      "html": "<div class=\"ds-chips\"><label class=\"ds-chip ds-chip--activo\"><i style=\"background:#1d5a48\"></i>Supermercado</label><label class=\"ds-chip\"><i style=\"background:#c3922a\"></i>Transporte</label></div>",
-      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px}.ds-chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1.5px solid var(--linea,#d6ddd7);border-radius:999px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:0.9375rem \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer}.ds-chip:hover{border-color:var(--tinta-3,#5e6a64)}.ds-chip i{width:10px;height:10px;border-radius:50%}.ds-chip--activo{border-color:var(--billete,#1d5a48);background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}"
+      "refersTo": "pills-option-selected",
+      "description": "Una opción elegida; flechas para moverse.",
+      "html": "<div class=\"ds-pills\" role=\"radiogroup\"><button role=\"radio\" aria-checked=\"true\">El plan del mes</button><button role=\"radio\" aria-checked=\"false\">Lo que tengo hoy</button></div>",
+      "css": ".ds-pills{display:inline-flex;padding:2px;border:1px solid var(--border,oklch(1 0 0/.1));border-radius:9999px;font-family:\"Geist Variable\",system-ui,sans-serif}.ds-pills button{padding:4px 12px;border:0;border-radius:9999px;background:transparent;color:var(--muted-foreground,oklch(.73 .014 300));font-size:12px;font-weight:500;cursor:pointer}.ds-pills button:hover{color:var(--foreground,oklch(.97 .005 300))}.ds-pills button[aria-checked=\"true\"]{background:var(--foreground,oklch(.97 .005 300));color:var(--background,oklch(.15 .014 300))}.ds-pills button:focus-visible{outline:2px solid var(--ring,oklch(.89 .2 128))}"
+    },
+    {
+      "name": "Insignia de estado",
+      "kind": "chip",
+      "refersTo": "insignia",
+      "description": "Lima en curso, lila te pasaste, gris el resto.",
+      "html": "<span class=\"ds-insignia ds-insignia--lima\">En curso</span> <span class=\"ds-insignia ds-insignia--lila\">Te pasaste</span>",
+      "css": ".ds-insignia{display:inline-flex;padding:2px 10px;border-radius:9999px;font:600 11px \"Geist Variable\",system-ui,sans-serif}.ds-insignia--lima{color:oklch(.89 .2 128);background:color-mix(in oklch,oklch(.89 .2 128) 18%,transparent)}.ds-insignia--lila{color:oklch(.74 .12 300);background:color-mix(in oklch,oklch(.74 .12 300) 18%,transparent)}"
+    },
+    {
+      "name": "Barra de uso",
+      "kind": "custom",
+      "refersTo": "tile",
+      "description": "Lo gastado sobre lo asignado, con el exceso aparte en lila.",
+      "html": "<div class=\"ds-barra\"><span class=\"ds-barra__dentro\" style=\"width:calc(70% - 1.5px)\"></span><span class=\"ds-barra__exceso\" style=\"width:calc(30% - 1.5px)\"></span></div>",
+      "css": ".ds-barra{display:flex;gap:3px;width:240px;height:8px;overflow:hidden;border-radius:9999px;background:var(--muted,oklch(.27 .016 300))}.ds-barra span{display:block;height:100%;border-radius:9999px}.ds-barra__dentro{background:var(--primary,oklch(.89 .2 128))}.ds-barra__exceso{background:var(--secondary,oklch(.74 .12 300))}"
     },
     {
       "name": "Navegación lateral",
       "kind": "nav",
-      "refersTo": "enlace-lateral-activo",
-      "description": "Enlaces agrupados de la barra lateral.",
-      "html": "<nav class=\"ds-nav\"><p class=\"ds-nav__grupo\">Este mes</p><a class=\"ds-nav__enlace ds-nav__enlace--activo\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4.5\" width=\"16\" height=\"14\" rx=\"2.5\"/><path d=\"M3 9.5h16M7.5 2.5v4M14.5 2.5v4M7 13.5h3\"/></svg>Plan</a><a class=\"ds-nav__enlace\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 3.5h12v15l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z\"/><path d=\"M8 8h6M8 11.5h6\"/></svg>Gastos</a></nav>",
-      "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:216px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-nav__grupo{margin:0;padding:0 10px 6px;font-size:0.8125rem;font-weight:500;color:var(--tinta-3,#5e6a64)}.ds-nav__enlace{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;color:var(--tinta-2,#4b5a53);font-weight:500;text-decoration:none}.ds-nav__enlace svg{color:var(--tinta-3,#5e6a64)}.ds-nav__enlace:hover{background:var(--superficie-2,#f5f7f3);color:var(--tinta,#16211c)}.ds-nav__enlace:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-nav__enlace--activo{background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}.ds-nav__enlace--activo svg{color:var(--billete,#1d5a48)}"
-    },
-    {
-      "name": "Panel con lista de datos",
-      "kind": "card",
-      "refersTo": "panel",
-      "description": "Contenedor blanco con título y filas nombre / monto.",
-      "html": "<section class=\"ds-panel\"><h3 class=\"ds-panel__titulo\">Obligatorios</h3><ul><li><span>Alquiler</span><b><small>$</small>350.000</b></li><li><span>Servicios</span><b><small>$</small>48.200</b></li></ul></section>",
-      "css": ".ds-panel{padding:20px 22px;border-radius:18px;background:var(--superficie,#fff);border:1px solid var(--linea,#d6ddd7);color:var(--tinta,#16211c);font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-panel__titulo{margin:0 0 14px;font-size:1.0625rem;font-weight:700}.ds-panel ul{list-style:none;margin:0;padding:0}.ds-panel li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linea-suave,#e6ebe6)}.ds-panel li:last-child{border-bottom:0}.ds-panel li span{flex:1}.ds-panel b{font:500 1.25rem \"Barlow Condensed\",\"Arial Narrow\",sans-serif;font-variant-numeric:tabular-nums}.ds-panel small{font-size:0.62em;opacity:0.7;margin-right:0.18em}"
-    },
-    {
-      "name": "Tarjeta billete",
-      "kind": "custom",
-      "refersTo": "tarjeta-billete",
-      "description": "La tarjeta principal del Plan: cuánto queda esta semana. Única en la app.",
-      "html": "<div class=\"ds-billete\"><span class=\"ds-billete__etiqueta\">Te queda esta semana</span><b class=\"ds-billete__monto\"><small>$</small>84.300</b><span class=\"ds-billete__dia\">Hasta el domingo · <strong>$12.040</strong> por día</span><div class=\"ds-billete__barra\"><span style=\"width:42%\"></span></div></div>",
-      "css": ".ds-billete{padding:28px 32px;border-radius:22px;background:linear-gradient(135deg,var(--tarjeta-billete,#18493b) 0%,var(--tarjeta-billete-2,#123a2f) 100%);color:var(--tarjeta-texto,#f1f6f2);font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-billete__etiqueta,.ds-billete__dia{display:block;color:var(--tarjeta-texto-2,#b9d2c6);font-weight:500}.ds-billete__monto{display:block;margin:6px 0 10px;font:600 clamp(3.5rem,8vw,5.25rem)/1 \"Barlow Condensed\",\"Arial Narrow\",sans-serif;letter-spacing:-0.01em;font-variant-numeric:tabular-nums}.ds-billete__monto small{font-size:0.62em;font-weight:500;opacity:0.7;margin-right:0.18em}.ds-billete__dia strong{color:var(--tarjeta-texto,#f1f6f2);font:600 1.25rem \"Barlow Condensed\",\"Arial Narrow\",sans-serif}.ds-billete__barra{height:8px;margin-top:18px;border-radius:4px;background:rgb(255 255 255/0.14);overflow:hidden}.ds-billete__barra span{display:block;height:100%;border-radius:4px;background:var(--laton,#c3922a)}"
+      "refersTo": "nav-link-active",
+      "description": "Enlaces de la barra lateral; el activo en lima.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__enlace ds-nav__enlace--activo\" href=\"#\">Plan</a><a class=\"ds-nav__enlace\" href=\"#\">Gastos</a></nav>",
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:216px;font-family:\"Geist Variable\",system-ui,sans-serif}.ds-nav__enlace{padding:9px 10px;border-radius:10px;color:oklch(.83 .012 300);font-weight:500;text-decoration:none}.ds-nav__enlace:hover{background:var(--muted,oklch(.27 .016 300));color:var(--foreground,oklch(.97 .005 300))}.ds-nav__enlace--activo{background:color-mix(in oklch,oklch(.89 .2 128) 14%,oklch(.205 .015 300));color:oklch(.89 .2 128);font-weight:700}.ds-nav__enlace:focus-visible{outline:3px solid oklch(.89 .2 128);outline-offset:2px}"
     }
   ],
   "narrative": {
-    "northStar": "La billetera",
-    "overview": "La app se ve como plata de verdad, cuidada y a mano: papel verde grisáceo de fondo, verde billete como color principal, latón para resaltar, y montos en letra condensada con cifras parejas, como en un ticket. Es una herramienta de uso diario, sobria y prolija: la calma es la regla, y solo hablan fuerte las dos cosas que importan, cuánto queda y si me paso.\n\nLa densidad es media. Cada pantalla abre con un titular grande, sea un monto o la tarjeta billete, y debajo vienen paneles blancos con borde fino sobre el papel. El único adorno de toda la app es el grabado de billete (guilloche) de la tarjeta principal del Plan. Todo lo demás es tipografía, línea y color de categoría.\n\nHay modo claro y oscuro, que sigue al sistema. En oscuro el papel pasa a casi negro verdoso, el verde billete se vuelve un verde menta claro con texto oscuro encima, y la tarjeta billete sigue siendo oscura.\n\nHay dos cosas que Andres no quiere: que parezca un banco (nada de home banking ni look corporativo) y que se vea apagado (nada de grises chatos ni pantallas sin vida).",
+    "northStar": "El tablero de noche",
+    "overview": "Mis gastos es un tablero de bloques oscuro que se lee de un vistazo. El fondo es casi negro con un tinte lila; encima, bloques un punto más claros, con borde de 1px y esquinas grandes, separados por un canal angosto. Cada bloque responde una sola pregunta sobre la plata del mes y la responde con una cifra grande en mono, no con un párrafo. La referencia visual fue un tablero bento oscuro que eligió Andres; de él se tomó la estructura, la densidad y el movimiento, no su contenido.\n\nEl color está racionado y tiene sentido fijo. Lima es lo principal: la acción, lo activo y lo que todavía queda. Lila es lo que se pasó. Rojo aparece solo para borrar y para errores. Todo lo demás es gris lila en tres o cuatro escalones de luz. La app es siempre oscura: Andres eligió no tener modo claro.\n\nEl movimiento es parte del sistema: los montos cuentan hasta su valor, las barras crecen desde la base y los segmentos se acomodan a su proporción, todo con una única curva de salida. Con movimiento reducido todo aparece ya en su lugar, pero el foco y el hover se siguen viendo.",
     "keyCharacteristics": [
-      "Papel verde grisáceo, paneles blancos, bordes finos y sin sombras en reposo.",
-      "Montos siempre en Barlow Condensed con cifras tabulares. El símbolo de la moneda va más chico y suave.",
-      "Verde billete para la acción principal y lo activo. Latón para el foco y para lo que hay que decidir.",
-      "Rojo terracota solo para el exceso, los errores y las acciones de borrar.",
-      "Una sola pieza con adorno: la tarjeta billete del Plan."
+      "Siempre oscuro, fondo y superficies teñidos hacia el lila (tono 300).",
+      "Bloques con esquinas de 26px, borde de 1px y sin sombras.",
+      "Lima = lo que queda y lo principal; lila = exceso; rojo = solo borrar y errores.",
+      "Toda cifra en Geist Mono con números tabulares; la interfaz en Geist.",
+      "Selectores, botones e insignias en píldora.",
+      "Barras que crecen, montos que cuentan y una sola curva de salida."
     ],
     "rules": [
       {
-        "name": "La regla de los neutros verdes",
-        "body": "Ningún neutro es gris puro: papel, tinta y línea llevan siempre un tono verde. Es lo que evita que la app se vea apagada.",
+        "name": "The Sentido Fijo Rule",
+        "body": "Lima significa \"dentro del plan / lo que queda / lo principal\", lila significa \"lo que se pasó\" y rojo significa \"borrar o error\". Un color nunca cambia de significado entre pantallas, y el rojo nunca marca un exceso.",
         "section": "colors"
       },
       {
-        "name": "La regla del rojo justificado",
-        "body": "El terracota aparece solo cuando hay un exceso, un error o una acción destructiva. Si algo está en rojo, Andres tiene que hacer algo.",
+        "name": "The Un Solo Bloque de Color Rule",
+        "body": "El bloque de Ahorro es el único bloque lleno de color en el tablero. Los demás son `card`; el acento vive en cifras, barras e insignias dentro de ellos.",
         "section": "colors"
       },
       {
-        "name": "La regla del latón como señal",
-        "body": "El latón marca foco y decisión. No se usa como color de texto sobre el papel, porque no tiene contraste suficiente.",
+        "name": "The Colores de Categoría Rule",
+        "body": "El color de cada categoría aparece solo como punto o como segmento de barra, nunca como fondo de texto ni como color de texto.",
         "section": "colors"
       },
       {
-        "name": "La regla de las cifras",
-        "body": "Todo monto se muestra con el componente Monto: Barlow Condensed, cifras tabulares, sin cortes de línea, formato argentino (1.234.567,50) y el símbolo $ o US$ al 62 % del tamaño y con 70 % de opacidad. El texto que no es plata nunca va en condensada, salvo el nombre \"Mis gastos\" en la barra lateral.",
+        "name": "The Toda Cifra en Mono Rule",
+        "body": "Todo monto, porcentaje o número de día va en Geist Mono con números tabulares y sin cortes de línea. El símbolo `$` va más chico (0.55em) y apagado; el número, entero.",
         "section": "typography"
       },
       {
-        "name": "La regla de lo plano en reposo",
-        "body": "Paneles, tarjetas, semanas y filas no llevan sombra. Si algo necesita destacarse, cambia el borde (verde billete en la semana en curso, latón en la decisión), no la elevación.",
+        "name": "The Montos Accesibles Rule",
+        "body": "Cuando un monto cuenta hasta su valor, el lector de pantalla lee solo el valor final, nunca los pasos de la cuenta.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sin Palabras Sueltas Rule",
+        "body": "Párrafos y elementos de lista usan `text-wrap: pretty`; los títulos, `text-wrap: balance`.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plano por Capas Rule",
+        "body": "Los bloques no llevan sombra: se separan por luz y por borde. La sombra queda reservada a lo que tapa la página.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do mostrar todo monto con Monto, en Barlow Condensed tabular y formato 1.234.567,50.",
-      "Do dejar que la respuesta principal de cada pantalla (cuánto queda, cuánto se gastó) sea lo más grande de la vista.",
-      "Do dar foco visible con el anillo de latón de 3px a todo lo que se puede usar con teclado.",
-      "Do usar verde billete para una sola acción principal por contexto.",
-      "Do mantener los neutros verdosos y tomar los colores de :root, sin poner hex sueltos en los componentes.",
-      "Do probar cada cambio en claro, en oscuro y con la ventana angosta (900px y 560px)."
+      "Do poner cada respuesta en su propio bloque de `card` con 26px de esquina, borde de 1px y 20px de relleno, separado 12px de los demás.",
+      "Do escribir toda cifra en Geist Mono tabular, con el `$` más chico y apagado.",
+      "Do usar lima para lo que queda y lo principal, lila para lo que se pasó y rojo solo para borrar y errores.",
+      "Do mostrar el exceso como un tramo lila aparte de lo que entró en el plan, no recolorear toda la barra.",
+      "Do animar con la curva `cubic-bezier(0.22, 1, 0.36, 1)` y dejar todo en su lugar con movimiento reducido.",
+      "Do hacer recorribles con flechas, con un solo Tab, los grupos de opciones y las tiras de barras."
     ],
     "donts": [
-      "Don't hacer que parezca un banco: nada de azules corporativos, degradés de home banking, íconos de monedas o tarjetas brillantes.",
-      "Don't dejar que una pantalla se vea apagada: nada de grises puros, paneles sin jerarquía ni titulares chicos.",
-      "Don't sumar adornos: el guilloche de la tarjeta billete es el único y no se repite en otras pantallas.",
-      "Don't usar el terracota para algo que no sea exceso, error o borrar.",
-      "Don't poner sombras a paneles, tarjetas o filas en reposo.",
-      "Don't usar el latón como color de texto sobre el papel ni los colores de categoría como fondo de texto."
+      "Don't agregar un modo claro: la app es siempre oscura.",
+      "Don't usar rojo para marcar un exceso, ni lila para borrar.",
+      "Don't llenar de color otro bloque además del de Ahorro.",
+      "Don't usar el color de una categoría como fondo o color de texto; solo como punto o segmento.",
+      "Don't poner sombras en los bloques; la sombra es solo para lo que flota."
     ]
   }
 }

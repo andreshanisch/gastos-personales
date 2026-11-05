@@ -19,7 +19,9 @@ App personal de Andres para registrar y planificar sus gastos mensuales. Corre s
   - `src/Acciones.tsx`: diálogos globales de gasto/ingreso, atajos N e I, y `version`/`refrescar` para que las páginas recarguen.
   - `src/plan.ts`: lógica del plan semanal (semanas 1–7, 8–14, 15–21, 22–fin; ingresos y obligatorios se reparten desde su semana; el exceso se descuenta de las semanas que quedan; el sobrante se ahorra o se reparte). Tiene pruebas en `pruebas/plan.test.ts`.
   - `src/formato.ts`: formato de montos argentino (`1.234.567,50`).
-  - `src/styles.css`: sistema de diseño "billetera" con modo claro y oscuro (variables en `:root`).
+  - Estilo: tablero de bloques oscuro (siempre oscuro), lima para lo principal y lo que alcanza, lila para excesos, rojo solo para borrar y errores; cifras en Geist Mono. Detalle en `DESIGN.md`.
+  - `src/index.css`: tema con Tailwind 4 y variables al estilo shadcn (`@theme inline`). Alias `@/` → `src/`; estructura shadcn en `components.json`, `src/lib/utils.ts` (`cn`) y `src/components/ui/` (`bento.tsx`, `cifra.tsx`).
+  - `src/styles.css`: clases propias de las pantallas que todavía no pasaron a Tailwind; se importa en la capa `components`, así las utilidades de Tailwind le ganan.
 - **Scripts de Windows** (CRLF, UTF-8 con BOM): `iniciar.cmd/.ps1` (levanta Docker, copia diaria a OneDrive con `copias.ps1`, compila si hubo cambios y abre la app), `restaurar.cmd/.ps1`.
 
 ## Comandos
@@ -34,7 +36,7 @@ App personal de Andres para registrar y planificar sus gastos mensuales. Corre s
 ## Verificación antes de mergear
 
 1. `npm test`, `npx tsc --noEmit` y `npm run build` en `frontend`; `dotnet build` si tocaste el backend.
-2. Probá la pantalla cambiada en el navegador, en modo claro y oscuro y con la ventana angosta.
+2. Probá la pantalla cambiada en el navegador, en ancho de escritorio y con la ventana angosta (la app es siempre oscura).
 3. No dejes datos de prueba en la base real: si creás algo para probar, borralo al terminar.
 
 ## Ideas pendientes (cuando Andres las pida)

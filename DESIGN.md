@@ -1,335 +1,307 @@
 ---
 name: Mis gastos
-description: Gastos e ingresos del mes, planificados semana por semana, con estética de billetera.
+description: Gastos e ingresos del mes, planificados semana por semana, en un tablero de bloques oscuro.
 colors:
-  papel: "#edf0ea"
-  superficie: "#ffffff"
-  superficie-2: "#f5f7f3"
-  tinta: "#16211c"
-  tinta-2: "#4b5a53"
-  tinta-3: "#5e6a64"
-  linea: "#d6ddd7"
-  linea-suave: "#e6ebe6"
-  billete: "#1d5a48"
-  billete-hover: "#174a3b"
-  billete-tinte: "#e1ede6"
-  billete-texto: "#ffffff"
-  laton: "#c3922a"
-  laton-tinte: "#f6ecd2"
-  positivo: "#1e7a52"
-  alerta: "#b4432f"
-  alerta-tinte: "#f7e4df"
-  alerta-en-billete: "#ffb4a2"
-  tarjeta-billete: "#18493b"
-  tarjeta-billete-2: "#123a2f"
-  tarjeta-texto: "#f1f6f2"
-  tarjeta-texto-2: "#b9d2c6"
-  serie-ingresos: "#2a78d6"
-  serie-gastos: "#eb6834"
+  background: "oklch(0.15 0.014 300)"
+  card: "oklch(0.205 0.015 300)"
+  popover: "oklch(0.23 0.015 300)"
+  muted: "oklch(0.27 0.016 300)"
+  foreground: "oklch(0.97 0.005 300)"
+  foreground-soft: "oklch(0.83 0.012 300)"
+  muted-foreground: "oklch(0.73 0.014 300)"
+  border: "oklch(1 0 0 / 0.1)"
+  input: "oklch(1 0 0 / 0.14)"
+  primary: "oklch(0.89 0.2 128)"
+  primary-hover: "oklch(0.93 0.17 128)"
+  primary-foreground: "oklch(0.24 0.06 135)"
+  primary-tint: "color-mix(in oklch, oklch(0.89 0.2 128) 14%, oklch(0.205 0.015 300))"
+  secondary: "oklch(0.74 0.12 300)"
+  secondary-foreground: "oklch(0.2 0.05 295)"
+  secondary-tint: "color-mix(in oklch, oklch(0.74 0.12 300) 16%, oklch(0.205 0.015 300))"
+  destructive: "oklch(0.7 0.19 22)"
+  destructive-foreground: "oklch(0.98 0 0)"
 typography:
   display:
-    fontFamily: "Barlow Condensed, Arial Narrow, sans-serif"
-    fontSize: "clamp(3.5rem, 8vw, 5.25rem)"
+    fontFamily: "Geist Mono Variable, ui-monospace, monospace"
+    fontSize: "56px"
     fontWeight: 600
     lineHeight: 1
-    letterSpacing: "-0.01em"
-    fontFeature: "tnum"
-  cifra:
-    fontFamily: "Barlow Condensed, Arial Narrow, sans-serif"
-    fontSize: "1.875rem"
+    letterSpacing: "-0.04em"
+    fontFeature: "\"tnum\" 1"
+  headline:
+    fontFamily: "Geist Variable, system-ui, sans-serif"
+    fontSize: "2rem"
     fontWeight: 600
     lineHeight: 1.1
-    fontFeature: "tnum"
-  headline:
-    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 700
-    lineHeight: 1.15
-    letterSpacing: "-0.01em"
+    letterSpacing: "-0.03em"
   title:
-    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "1.0625rem"
-    fontWeight: 700
-    lineHeight: 1.5
+    fontFamily: "Geist Variable, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 600
+    lineHeight: 1.4
+  amount:
+    fontFamily: "Geist Mono Variable, ui-monospace, monospace"
+    fontSize: "20px"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
+    fontFeature: "\"tnum\" 1"
   body:
-    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
+    fontFamily: "Geist Variable, system-ui, sans-serif"
     fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
-    fontSize: "0.8125rem"
-    fontWeight: 700
-    lineHeight: 1.5
+    fontFamily: "Geist Variable, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 500
+    lineHeight: 1.4
+  caption:
+    fontFamily: "Geist Variable, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 400
+    lineHeight: 1.4
 rounded:
-  chico: "8px"
-  medio: "12px"
-  grande: "18px"
-  billete: "22px"
-  pildora: "999px"
+  tile: "26px"
+  lg: "16px"
+  md: "10px"
+  sm: "6px"
+  pill: "9999px"
+spacing:
+  grid-gap: "12px"
+  tile-padding: "20px"
+  tile-header: "16px"
+  page-x: "48px"
+  page-x-narrow: "16px"
+  sidebar: "248px"
 components:
-  boton-primario:
-    backgroundColor: "{colors.billete}"
-    textColor: "{colors.billete-texto}"
-    typography: "{typography.body}"
-    rounded: "{rounded.chico}"
+  tile:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.tile}"
+    padding: "{spacing.tile-padding}"
+  tile-ahorro:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.primary-foreground}"
+    rounded: "{rounded.tile}"
+    padding: "{spacing.tile-padding}"
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.primary-foreground}"
+    rounded: "{rounded.pill}"
     padding: "0 18px"
     height: "42px"
-  boton-primario-hover:
-    backgroundColor: "{colors.billete-hover}"
-    textColor: "{colors.billete-texto}"
-  boton-secundario:
-    backgroundColor: "{colors.superficie}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.chico}"
+  button-primary-hover:
+    backgroundColor: "{colors.primary-hover}"
+  button-secondary:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.pill}"
     padding: "0 18px"
     height: "42px"
-  boton-fantasma:
-    backgroundColor: "transparent"
-    textColor: "{colors.tinta-2}"
-    rounded: "{rounded.chico}"
+  button-ghost:
+    textColor: "{colors.foreground-soft}"
+    rounded: "{rounded.pill}"
     padding: "0 18px"
     height: "42px"
-  boton-fantasma-hover:
-    backgroundColor: "{colors.superficie-2}"
-    textColor: "{colors.tinta}"
-  boton-peligro:
-    backgroundColor: "transparent"
-    textColor: "{colors.alerta}"
-    rounded: "{rounded.chico}"
+  button-ghost-hover:
+    backgroundColor: "{colors.muted}"
+    textColor: "{colors.foreground}"
+  button-destructive:
+    textColor: "{colors.destructive}"
+    rounded: "{rounded.pill}"
     padding: "0 18px"
     height: "42px"
-  boton-peligro-hover:
-    backgroundColor: "{colors.alerta-tinte}"
-    textColor: "{colors.alerta}"
-  campo:
-    backgroundColor: "{colors.superficie}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.chico}"
+  pills-option:
+    textColor: "{colors.muted-foreground}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.pill}"
+    padding: "4px 12px"
+  pills-option-selected:
+    backgroundColor: "{colors.foreground}"
+    textColor: "{colors.background}"
+    rounded: "{rounded.pill}"
+    padding: "4px 12px"
+  insignia:
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
+  input:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.md}"
     padding: "0 12px"
     height: "44px"
-  chip:
-    backgroundColor: "{colors.superficie}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.pildora}"
-    padding: "0 14px"
-    height: "38px"
-  chip-activo:
-    backgroundColor: "{colors.billete-tinte}"
-    textColor: "{colors.billete}"
-  etiqueta-en-curso:
-    backgroundColor: "{colors.billete}"
-    textColor: "{colors.billete-texto}"
-    rounded: "{rounded.pildora}"
-    padding: "2px 10px"
-  etiqueta-obligatoria:
-    backgroundColor: "{colors.laton-tinte}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.pildora}"
-    padding: "2px 10px"
-  enlace-lateral-activo:
-    backgroundColor: "{colors.billete-tinte}"
-    textColor: "{colors.billete}"
-    rounded: "{rounded.chico}"
+  nav-link:
+    textColor: "{colors.foreground-soft}"
+    rounded: "{rounded.md}"
     padding: "9px 10px"
-  panel:
-    backgroundColor: "{colors.superficie}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.grande}"
-    padding: "20px 22px"
-  tarjeta-billete:
-    backgroundColor: "{colors.tarjeta-billete}"
-    textColor: "{colors.tarjeta-texto}"
-    rounded: "{rounded.billete}"
-    padding: "28px 32px"
+  nav-link-active:
+    backgroundColor: "{colors.primary-tint}"
+    textColor: "{colors.primary}"
+    rounded: "{rounded.md}"
+    padding: "9px 10px"
 ---
 
 # Design System: Mis gastos
 
 ## Overview
 
-**Creative North Star: "La billetera"**
+**Creative North Star: "El tablero de noche"**
 
-La app se ve como plata de verdad, cuidada y a mano: papel verde grisáceo de fondo, verde billete como color principal, latón para resaltar, y montos en letra condensada con cifras parejas, como en un ticket. Es una herramienta de uso diario, sobria y prolija: la calma es la regla, y solo hablan fuerte las dos cosas que importan, **cuánto queda** y **si me paso**.
+Mis gastos es un tablero de bloques oscuro que se lee de un vistazo. El fondo es casi negro con un tinte lila; encima, bloques un punto más claros, con borde de 1px y esquinas grandes, separados por un canal angosto. Cada bloque responde una sola pregunta sobre la plata del mes y la responde con una cifra grande en mono, no con un párrafo. La referencia visual fue un tablero bento oscuro que eligió Andres; de él se tomó la estructura, la densidad y el movimiento, no su contenido.
 
-La densidad es media. Cada pantalla abre con un titular grande, sea un monto o la tarjeta billete, y debajo vienen paneles blancos con borde fino sobre el papel. El único adorno de toda la app es el grabado de billete (guilloche) de la tarjeta principal del Plan. Todo lo demás es tipografía, línea y color de categoría.
+El color está racionado y tiene sentido fijo. Lima es lo principal: la acción, lo activo y lo que todavía queda. Lila es lo que se pasó. Rojo aparece solo para borrar y para errores. Todo lo demás es gris lila en tres o cuatro escalones de luz. La app es siempre oscura: Andres eligió no tener modo claro.
 
-Hay modo claro y oscuro, que sigue al sistema. En oscuro el papel pasa a casi negro verdoso, el verde billete se vuelve un verde menta claro con texto oscuro encima, y la tarjeta billete sigue siendo oscura. Los valores oscuros viven en `frontend/src/styles.css`, dentro de `@media (prefers-color-scheme: dark)`.
-
-Hay dos cosas que Andres no quiere: **que parezca un banco** (nada de home banking ni look corporativo) y **que se vea apagado** (nada de grises chatos ni pantallas sin vida).
+El movimiento es parte del sistema: los montos cuentan hasta su valor, las barras crecen desde la base y los segmentos se acomodan a su proporción, todo con una única curva de salida. Con movimiento reducido todo aparece ya en su lugar, pero el foco y el hover se siguen viendo.
 
 **Key Characteristics:**
-- Papel verde grisáceo, paneles blancos, bordes finos y sin sombras en reposo.
-- Montos siempre en Barlow Condensed con cifras tabulares. El símbolo de la moneda va más chico y suave.
-- Verde billete para la acción principal y lo activo. Latón para el foco y para lo que hay que decidir.
-- Rojo terracota solo para el exceso, los errores y las acciones de borrar.
-- Una sola pieza con adorno: la tarjeta billete del Plan.
+- Siempre oscuro, fondo y superficies teñidos hacia el lila (tono 300).
+- Bloques con esquinas de 26px, borde de 1px y sin sombras.
+- Lima = lo que queda y lo principal; lila = exceso; rojo = solo borrar y errores.
+- Toda cifra en Geist Mono con números tabulares; la interfaz en Geist.
+- Selectores, botones e insignias en píldora.
+- Barras que crecen, montos que cuentan y una sola curva de salida.
 
 ## Colors
 
-La paleta es la de un billete: verdes profundos, latón y neutros que siempre tiran a verde.
+Una noche gris lila con dos acentos de sentido fijo: lima para lo que alcanza y lila para lo que se pasó.
 
 ### Primary
-- **Verde billete** (`billete`): la acción principal ("Nuevo gasto", "Guardar"), el enlace activo del menú, la semana en curso, el borde del campo con foco y las barras de avance. Al pasar el mouse se oscurece a `billete-hover`. Su tinte suave (`billete-tinte`) es el fondo de lo seleccionado: enlace activo, chip elegido, botón "Hoy".
-- **Billete de fondo** (`tarjeta-billete` → `tarjeta-billete-2`): un degradé de 135° reservado para la tarjeta principal del Plan, con texto `tarjeta-texto` y datos secundarios en `tarjeta-texto-2`.
+- **Lima** (`primary`): acción principal (botón "Cargar", "Guardar"), enlace de texto, opción activa del menú lateral, anillo de foco, el arco del medidor que muestra lo que queda, el tramo de una barra que entra en el plan y los días que quedaron debajo de su tope. Es también el único bloque de color: el de Ahorro.
+- **Lima encendido** (`primary-hover`): hover del botón principal.
+- **Tinta sobre lima** (`primary-foreground`): texto y controles sobre lima, incluido todo el bloque de Ahorro.
+- **Tinte lima** (`primary-tint`): fondo de la opción activa del menú, de chips elegidos y del botón "Hoy" del selector de mes.
 
 ### Secondary
-- **Latón** (`laton`): el anillo de foco de teclado, el halo de los campos con foco, la barra de lo gastado dentro de la tarjeta billete y el ícono de los avisos flotantes. Su tinte (`laton-tinte`) es el fondo de la tarjeta de decisión ("¿ahorrar o repartir?") y de la etiqueta "Obligatoria".
+- **Lila** (`secondary`): exceso. La cifra cuando la semana o el mes da negativo, el tramo de la barra que se pasó de lo asignado, los días que superaron su tope, el medidor cuando ya no queda nada y la insignia "Te pasaste".
+- **Tinte lila** (`secondary-tint`): fondo de los avisos suaves de exceso.
+- **Tinta sobre lila** (`secondary-foreground`): texto sobre lila lleno, cuando lo hay.
 
 ### Tertiary
-- **Verde positivo** (`positivo`): saldos a favor, ingresos y el punto de los movimientos de ingreso.
-- **Terracota alerta** (`alerta`, tinte `alerta-tinte`): el exceso del plan, las semanas pasadas, los errores, la comparación "subió" y los botones de borrar. Sobre la tarjeta billete se usa la versión clara `alerta-en-billete`.
-- **Series del historial** (`serie-ingresos` azul, `serie-gastos` naranja): solo en los gráficos del Historial, elegidas para que se distingan con daltonismo.
-- **Colores de categoría:** los elige Andres de una paleta fija y aparecen como punto, tramo de la regla o franja lateral de la tarjeta de categoría. Nunca como fondo de texto.
+- **Rojo** (`destructive`): solo borrar y errores (botón de borrar, mensajes de error, aviso flotante de error). Con `destructive-foreground` como texto sobre rojo lleno.
 
 ### Neutral
-- **Papel** (`papel`): el fondo de la página.
-- **Superficie** (`superficie`, `superficie-2`): paneles, diálogos y barra lateral en blanco, y `superficie-2` para hover y fondos internos.
-- **Tinta** (`tinta`, `tinta-2`, `tinta-3`): texto principal, texto secundario (subtítulos, ayudas) y texto terciario (fechas, rótulos, íconos en reposo).
-- **Línea** (`linea`, `linea-suave`): bordes de paneles y campos, y separadores entre filas.
+- **Noche lila** (`background`): fondo de la app.
+- **Bloque** (`card`): superficie de los bloques, la barra lateral, los campos y los botones secundarios.
+- **Bloque alto** (`popover`): diálogos y menús.
+- **Apagado** (`muted`): pista de barras y medidores, días sin gastos, fondo de hover, esqueleto de carga.
+- **Tinta** (`foreground`): texto principal y aguja del medidor; también el fondo de la píldora elegida.
+- **Tinta suave** (`foreground-soft`): texto de enlaces del menú, subtítulos y botones fantasma.
+- **Tinta apagada** (`muted-foreground`): títulos de bloque, etiquetas, notas al pie y el símbolo `$` de los montos.
+- **Borde** (`border`): el borde de 1px de cada bloque y los divisores entre filas. Los campos de Tailwind usan el un poco más visible `input`.
 
 ### Named Rules
-**La regla de los neutros verdes.** Ningún neutro es gris puro: papel, tinta y línea llevan siempre un tono verde. Es lo que evita que la app se vea apagada.
+**The Sentido Fijo Rule.** Lima significa "dentro del plan / lo que queda / lo principal", lila significa "lo que se pasó" y rojo significa "borrar o error". Un color nunca cambia de significado entre pantallas, y el rojo nunca marca un exceso.
 
-**La regla del rojo justificado.** El terracota aparece solo cuando hay un exceso, un error o una acción destructiva. Si algo está en rojo, Andres tiene que hacer algo.
+**The Un Solo Bloque de Color Rule.** El bloque de Ahorro es el único bloque lleno de color en el tablero. Los demás son `card`; el acento vive en cifras, barras e insignias dentro de ellos.
 
-**La regla del latón como señal.** El latón marca foco y decisión. No se usa como color de texto sobre el papel, porque no tiene contraste suficiente.
+**The Colores de Categoría Rule.** El color de cada categoría aparece solo como punto o como segmento de barra, nunca como fondo de texto ni como color de texto.
 
 ## Typography
 
-**Fuente de cifras:** Barlow Condensed (con Arial Narrow), pesos 500 y 600.
-**Fuente de interfaz:** Schibsted Grotesk (con system-ui), pesos 400, 500 y 700.
+**Display Font:** Geist Mono Variable (con ui-monospace, monospace)
+**Body Font:** Geist Variable (con system-ui, sans-serif)
+**Label/Mono Font:** Geist Mono Variable para toda cifra
 
-**Carácter:** una grotesca firme y legible para todo el texto, y una condensada de ticket para la plata. La condensada hace que los montos grandes entren y que las columnas de números queden alineadas.
-
-Las dos se cargan locales con `@fontsource`, sin pedir nada a internet.
+**Character:** Geist pone una interfaz neutra y precisa; Geist Mono le da a cada monto el peso de una lectura de instrumento. Los dos vienen de la misma familia, así que conviven sin fricción.
 
 ### Hierarchy
-- **Display** (Barlow Condensed 600, `clamp(3.5rem, 8vw, 5.25rem)`, interlineado 1): el monto protagonista, "te queda" en la tarjeta billete. En Gastos e Ingresos el titular usa la misma letra un poco más chica (`clamp(3.25rem, 7vw, 4.75rem)`).
-- **Cifra** (Barlow Condensed 600, 1.875rem): los datos clave en celdas, las cifras de cada semana (1.5rem) y los montos de filas y rankings (1.125–1.375rem, peso 500).
-- **Headline** (Schibsted 700, 1.75rem, -0.01em): el título de cada página.
-- **Title** (Schibsted 700, 1.0625rem): títulos de panel, tarjeta, diálogo (1.1875rem) y sección (1.125rem).
-- **Body** (Schibsted 400/500, 0.9375rem, interlineado 1.5): todo el texto corrido. Las ayudas largas se cortan en 60ch.
-- **Label** (Schibsted 700, 0.8125rem): etiquetas de campo. Los rótulos y fechas usan el mismo tamaño en peso 400–500 y color `tinta-3`. No se usan mayúsculas sostenidas.
+- **Display** (600, 56px; 46px en ventana angosta; interlineado 1; -0.04em): la cifra principal del tablero ("Esta semana te quedan") y la del bloque de Ahorro (46px, -0.05em). Los montos de cierre de mes usan 40px.
+- **Headline** (600, 2rem, 1.1, -0.03em): el título de cada pantalla ("Plan").
+- **Title** (600, 14px): títulos de fila, como "Semana 2". Los títulos de paso ("Empezá cargando tus ingresos") van a 18px con tracking ajustado.
+- **Amount** (600, 20px, -0.02em, mono): cifras secundarias dentro de un bloque. Las de las filas de semanas van a 18px; el medidor, a 26px; las listas, a 13px.
+- **Body** (400, 15px, 1.5): texto corrido; los párrafos explicativos se cortan en 60 a 70ch.
+- **Label** (500, 13px): título chico de cada bloque, en `muted-foreground`, en minúscula de oración.
+- **Caption** (400, 12px): notas al pie de bloque, etiquetas de datos y el texto de las píldoras.
 
 ### Named Rules
-**La regla de las cifras.** Todo monto se muestra con el componente `Monto`: Barlow Condensed, cifras tabulares, sin cortes de línea, formato argentino (`1.234.567,50`) y el símbolo `$` o `US$` al 62 % del tamaño y con 70 % de opacidad. El texto que no es plata nunca va en condensada, salvo el nombre "Mis gastos" en la barra lateral.
+**The Toda Cifra en Mono Rule.** Todo monto, porcentaje o número de día va en Geist Mono con números tabulares y sin cortes de línea. El símbolo `$` va más chico (0.55em) y apagado; el número, entero.
+
+**The Montos Accesibles Rule.** Cuando un monto cuenta hasta su valor, el lector de pantalla lee solo el valor final, nunca los pasos de la cuenta.
+
+**The Sin Palabras Sueltas Rule.** Párrafos y elementos de lista usan `text-wrap: pretty`; los títulos, `text-wrap: balance`.
 
 ## Layout
 
-- **Estructura:** barra lateral fija de 248px a la izquierda y contenido a la derecha, con un máximo de 920px de lectura más el relleno (36px arriba, 48px a los costados, 96px abajo).
-- **Ritmo:** el espaciado no usa una escala de tokens, pero se repite:
-  - 8–14px entre controles hermanos.
-  - 20px entre paneles.
-  - 28–36px entre secciones y debajo del encabezado.
-  - 20–22px de relleno interno en paneles y tarjetas.
-- **Grillas que se acomodan solas:**
-  - Celdas de cifras: de 170px mínimo.
-  - Semanas: de 300px.
-  - Tarjetas de categoría: de 220px.
-  - El Plan pasa de dos columnas de paneles a una por debajo de 1100px.
-- **Ventana angosta:**
-  - **900px o menos:** la barra lateral pasa a ser una franja arriba, con la marca, los botones de nuevo gasto o ingreso a la derecha y los enlaces en una fila que se desliza de costado. El contenido queda con 16px de margen lateral.
-  - **760px o menos:** la tarjeta billete apila sus datos debajo del monto y los filtros de Buscar pasan a dos columnas.
-  - **560px o menos:** los botones de nuevo gasto o ingreso quedan solo con el ícono.
+La estructura es una barra lateral fija de 248px a la izquierda y el contenido a la derecha, con hasta 1120px de ancho útil y 36px arriba y 48px a los costados. Por debajo de 900px la barra lateral pasa arriba, pegada, con la navegación en una fila que se desplaza de costado, y el contenido baja a 16px de margen. Por debajo de 560px el botón de cargar queda solo con el ícono.
+
+El Plan es una grilla bento: una columna en ventana angosta, dos desde 640px y cuatro desde 1024px, con un canal de 12px entre bloques. Los bloques ocupan una, dos o cuatro columnas, y algunos dos filas, según cuánto tengan que mostrar. Adentro, cada bloque tiene 20px de relleno, el título chico arriba con 16px hasta el contenido, y la nota al pie empujada al fondo del bloque para que las filas queden parejas.
+
+El encabezado de página lleva el título a la izquierda y, a la derecha, los controles que cambian toda la pantalla (el mes y "Calcular con"), no los de un solo bloque.
 
 ## Elevation & Depth
 
-El sistema es plano: la profundidad sale del contraste entre el papel y los paneles blancos con borde fino, no de sombras. Las sombras aparecen solo en lo que flota sobre la página.
+El tablero es plano. La profundidad sale del escalonado de luz: `background` abajo, `card` para los bloques y la barra lateral, `popover` para lo que flota y `muted` para pistas y hovers; el borde de 1px blanco translúcido separa cada capa. Solo lo que flota por encima de la página (diálogos y aviso flotante) lleva sombra, y el fondo del diálogo se oscurece al 60% con un desenfoque de 4px.
 
 ### Shadow Vocabulary
-- **Flotante** (`--sombra-flotante`): diálogos, avisos flotantes y el cartel del gráfico. En oscuro se vuelve más densa.
-- **Opción elegida** (`0 1px 2px rgb(0 0 0 / 0.12), 0 0 0 1px var(--linea)`): la opción marcada de un control segmentado, que se levanta apenas.
+- **Flotante** (`box-shadow: 0 24px 60px -20px oklch(0 0 0 / 0.75), 0 0 0 1px oklch(1 0 0 / 0.06)`): diálogos de gasto, ingreso y confirmación, y el aviso flotante.
 
 ### Named Rules
-**La regla de lo plano en reposo.** Paneles, tarjetas, semanas y filas no llevan sombra. Si algo necesita destacarse, cambia el borde (verde billete en la semana en curso, latón en la decisión), no la elevación.
+**The Plano por Capas Rule.** Los bloques no llevan sombra: se separan por luz y por borde. La sombra queda reservada a lo que tapa la página.
 
 ## Shapes
 
-Las esquinas son suaves y van de menor a mayor según el tamaño de la pieza:
-- **8px:** botones, campos, enlaces del menú y filas con hover.
-- **12px:** selector de mes, tarjetas de categoría, avisos y buscador.
-- **18px:** paneles, semanas, diálogos y estados vacíos.
-- **22px:** solo la tarjeta billete.
-
-Chips, etiquetas y sugerencias son píldoras. Los puntos de categoría y los colores de la paleta son círculos.
-
-Los bordes miden 1px en paneles y 1.5px en controles y tarjetas de acción. La línea punteada se reserva para lo que todavía no existe o es opcional: estados vacíos, sugerencias y el aviso de fin de mes.
+Esquinas grandes en los bloques y píldora en todo lo que se toca. Los bloques usan 26px; los paneles y diálogos de las otras pantallas, también. Los botones internos de un bloque y las filas que se pueden tocar usan 16px; campos, enlaces del menú e íconos de botón, 10px. Botones, selectores, insignias, chips y el selector de mes son píldoras completas. Las barras de uso son píldoras con los extremos redondos y un hueco de 3px entre el tramo lima y el tramo lila; los segmentos de categoría usan 8px y las barras de los días 4px. El medidor es un semicírculo de trazo grueso (10px) con extremos redondos.
 
 ## Components
 
 ### Buttons
-Firmes y sin estridencias: el color dice qué tan importante es la acción.
-- **Forma:** esquinas de 8px, 42px de alto (36px en la versión chica), relleno lateral de 18px, peso 700.
-- **Primario:** verde billete con texto blanco. Hay uno por contexto: "Nuevo gasto" en la barra lateral, "Guardar" en el diálogo.
-- **Secundario:** blanco con borde `linea`. Al pasar el mouse el borde se oscurece a `tinta-3`.
-- **Fantasma:** transparente con texto `tinta-2` y fondo `superficie-2` al pasar el mouse. Se usa para "Cancelar".
-- **Peligro:** texto terracota con borde terracota al 45 % y tinte al pasar el mouse. La versión llena, terracota con texto blanco, va solo en la confirmación final de borrar.
-- **Botón texto:** verde billete sin fondo, subrayado al pasar el mouse, para acciones secundarias dentro de un texto.
-- **Botón ícono:** 36×36, transparente.
-- **Foco:** anillo de latón de 3px con 2px de separación. La transición es de 120ms, solo de color, y se desactiva con movimiento reducido.
-- **Atajos:** "Nuevo gasto" y "Nuevo ingreso" muestran su tecla (N, I) en una cajita al 80 % de opacidad con borde suave, alineada a la derecha.
+Píldoras sólidas y directas.
+- **Shape:** píldora completa (9999px), 42px de alto; la variante chica, 36px.
+- **Primary:** fondo lima con tinta oscura, 600, 15px, 18px a los costados. Hover a `primary-hover`.
+- **Hover / Focus:** cambio de color en 120ms; foco con contorno lima de 3px separado 2px (en las piezas del tablero, anillo lima de 2px).
+- **Secondary / Ghost / Destructive:** secundario en `card` con borde `border` que se aclara al hover; fantasma sin fondo que toma `muted` al hover; borrar con texto rojo y borde rojo translúcido, y su versión llena en rojo para confirmar. Los enlaces de texto ("Ver todos", "Cambiar") van en lima, 600, con subrayado al hover.
+- **Dentro del bloque de Ahorro:** el botón principal se invierte (fondo tinta, texto lima), ocupa todo el ancho y usa 16px de esquina; el secundario es solo borde en tinta translúcida.
 
 ### Chips
-- **Estilo:** píldora blanca de 38px con borde `linea` de 1.5px y, para las categorías, un punto de color de 10px.
-- **Estado:** elegido es borde y texto verde billete sobre `billete-tinte`, en negrita. La versión compacta mide 32px. Las sugerencias son píldoras más chicas con borde punteado.
-
-### Segmented control
-Una cápsula `superficie-2` con opciones de texto en negrita. La opción marcada se vuelve blanca y se levanta con la sombra de opción elegida. Sirve para pesos o dólares, "todo el mes o por semanas" y filtros cortos.
+- **Pills (selector):** grupo en píldora con borde de 1px y 2px de relleno; cada opción en 12px, 500. La elegida invierte a fondo `foreground` con texto `background`. Se recorre con flechas como un grupo de radios, con un solo Tab.
+- **Insignia:** píldora de 11px, 600, con el texto en el color de estado y el fondo en ese mismo color al 18%. Lima para "En curso", lila para "Te pasaste", gris para "Terminada" o "Próxima".
+- **Chips de categoría:** píldora de 38px con punto de color; elegida, borde lima y fondo `primary-tint`.
 
 ### Cards / Containers
-- **Panel:** blanco, 18px de esquina, borde de 1px `linea` y relleno de 20–22px. El título va arriba y un pie opcional queda separado por `linea-suave`.
-- **Tarjeta de acción:** igual que el panel pero con borde de 1.5px. La variante **paso** tiene borde verde billete. La variante **decisión** tiene borde latón y fondo `laton-tinte`.
-- **Celdas de cifras:** una grilla de celdas unidas dentro de un mismo borde, separadas por líneas de 1px. Arriba va el rótulo chico y debajo el monto en condensada 1.875rem.
-- **Estado vacío:** borde punteado de 1.5px, título, texto de hasta 60ch y acciones.
+- **Corner Style:** 26px.
+- **Background:** `card`; el bloque de Ahorro, lima lleno con todo su contenido en `primary-foreground`.
+- **Shadow Strategy:** ninguna (ver Elevation & Depth).
+- **Border:** 1px `border`; el bloque de Ahorro no lleva borde.
+- **Internal Padding:** 20px, con título chico de 13px arriba y nota al pie de 12px abajo.
 
 ### Inputs / Fields
-- **Estilo:** 44px de alto, borde `linea` de 1.5px, 8px de esquina, fondo blanco y etiqueta en label 700 encima.
-- **Foco:** el borde pasa a verde billete y aparece un halo de latón al 45 % de 3px.
-- **Campo de monto:** sin caja. Es un número grande en condensada de 3.25rem alineado a la derecha, sobre una línea inferior de 2px que se pone verde billete con el foco.
-- **Error:** texto terracota de peso 500 debajo del campo.
+- **Style:** 44px de alto, fondo `card`, borde de 1.5px blanco translúcido al 12% y 10px de esquina; etiqueta encima en 13px, 700, `foreground-soft`.
+- **Focus:** borde lima y halo lima de 3px al 45%.
+- **Error / Disabled:** ayuda y error en rojo; deshabilitado al 45% de opacidad.
+- **Campo de monto:** sin caja, solo una línea de 2px abajo que se vuelve lima al enfocar; la cifra va en Geist Mono 52px, 600, alineada a la derecha.
 
 ### Navigation
-- **Barra lateral:** blanca, con la marca arriba (ícono más "Mis gastos" en condensada), los dos botones de alta y tres grupos ("Este mes", "Análisis", "Ajustes"). Cada grupo tiene su nombre en `tinta-3` y enlaces con ícono de trazo de 20px.
-- **Estados:** en reposo `tinta-2`. Con el mouse encima, fondo `superficie-2`. Activo, fondo `billete-tinte` con texto e ícono verde billete, peso 700 y trazo más grueso.
-- **Ventana angosta:** ver Layout.
+- **Barra lateral:** superficie `card` con borde derecho; marca con ícono, botones de cargar gasto e ingreso con su atajo, y grupos de enlaces con nombre de grupo en 13px apagado. Enlace en `foreground-soft`, 500, con ícono de trazo; hover a `muted`; activo con fondo `primary-tint`, texto e ícono lima y 700. En ventana angosta pasa a una fila arriba.
 
-### Tarjeta billete (signature)
-Es el corazón del Plan: un billete oscuro con degradé, el grabado guilloche en blanco al 7,5 % de opacidad, el monto disponible en Display, una barra de 8px que se llena en latón y, si hay exceso, suma a continuación un tramo en `alerta-en-billete` con lo que se pasó, y una línea chica que dice con qué base se calcula ("Según el plan del mes"). A la derecha lleva una columna de datos separada por una línea translúcida. Aparece una sola vez en toda la app.
+### Tira diaria (firma)
+El gesto propio del sistema. En el bloque principal, debajo de la cifra grande, una barra por día del mes, de 96px de alto y 3px entre barras. La altura es lo gastado ese día; una rayita de 2px en tinta al 45% marca lo que le tocaba. La barra es lima si quedó debajo, lila si la pasó, `muted` si no hubo gastos, y solo un contorno si el día todavía no llegó; hoy lleva un anillo fino. Al pasar el puntero o enfocar un día, los demás bajan al 30% y la línea de abajo dice el detalle. Se recorre con flechas, con un solo Tab. Las barras crecen escalonadas 14ms por día.
 
-### Semanas
-Una tarjeta por semana del plan con tres cifras (para gastar, gastado, queda) y una barra de 6px. Las semanas que todavía no empezaron y no tienen gastos se achican a una sola cifra, "Para gastar". La semana en curso lleva borde de 2px verde billete y la etiqueta "En curso". Las semanas terminadas pierden el fondo blanco. Una semana excedida pone la cifra negativa en terracota y la barra muestra aparte, en terracota, el tramo del exceso. La nota de abajo aparece solo si hay un ajuste que explicar.
+### Medidor semicircular
+Arco de 10px: lima es lo que queda, lo usado se apaga a `muted` y una aguja en tinta marca el porcentaje. Si ya no queda nada, el arco entero pasa a lila y la cifra también.
 
-### Libro de movimientos
-Los gastos e ingresos se agrupan por día. Cada día tiene un encabezado con la fecha y el total, y cada movimiento es una fila con:
-- un punto de color de categoría;
-- la descripción, cortada con puntos suspensivos si no entra;
-- la categoría o fecha debajo, en `tinta-3`;
-- el monto a la derecha en condensada.
+### Barras de uso y barra de categorías
+La barra de uso muestra lo gastado sobre lo asignado: lima hasta el límite y, si se pasó, un tramo lila aparte que crece después (500ms de demora). La barra de categorías es una fila de segmentos de 36px de alto con el color de cada categoría, con una lista de puntos y porcentajes en mono debajo.
 
-Al pasar el mouse, la fila se vuelve blanca y aparece un chevron.
+### Movimiento
+Una sola curva de salida, `cubic-bezier(0.22, 1, 0.36, 1)`, para todo lo que crece en el tablero: barras en 900ms, segmentos en 1000ms, montos que cuentan en 1100ms, filas de lista que suben 6px y aparecen escalonadas. Con movimiento reducido no hay cuenta ni crecimiento, pero el foco y el hover siguen.
 
-### Regla de categorías
-Una barra horizontal de 12px dividida en tramos del color de cada categoría, con 2px de separación. Si sobra plata, el último tramo queda vacío y solo con borde.
-
-### Diálogos y avisos
-- **Diálogo:** nativo (`<dialog>`), blanco, 18px de esquina, hasta 540px de ancho (420px para confirmar), con sombra flotante y fondo oscurecido con un desenfoque de 2px. Entra en 180ms subiendo 12px.
-- **Aviso flotante:** abajo a la derecha, fondo `tinta` con texto `papel` y el ícono en latón. Si es un error, va en terracota.
+### Pantallas todavía sin bloques
+Gastos, Ingresos, Resumen, Historial, Buscar y Categorías usan los colores, las fuentes y las píldoras de este sistema, pero todavía no están armadas con las piezas del tablero (Tile, Pills, Insignia, Cifra): siguen con sus paneles, filas y controles propios.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** mostrar todo monto con `Monto`, en Barlow Condensed tabular y formato `1.234.567,50`.
-- **Do** dejar que la respuesta principal de cada pantalla (cuánto queda, cuánto se gastó) sea lo más grande de la vista.
-- **Do** dar foco visible con el anillo de latón de 3px a todo lo que se puede usar con teclado.
-- **Do** usar verde billete para una sola acción principal por contexto.
-- **Do** mantener los neutros verdosos y tomar los colores de `:root`, sin poner hex sueltos en los componentes.
-- **Do** probar cada cambio en claro, en oscuro y con la ventana angosta (900px y 560px).
+- **Do** poner cada respuesta en su propio bloque de `card` con 26px de esquina, borde de 1px y 20px de relleno, separado 12px de los demás.
+- **Do** escribir toda cifra en Geist Mono tabular, con el `$` más chico y apagado.
+- **Do** usar lima para lo que queda y lo principal, lila para lo que se pasó y rojo solo para borrar y errores.
+- **Do** mostrar el exceso como un tramo lila aparte de lo que entró en el plan, no recolorear toda la barra.
+- **Do** animar con la curva `cubic-bezier(0.22, 1, 0.36, 1)` y dejar todo en su lugar con movimiento reducido.
+- **Do** hacer recorribles con flechas, con un solo Tab, los grupos de opciones y las tiras de barras.
 
 ### Don't:
-- **Don't** hacer que parezca un banco: nada de azules corporativos, degradés de home banking, íconos de monedas o tarjetas brillantes.
-- **Don't** dejar que una pantalla se vea apagada: nada de grises puros, paneles sin jerarquía ni titulares chicos.
-- **Don't** sumar adornos: el guilloche de la tarjeta billete es el único y no se repite en otras pantallas.
-- **Don't** usar el terracota para algo que no sea exceso, error o borrar.
-- **Don't** poner sombras a paneles, tarjetas o filas en reposo.
-- **Don't** usar el latón como color de texto sobre el papel ni los colores de categoría como fondo de texto.
+- **Don't** agregar un modo claro: la app es siempre oscura.
+- **Don't** usar rojo para marcar un exceso, ni lila para borrar.
+- **Don't** llenar de color otro bloque además del de Ahorro.
+- **Don't** usar el color de una categoría como fondo o color de texto; solo como punto o segmento.
+- **Don't** poner sombras en los bloques; la sombra es solo para lo que flota.
