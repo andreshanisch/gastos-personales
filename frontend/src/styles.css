@@ -31,6 +31,8 @@
   --tarjeta-billete-2: #123a2f;
   --tarjeta-texto: #f1f6f2;
   --tarjeta-texto-2: #b9d2c6;
+  /* Exceso sobre la tarjeta billete: la tarjeta es oscura en los dos modos, así que no cambia */
+  --alerta-en-billete: #ffb4a2;
 
   /* Series del historial (validadas para daltonismo y contraste) */
   --serie-ingresos: #2a78d6;
@@ -102,6 +104,9 @@ body {
 }
 
 h1, h2, h3, p { margin: 0; }
+/* Sin palabras sueltas al final de un párrafo, y títulos de largo parejo */
+p, li, dd, dt { text-wrap: pretty; }
+h1, h2, h3 { text-wrap: balance; }
 ul, ol { list-style: none; margin: 0; padding: 0; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -719,10 +724,12 @@ kbd {
   letter-spacing: -0.01em;
   margin: 6px 0 10px;
 }
-.billete__monto--excedido { color: #ffb4a2; }
+.billete__monto--excedido { color: var(--alerta-en-billete); }
 .billete__dia { color: var(--tarjeta-texto-2); }
 .billete__dia strong { color: var(--tarjeta-texto); font-family: var(--fuente-cifras); font-size: 1.25rem; font-weight: 600; }
 .billete__barra {
+  display: flex;
+  gap: 2px;
   height: 8px;
   margin-top: 18px;
   border-radius: 4px;
@@ -730,7 +737,7 @@ kbd {
   overflow: hidden;
 }
 .billete__barra span { display: block; height: 100%; border-radius: 4px; background: var(--laton); }
-.billete__barra--excedida span { background: #ffb4a2; }
+.billete__barra .barra__exceso { background: var(--alerta-en-billete); }
 .billete__base { margin-top: 12px; font-size: 0.8125rem; color: var(--tarjeta-texto-2); max-width: 52ch; }
 .billete__lado {
   display: flex;
@@ -742,7 +749,7 @@ kbd {
 }
 .billete__dato dt { font-size: 0.8125rem; color: var(--tarjeta-texto-2); }
 .billete__dato dd { margin: 0; font-size: 1.625rem; font-weight: 600; line-height: 1.15; }
-.billete__dato--excedido { color: #ffb4a2; }
+.billete__dato--excedido { color: var(--alerta-en-billete); }
 @media (max-width: 760px) {
   .billete { grid-template-columns: minmax(0, 1fr); padding: 24px; }
   .billete__lado { flex-direction: row; flex-wrap: wrap; gap: 12px 28px; padding: 16px 0 0; border-left: 0; border-top: 1px solid rgb(255 255 255 / 0.16); }
@@ -820,9 +827,9 @@ kbd {
 .semana__rotulo { display: block; font-size: 0.75rem; color: var(--tinta-3); }
 .semana__cifra { font-size: 1.5rem; font-weight: 600; line-height: 1.15; }
 .semana__cifra--negativa { color: var(--alerta); }
-.semana__barra { height: 6px; margin: 14px 0 12px; border-radius: 3px; background: var(--linea-suave); overflow: hidden; }
+.semana__barra { display: flex; gap: 2px; height: 6px; margin: 14px 0 12px; border-radius: 3px; background: var(--linea-suave); overflow: hidden; }
 .semana__barra span { display: block; height: 100%; border-radius: 3px; background: var(--billete); }
-.semana--excedida .semana__barra span { background: var(--alerta); }
+.semana__barra .barra__exceso { background: var(--alerta); }
 .semana__nota { font-size: 0.8125rem; color: var(--tinta-3); margin-top: auto; }
 .semana__nota strong { color: var(--tinta-2); }
 .semana--compacta .semana__encabezado { margin-bottom: 10px; }

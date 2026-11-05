@@ -124,7 +124,6 @@ export function PlanPage() {
   // Las decisiones van en orden: repartir el sobrante de una semana cambia lo que le sobra a la siguiente
   const pendientes = resultado.semanas.filter((s) => s.decisionPendiente).slice(0, 1)
   const otrasPendientes = resultado.semanas.filter((s) => s.decisionPendiente).length - pendientes.length
-  const usadoActual = actual && actual.asignado > 0 ? Math.min(100, (actual.gastado / actual.asignado) * 100) : actual?.gastado ? 100 : 0
 
   // Cuánto se puede gastar por día en lo que queda de la semana actual
   const diasRestantes = actual && actual.estado === 'en-curso'
@@ -187,9 +186,7 @@ export function PlanPage() {
                         : 'Es la última semana: ya no quedan semanas para compensarlo.'
                     : `Semana del ${actual.desde} al ${actual.hasta} de ${nombreMes(mes)}.`}
               </p>
-              <div className={`billete__barra ${actual.saldo < 0 ? 'billete__barra--excedida' : ''}`} aria-hidden="true">
-                <span style={{ width: `${usadoActual}%` }} />
-              </div>
+              <BarraUso asignado={actual.asignado} gastado={actual.gastado} className="billete__barra" />
               <p className="billete__base">
                 {desdeHoy
                   ? 'Según lo que tenés hoy.'
@@ -477,7 +474,6 @@ const ESTADOS: Record<SemanaPlan['estado'], string> = {
 }
 
 function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan; mes: number; alCambiarDecision: () => void }) {
-  const usado = s.asignado > 0 ? Math.min(100, (s.gastado / s.asignado) * 100) : s.gastado > 0 ? 100 : 0
   // Una semana que todavía no empezó y no tiene gastos solo tiene un dato: cuánto le toca
   const compacta = s.estado === 'proxima' && s.gastado === 0
   const ajustes = (
@@ -525,9 +521,7 @@ function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan;
         </div>
       </div>
 
-      <div className="semana__barra" aria-hidden="true">
-        <span style={{ width: `${usado}%` }} />
-      </div>
+      <BarraUso asignado={s.asignado} gastado={s.gastado} className="semana__barra" />
 
       {(s.ajuste !== 0 || s.descuentoPorSemanaSiguiente > 0) && (
         <p className="semana__nota">
@@ -602,6 +596,24 @@ function ElegirObligatorias({ categorias, primeraVez, alTerminar, alCancelar }: 
         </button>
         {alCancelar && <button type="button" className="boton-texto" onClick={alCancelar}>Cancelar</button>}
       </div>
+    </div>
+  )
+}
+
+/** Barra de lo gastado sobre lo asignado; si se pasó, muestra aparte la parte del exceso */
+function BarraUso({ asignado, gastado, className }: { asignado: number; gastado: number; className: string }) {
+  if (gastado > asignado) {
+    const dentro = asignado > 0 ? (asignado / gastado) * 100 : 0
+    return (
+      <div className={className} aria-hidden="true">
+        {dentro > 0 && <span style={{ width: `${dentro}%` }} />}
+        <span className="barra__exceso" style={{ flex: 1 }} />
+      </div>
+    )
+  }
+  return (
+    <div className={className} aria-hidden="true">
+      <span style={{ width: `${asignado > 0 ? (gastado / asignado) * 100 : 0}%` }} />
     </div>
   )
 }

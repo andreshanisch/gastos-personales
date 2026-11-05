@@ -295,10 +295,10 @@ Una cápsula `superficie-2` con opciones de texto en negrita. La opción marcada
 - **Ventana angosta:** ver Layout.
 
 ### Tarjeta billete (signature)
-Es el corazón del Plan: un billete oscuro con degradé, el grabado guilloche en blanco al 7,5 % de opacidad, el monto disponible en Display y una barra de 8px que se llena en latón (o en `alerta-en-billete` si hay exceso). A la derecha lleva una columna de datos separada por una línea translúcida. Aparece una sola vez en toda la app.
+Es el corazón del Plan: un billete oscuro con degradé, el grabado guilloche en blanco al 7,5 % de opacidad, el monto disponible en Display, una barra de 8px que se llena en latón y, si hay exceso, suma a continuación un tramo en `alerta-en-billete` con lo que se pasó, y una línea chica que dice con qué base se calcula ("Según el plan del mes"). A la derecha lleva una columna de datos separada por una línea translúcida. Aparece una sola vez en toda la app.
 
 ### Semanas
-Una tarjeta por semana del plan con tres cifras (asignado, gastado, queda) y una barra de 6px. La semana en curso lleva borde de 2px verde billete y la etiqueta "En curso". Las semanas terminadas pierden el fondo blanco. Una semana excedida pone la barra y la cifra negativa en terracota.
+Una tarjeta por semana del plan con tres cifras (para gastar, gastado, queda) y una barra de 6px. Las semanas que todavía no empezaron y no tienen gastos se achican a una sola cifra, "Para gastar". La semana en curso lleva borde de 2px verde billete y la etiqueta "En curso". Las semanas terminadas pierden el fondo blanco. Una semana excedida pone la cifra negativa en terracota y la barra muestra aparte, en terracota, el tramo del exceso. La nota de abajo aparece solo si hay un ajuste que explicar.
 
 ### Libro de movimientos
 Los gastos e ingresos se agrupan por día. Cada día tiene un encabezado con la fecha y el total, y cada movimiento es una fila con:
