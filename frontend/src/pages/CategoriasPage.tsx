@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useAcciones } from '../Acciones'
 import { api } from '../api'
 import { useAvisos } from '../components/Avisos'
 import { useConfirmar } from '../components/Confirmar'
 import { EncabezadoPagina } from '../components/EncabezadoPagina'
 import { Esqueleto } from '../components/Esqueleto'
+import { Insignia, Tile } from '@/components/ui/bento'
+import { cn } from '@/lib/utils'
 import type { Categoria } from '../types'
 
 // Ordenados por tono; los claros y oscuros se distinguen bien de los intermedios
@@ -70,40 +72,50 @@ export function CategoriasPage() {
       {!categorias && !error && <Esqueleto filas={3} conTitular={false} />}
 
       {categorias && activas.length === 0 && (
-        <div className="vacio">
-          <h2 className="vacio__titulo">Todavía no hay categorías</h2>
-          <p className="vacio__texto">Creá una para empezar a cargar gastos, por ejemplo "Supermercado" o "Transporte".</p>
-        </div>
+        <Tile titulo="Primer paso">
+          <p className="text-lg font-semibold tracking-tight">Todavía no hay categorías</p>
+          <p className="mt-1 text-sm text-muted-foreground">Creá una para empezar a cargar gastos, por ejemplo "Supermercado" o "Transporte".</p>
+        </Tile>
       )}
 
-      <ul className="categorias-grilla">
-        {activas.map((c) => (
-          <li key={c.id}>
-            <TarjetaCategoria categoria={c} alEditar={() => setEditando(c)} />
-          </li>
-        ))}
-      </ul>
+      {activas.length > 0 && (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {activas.map((c) => (
+            <li key={c.id}>
+              <TarjetaCategoria categoria={c} alEditar={() => setEditando(c)} />
+            </li>
+          ))}
+        </ul>
+      )}
 
       {archivadas.length > 0 && (
-        <section className="seccion">
-          <button type="button" className="boton-texto" onClick={() => setVerArchivadas((v) => !v)} aria-expanded={verArchivadas}>
-            {verArchivadas ? 'Ocultar archivadas' : `Ver archivadas (${archivadas.length})`}
-          </button>
+        <Tile
+          titulo="Archivadas"
+          className="mt-3"
+          accion={
+            <button
+              type="button"
+              className="text-[12px] font-semibold text-primary hover:underline"
+              onClick={() => setVerArchivadas((v) => !v)}
+              aria-expanded={verArchivadas}
+            >
+              {verArchivadas ? 'Ocultar' : `Ver ${archivadas.length}`}
+            </button>
+          }
+        >
+          <p className="text-[12px] text-muted-foreground">
+            Se archivan las categorías que se eliminan y tienen gastos, para no perder el historial.
+          </p>
           {verArchivadas && (
-            <>
-              <p className="panel__ayuda" style={{ margin: '8px 0 14px' }}>
-                Se archivan las categorías que se eliminan y tienen gastos, para no perder el historial.
-              </p>
-              <ul className="categorias-grilla">
-                {archivadas.map((c) => (
-                  <li key={c.id}>
-                    <TarjetaCategoria categoria={c} alEditar={() => setEditando(c)} />
-                  </li>
-                ))}
-              </ul>
-            </>
+            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {archivadas.map((c) => (
+                <li key={c.id}>
+                  <TarjetaCategoria categoria={c} alEditar={() => setEditando(c)} />
+                </li>
+              ))}
+            </ul>
           )}
-        </section>
+        </Tile>
       )}
 
       <DialogoCategoria
@@ -121,16 +133,24 @@ function TarjetaCategoria({ categoria: c, alEditar }: { categoria: Categoria; al
   return (
     <button
       type="button"
-      className={`categoria-tarjeta ${c.archivada ? 'categoria-tarjeta--archivada' : ''}`}
-      style={{ '--color-categoria': c.color } as CSSProperties}
       onClick={alEditar}
+      aria-label={`${c.nombre}${c.obligatoria ? ', obligatoria' : ''}${c.archivada ? ', archivada' : ''}. Editar`}
+      className={cn(
+        'group flex h-full w-full flex-col gap-3 rounded-tile border border-border p-4 text-left outline-none transition-colors hover:border-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-ring',
+        c.archivada ? 'bg-transparent text-muted-foreground' : 'bg-card',
+      )}
     >
-      <span className="categoria-tarjeta__nombre">{c.nombre}</span>
-      <span className="categoria-tarjeta__etiquetas">
-        {c.obligatoria && <span className="etiqueta etiqueta--obligatoria">Obligatoria</span>}
-        {c.archivada && <span className="etiqueta" style={{ marginLeft: 0 }}>Archivada</span>}
+      <span className="flex items-center gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted" aria-hidden>
+          <span className="size-3 rounded-full" style={{ background: c.color }} />
+        </span>
+        <span className="min-w-0 truncate text-[14px] font-semibold">{c.nombre}</span>
       </span>
-      <span className="categoria-tarjeta__accion">Editar</span>
+      <span className="flex min-h-[22px] flex-wrap items-center gap-1.5">
+        {c.obligatoria && <Insignia color="var(--foreground)">Obligatoria</Insignia>}
+        {c.archivada && <Insignia color="var(--muted-foreground)">Archivada</Insignia>}
+        <span className="ml-auto text-[12px] text-muted-foreground transition-colors group-hover:text-primary">Editar</span>
+      </span>
     </button>
   )
 }
@@ -169,6 +189,8 @@ function DialogoCategoria({ abierto, categoria, otras, alCerrar, alTerminar }: D
       d.showModal()
       requestAnimationFrame(() => (d.querySelector('input:not([type])') as HTMLInputElement | null)?.focus())
     } else if (!abierto && d.open) {
+      // Si el foco quedó en un campo del diálogo, se suelta: si no, los atajos N e I creen que se está escribiendo
+      if (d.contains(document.activeElement)) (document.activeElement as HTMLElement).blur()
       d.close()
     }
     // enUso se recalcula en cada render; solo importa al abrir
@@ -231,6 +253,8 @@ function DialogoCategoria({ abierto, categoria, otras, alCerrar, alTerminar }: D
       ref={dialogo}
       className="dialogo dialogo--hoja"
       onClose={alCerrar}
+      // Esc: el navegador cierra el diálogo por su cuenta y a veces no avisa con "close"
+      onCancel={(e) => { e.preventDefault(); alCerrar() }}
       onClick={(e) => { if (e.target === dialogo.current) alCerrar() }}
       aria-labelledby="dialogo-categoria-titulo"
     >
