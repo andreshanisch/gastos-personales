@@ -25,17 +25,19 @@ const pesos = (n: number) => formatearMonto(Math.round(n))
 /** 'mes' = plan de todo el mes; un número = repartir lo que hay hoy en esa cantidad de semanas */
 type Modo = 'mes' | 1 | 2 | 3 | 4
 const CLAVE_MODO = 'gastos.plan.modo'
+/** Hasta qué semana se repartió "lo que tengo hoy" la última vez, para volver a eso al elegirlo */
+const CLAVE_SEMANAS = 'gastos.plan.semanas'
 
-function leerModo(): Modo {
+function leerNumero(clave: string): 1 | 2 | 3 | 4 | null {
   try {
-    const valor = localStorage.getItem(CLAVE_MODO)
-    if (valor === '1' || valor === '2' || valor === '3' || valor === '4') return Number(valor) as Modo
-  } catch { /* sin almacenamiento: se usa el plan del mes */ }
-  return 'mes'
+    const valor = localStorage.getItem(clave)
+    if (valor === '1' || valor === '2' || valor === '3' || valor === '4') return Number(valor) as 1 | 2 | 3 | 4
+  } catch { /* sin almacenamiento: se usa el valor por defecto */ }
+  return null
 }
 
-function guardarModo(modo: Modo) {
-  try { localStorage.setItem(CLAVE_MODO, String(modo)) } catch { /* no pasa nada si no se guarda */ }
+function guardarPreferencia(clave: string, valor: string) {
+  try { localStorage.setItem(clave, valor) } catch { /* no pasa nada si no se guarda */ }
 }
 
 export function PlanPage() {
@@ -45,11 +47,12 @@ export function PlanPage() {
   const [datos, setDatos] = useState<Datos | null>(null)
   const [error, setError] = useState('')
   const [eligiendo, setEligiendo] = useState(false)
-  const [modo, setModo] = useState<Modo>(leerModo)
+  const [modo, setModo] = useState<Modo>(() => leerNumero(CLAVE_MODO) ?? 'mes')
 
   function cambiarModo(nuevo: Modo) {
     setModo(nuevo)
-    guardarModo(nuevo)
+    guardarPreferencia(CLAVE_MODO, String(nuevo))
+    if (nuevo !== 'mes') guardarPreferencia(CLAVE_SEMANAS, String(nuevo))
   }
 
   const cargar = useCallback(async () => {
@@ -157,6 +160,21 @@ export function PlanPage() {
     : 0
   const porDia = actual && diasRestantes > 0 && actual.saldo > 0 ? actual.saldo / diasRestantes : 0
 
+  // La semana que sigue a la actual en el plan del mes: ya trae descontado el exceso de esta
+  const siguiente = !desdeHoy && actual && actual.numero < 4 ? resultado.semanas[actual.numero] : null
+
+  // Lo que queda para el resto del período que se está mirando (puede ser negativo si se pasó)
+  const gastadoComun = semanasVisibles.reduce((s, x) => s + x.gastado, 0)
+  const queda = desdeHoy
+    ? desdeHoy.disponible - gastadoComun
+    : resultado.libre - gastadoComun - resultado.ahorrado
+
+  // Hasta qué día puede llegar "lo que tengo hoy": el fin de cada semana desde la actual
+  const finesPosibles = resultado.semanaActual
+    ? resultado.semanas.slice(resultado.semanaActual - 1).map((s, i) => ({ semanas: (i + 1) as 1 | 2 | 3 | 4, hasta: s.hasta }))
+    : []
+  const semanasHoy = (desdeHoy?.semanasElegidas ?? Math.max(1, Math.min(leerNumero(CLAVE_SEMANAS) ?? maximoSemanas, maximoSemanas))) as 1 | 2 | 3 | 4
+
   return (
     <>
       {encabezado}
@@ -181,12 +199,21 @@ export function PlanPage() {
                 {porDia > 0
                   ? <>Son unos <strong>{pesos(porDia)}</strong> por día hasta el {actual.hasta} de {nombreMes(mes)}.</>
                   : actual.saldo < 0
-                    ? 'El exceso se descuenta de las semanas que quedan.'
+                    ? siguiente
+                      ? <>Desde el {siguiente.desde} tenés <strong>{pesos(Math.max(0, siguiente.asignado))}</strong> para esa semana, ya descontado el exceso.</>
+                      : desdeHoy
+                        ? <>Te {queda >= 0 ? 'quedan' : 'faltan'} <strong>{pesos(Math.abs(queda))}</strong> hasta el {desdeHoy.cubreHasta} de {nombreMes(mes)}.</>
+                        : 'Es la última semana: ya no quedan semanas para compensarlo.'
                     : `Semana del ${actual.desde} al ${actual.hasta} de ${nombreMes(mes)}.`}
               </p>
               <div className={`billete__barra ${actual.saldo < 0 ? 'billete__barra--excedida' : ''}`} aria-hidden="true">
                 <span style={{ width: `${usadoActual}%` }} />
               </div>
+              <p className="billete__base">
+                {desdeHoy
+                  ? 'Según lo que tenés hoy.'
+                  : 'Según el plan del mes.'}
+              </p>
             </>
           ) : (
             <>
@@ -207,50 +234,69 @@ export function PlanPage() {
                 <dt>Ya gastaste</dt>
                 <dd><Monto valor={actual.gastado} /></dd>
               </div>
+              <div className="billete__dato">
+                <dt>
+                  {queda >= 0
+                    ? desdeHoy ? `Queda hasta el ${desdeHoy.cubreHasta}` : 'Queda en el mes'
+                    : desdeHoy ? `Te pasaste hasta el ${desdeHoy.cubreHasta}` : 'Te pasaste en el mes'}
+                </dt>
+                <dd className={queda < 0 ? 'billete__dato--excedido' : undefined}><Monto valor={Math.abs(queda)} /></dd>
+              </div>
             </>
           )}
-          <div className="billete__dato">
-            <dt>Ahorrado este mes</dt>
-            <dd><Monto valor={resultado.ahorrado} /></dd>
-          </div>
+          {(!actual || resultado.ahorrado > 0) && (
+            <div className="billete__dato">
+              <dt>Ahorrado este mes</dt>
+              <dd><Monto valor={resultado.ahorrado} /></dd>
+            </div>
+          )}
         </dl>
       </section>
 
       {resultado.semanaActual !== null && (
         <>
           <div className="modo">
-            <p className="modo__pregunta" id="modo-titulo">Administrar</p>
+            <p className="modo__pregunta" id="modo-titulo">Calcular con</p>
             <div className="segmentado" role="radiogroup" aria-labelledby="modo-titulo" onKeyDown={alTeclaEnGrupo}>
               <button
                 type="button"
                 role="radio"
-                aria-checked={modo === 'mes' || !desdeHoy}
-                tabIndex={modo === 'mes' || !desdeHoy ? 0 : -1}
+                aria-checked={!desdeHoy}
+                tabIndex={!desdeHoy ? 0 : -1}
                 className="segmentado__opcion"
                 onClick={() => cambiarModo('mes')}
               >
-                Todo el mes
+                El plan del mes
               </button>
-              {[1, 2, 3, 4].filter((n) => n <= maximoSemanas).map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  role="radio"
-                  aria-checked={desdeHoy?.semanasElegidas === n}
-                  tabIndex={desdeHoy?.semanasElegidas === n ? 0 : -1}
-                  className="segmentado__opcion"
-                  onClick={() => cambiarModo(n as Modo)}
-                >
-                  {n === 1 ? '1 semana' : `${n} semanas`}
-                </button>
-              ))}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={!!desdeHoy}
+                tabIndex={desdeHoy ? 0 : -1}
+                className="segmentado__opcion"
+                onClick={() => cambiarModo(semanasHoy)}
+              >
+                Lo que tengo hoy
+              </button>
             </div>
+            {desdeHoy && finesPosibles.length > 1 && (
+              <label className="modo__hasta">
+                <span>repartido hasta el</span>
+                <select value={desdeHoy.semanasElegidas} onChange={(e) => cambiarModo(Number(e.target.value) as Modo)}>
+                  {finesPosibles.map((f) => (
+                    <option key={f.semanas} value={f.semanas}>
+                      {f.hasta} de {nombreMes(mes)}{f.semanas === 1 ? ' (fin de esta semana)' : f.semanas === finesPosibles.length ? ' (fin de mes)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </div>
           <p className="modo__ayuda">
             {desdeHoy
-              ? <>Reparte lo que tenés hoy ({pesos(desdeHoy.disponible)}) en {desdeHoy.semanasElegidas === 1 ? 'esta semana' : `${desdeHoy.semanasElegidas} semanas`}, hasta el {desdeHoy.cubreHasta} de {nombreMes(mes)}.
+              ? <>Reparte en partes iguales lo que tenés hoy ({pesos(desdeHoy.disponible)}): lo cobrado menos los obligatorios, lo gastado en semanas anteriores y lo ahorrado.
                 {desdeHoy.porCobrar > 0 && <> No cuenta {pesos(desdeHoy.porCobrar)} que todavía no cobraste.</>}</>
-              : 'Reparte todos los ingresos del mes en 4 semanas, cada uno desde la fecha en que entra.'}
+              : 'Reparte todos los ingresos del mes entre las 4 semanas, cada uno desde la semana en que entra.'}
           </p>
         </>
       )}

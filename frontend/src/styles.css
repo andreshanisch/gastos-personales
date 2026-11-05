@@ -724,6 +724,7 @@ kbd {
 }
 .billete__barra span { display: block; height: 100%; border-radius: 4px; background: var(--laton); }
 .billete__barra--excedida span { background: #ffb4a2; }
+.billete__base { margin-top: 12px; font-size: 0.8125rem; color: var(--tarjeta-texto-2); max-width: 52ch; }
 .billete__lado {
   display: flex;
   flex-direction: column;
@@ -734,15 +735,30 @@ kbd {
 }
 .billete__dato dt { font-size: 0.8125rem; color: var(--tarjeta-texto-2); }
 .billete__dato dd { margin: 0; font-size: 1.625rem; font-weight: 600; line-height: 1.15; }
+.billete__dato--excedido { color: #ffb4a2; }
 @media (max-width: 760px) {
   .billete { grid-template-columns: minmax(0, 1fr); padding: 24px; }
   .billete__lado { flex-direction: row; flex-wrap: wrap; gap: 12px 28px; padding: 16px 0 0; border-left: 0; border-top: 1px solid rgb(255 255 255 / 0.16); }
 }
 
-/* Selector: todo el mes o N semanas */
+/* Selector: plan del mes o lo que tengo hoy */
 .modo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 8px; }
 .modo__pregunta { font-weight: 700; }
 .modo__ayuda { margin-bottom: 24px; font-size: 0.875rem; color: var(--tinta-2); }
+.modo__hasta { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--tinta-2); }
+.modo__hasta select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font-weight: 700;
+}
+.modo__hasta select:focus-visible {
+  outline: none;
+  border-color: var(--billete);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--laton) 45%, transparent);
+}
 
 /* Tarjetas de paso y decisión */
 .tarjeta {
