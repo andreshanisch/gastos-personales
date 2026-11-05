@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { EASE, useMounted } from '@/components/ui/bento'
 
 export interface SerieGrafico {
   nombre: string
@@ -29,6 +30,7 @@ export function GraficoBarras({ etiquetas, series, detalle, alto = 240, descripc
   const contenedor = useRef<HTMLDivElement>(null)
   const [ancho, setAncho] = useState(600)
   const [activo, setActivo] = useState<number | null>(null)
+  const montado = useMounted()
 
   useEffect(() => {
     const el = contenedor.current
@@ -53,12 +55,12 @@ export function GraficoBarras({ etiquetas, series, detalle, alto = 240, descripc
   const cadaCuanto = Math.ceil(etiquetas.length / Math.max(1, Math.floor(anchoPlot / 44)))
 
   return (
-    <div className="grafico" ref={contenedor}>
-      <svg width={ancho} height={alto} role="img" aria-label={descripcion}>
+    <div className="relative w-full" ref={contenedor}>
+      <svg width={ancho} height={alto} role="img" aria-label={descripcion} className="block overflow-visible">
         {ticks.map((t) => (
           <g key={t}>
-            <line className="grafico__grilla" x1={MARGEN.izquierda} x2={ancho - MARGEN.derecha} y1={y(t)} y2={y(t)} />
-            <text className="grafico__eje" x={MARGEN.izquierda - 8} y={y(t)} dy="0.32em" textAnchor="end">
+            <line style={{ stroke: 'var(--border)' }} strokeDasharray="1 5" x1={MARGEN.izquierda} x2={ancho - MARGEN.derecha} y1={y(t)} y2={y(t)} />
+            <text className="fill-muted-foreground font-mono text-[11px]" x={MARGEN.izquierda - 8} y={y(t)} dy="0.32em" textAnchor="end">
               {t === 0 ? '0' : compacto.format(t)}
             </text>
           </g>
@@ -69,17 +71,24 @@ export function GraficoBarras({ etiquetas, series, detalle, alto = 240, descripc
           return (
             <g key={i}>
               {activo === i && (
-                <rect className="grafico__resalte" x={MARGEN.izquierda + i * anchoGrupo + 2} y={MARGEN.arriba}
+                <rect style={{ fill: 'color-mix(in oklch, var(--foreground) 6%, transparent)' }} x={MARGEN.izquierda + i * anchoGrupo + 2} y={MARGEN.arriba}
                   width={anchoGrupo - 4} height={altoPlot} rx={6} />
               )}
               {series.map((s, j) => {
                 const v = s.valores[i] ?? 0
                 if (v <= 0) return null
                 const x = x0 + j * (anchoBarra + SEPARACION)
-                return <path key={j} d={barraRedondeada(x, y(v), anchoBarra, y(0) - y(v))} fill={s.color} />
+                return (
+                  <path
+                    key={j}
+                    d={barraRedondeada(x, y(v), anchoBarra, y(0) - y(v))}
+                    fill={s.color}
+                    style={{ transformBox: 'fill-box', transformOrigin: 'bottom', transform: montado ? 'none' : 'scaleY(0)', transition: `transform 900ms ${EASE} ${i * 30}ms` }}
+                  />
+                )
               })}
               {i % cadaCuanto === 0 && (
-                <text className="grafico__eje" x={MARGEN.izquierda + i * anchoGrupo + anchoGrupo / 2} y={alto - 8} textAnchor="middle">
+                <text className="fill-muted-foreground text-[12px]" x={MARGEN.izquierda + i * anchoGrupo + anchoGrupo / 2} y={alto - 8} textAnchor="middle">
                   {etiqueta}
                 </text>
               )}
@@ -100,7 +109,7 @@ export function GraficoBarras({ etiquetas, series, detalle, alto = 240, descripc
 
       {activo !== null && (
         <div
-          className="grafico__cartel"
+          className="pointer-events-none absolute -top-2 z-10 flex w-[200px] flex-col gap-1 rounded-lg border border-border bg-popover px-3 py-2.5 text-[13px] shadow-[0_24px_60px_-20px_oklch(0_0_0/0.75)]"
           role="status"
           style={{
             left: Math.min(ancho - 200, Math.max(0, MARGEN.izquierda + activo * anchoGrupo + anchoGrupo / 2 - 100)),

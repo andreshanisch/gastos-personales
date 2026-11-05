@@ -345,33 +345,6 @@ kbd {
 .seccion__titulo { font-size: 1.125rem; font-weight: 700; margin-bottom: 14px; }
 
 
-/* ---------- Cifras (datos clave) ---------- */
-.cifras {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 1px;
-  margin: 0 0 28px;
-  border-radius: var(--radio-grande);
-  border: 1px solid var(--linea);
-  background: var(--superficie);
-  overflow: hidden;
-}
-/* Las líneas entre celdas son la sombra de cada celda; en los bordes las recorta el contenedor */
-.cifras > div { padding: 16px 18px; background: var(--superficie); box-shadow: 1px 1px 0 var(--linea); }
-.cifras dt { font-size: 0.8125rem; color: var(--tinta-2); }
-.cifras dd {
-  margin: 4px 0 0;
-  font-family: var(--fuente-cifras);
-  font-size: 1.875rem;
-  font-weight: 600;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-.cifras .cifras__positivo { color: var(--positivo); }
-.cifras .cifras__negativo { color: var(--alerta); }
-.cifras .cifras__texto { display: flex; flex-direction: column; font-size: 1.5rem; }
-.cifras .cifras__texto small { font-size: 1.0625rem; font-weight: 500; color: var(--tinta-2); }
-
 /* ---------- Filas (Buscar, Categorías, Historial, Resumen) ---------- */
 
 .fila {
@@ -631,36 +604,6 @@ kbd {
 }
 .etiqueta--en-curso { background: var(--billete); color: var(--billete-texto); border-color: transparent; }
 .etiqueta--obligatoria { margin-left: 0; background: var(--laton-tinte); border-color: transparent; color: var(--tinta); }
-
-/* ---------- Historial ---------- */
-.leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.875rem; color: var(--tinta-2); }
-.leyenda li { display: flex; align-items: center; gap: 8px; }
-.leyenda__marca { width: 12px; height: 12px; border-radius: 3px; }
-
-.grafico { position: relative; width: 100%; }
-.grafico svg { display: block; overflow: visible; }
-.grafico__grilla { stroke: var(--linea-suave); stroke-width: 1; }
-.grafico__eje { fill: var(--tinta-3); font-size: 12px; font-variant-numeric: tabular-nums; }
-.grafico__resalte { fill: color-mix(in srgb, var(--tinta) 5%, transparent); }
-.grafico__cartel {
-  position: absolute;
-  top: -8px;
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: var(--radio);
-  background: var(--superficie);
-  border: 1px solid var(--linea);
-  box-shadow: var(--sombra-flotante);
-  font-size: 0.875rem;
-  pointer-events: none;
-  z-index: 2;
-}
-.grafico__fila { display: flex; align-items: center; gap: 8px; color: var(--tinta-2); }
-.grafico__fila i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
-.grafico__fila b { margin-left: auto; color: var(--tinta); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ---------- Tablas ---------- */
 .tabla-contenedor { overflow-x: auto; }
