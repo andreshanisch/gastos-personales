@@ -41,7 +41,7 @@ const RANGOS = [
 const fechaLegible = (f: string) => f.split('-').reverse().join('/')
 
 /** Campos de los filtros: mismo alto, borde y foco que el resto de la app */
-const CAMPO = 'h-11 w-full rounded-md border-[1.5px] border-input bg-card px-3 text-[14px] text-foreground outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/45'
+const CAMPO = 'h-11 w-full rounded-md border-[1.5px] border-input bg-card px-3 text-[16px] text-foreground outline-none sm:text-[14px] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/45'
 const ETIQUETA = 'mb-1.5 block text-[12px] font-semibold text-muted-foreground'
 
 export function BuscarPage() {
@@ -128,7 +128,7 @@ export function BuscarPage() {
               onChange={(e) => cambiar({ texto: e.target.value })}
               placeholder="Buscá por descripción o categoría: coto, nafta, uber…"
               autoFocus
-              className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
+              className="min-w-0 flex-1 bg-transparent text-[16px] outline-none sm:text-[15px] placeholder:text-muted-foreground"
             />
           </label>
 

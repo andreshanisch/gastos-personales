@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Gastos.Api.Data;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -40,8 +41,12 @@ for (var intento = 1; ; intento++)
 
 // La página (React compilado en wwwroot) se sirve desde la misma dirección que la API
 app.UseDefaultFiles();
+// El manifiesto de la app (para instalarla en el teléfono) tiene una extensión que no todos conocen
+var tiposDeArchivo = new FileExtensionContentTypeProvider();
+tiposDeArchivo.Mappings[".webmanifest"] = "application/manifest+json";
 app.UseStaticFiles(new StaticFileOptions
 {
+    ContentTypeProvider = tiposDeArchivo,
     OnPrepareResponse = contexto =>
     {
         var encabezados = contexto.Context.Response.Headers;

@@ -189,7 +189,7 @@ kbd {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 14px;
-    padding: 10px 16px;
+    padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
     border-right: 0;
     border-bottom: 1px solid var(--linea);
   }
@@ -202,7 +202,9 @@ kbd {
   .lateral__grupo-nombre { display: none; }
   .lateral__grupo ul { flex-direction: row; }
   .lateral__enlace { white-space: nowrap; padding: 7px 10px; }
-  .contenido { padding: 24px 16px 80px; }
+  .contenido { padding: 24px max(16px, env(safe-area-inset-right)) calc(80px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  /* iPhone: con letra de menos de 16px, Safari hace zoom al tocar un campo */
+  input, select, textarea { font-size: max(16px, 1em); }
 }
 @media (max-width: 560px) {
   .boton.lateral__nuevo { font-size: 0; gap: 0; padding: 0 12px; }
@@ -463,8 +465,8 @@ kbd {
 /* ---------- Avisos ---------- */
 .avisos {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: calc(24px + env(safe-area-inset-bottom));
   z-index: 100;
   display: flex;
   flex-direction: column;

@@ -113,7 +113,7 @@ export function PlanPage() {
               <select
                 value={desdeHoy.semanasElegidas}
                 onChange={(e) => cambiarModo(Number(e.target.value) as Modo)}
-                className="h-8 rounded-full border border-border bg-card px-3 text-[13px] font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-8 rounded-full border border-border bg-card px-3 text-[16px] font-medium sm:text-[13px] text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {finesPosibles.map((f) => (
                   <option key={f.semanas} value={f.semanas}>

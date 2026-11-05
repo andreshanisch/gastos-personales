@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#2F5D50"/>
-  <!-- Regla de categorías: la misma idea que el resumen del mes -->
-  <rect x="96" y="300" width="132" height="44" rx="10" fill="#E8C547"/>
-  <rect x="236" y="300" width="88" height="44" rx="10" fill="#EEF2F0"/>
-  <rect x="332" y="300" width="84" height="44" rx="10" fill="#9CC4B5"/>
-  <text x="96" y="262" font-family="Arial Narrow, Arial, sans-serif" font-weight="700" font-size="168" fill="#EEF2F0">$</text>
+  <!-- La tira de gasto por día del Plan: lima si quedó debajo de lo del día (la raya), lila si se pasó -->
+  <rect width="512" height="512" rx="112" fill="oklch(0.19 0.016 300)"/>
+  <rect x="104" y="270" width="56" height="130" rx="16" fill="oklch(0.89 0.2 128)"/>
+  <rect x="184" y="222" width="56" height="178" rx="16" fill="oklch(0.89 0.2 128)"/>
+  <rect x="264" y="112" width="56" height="288" rx="16" fill="oklch(0.74 0.12 300)"/>
+  <rect x="344" y="244" width="56" height="156" rx="16" fill="oklch(0.89 0.2 128)"/>
+  <rect x="96" y="194" width="320" height="8" rx="4" fill="oklch(0.97 0.005 300 / 0.55)"/>
 </svg>
