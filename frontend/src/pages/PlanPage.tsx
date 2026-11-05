@@ -143,6 +143,13 @@ export function PlanPage() {
     ? desdeHoy.disponible - gastadoComun
     : resultado.libre - gastadoComun - resultado.ahorrado
 
+  // Un mes que ya terminó no se planifica: se resume cómo cerró
+  const [anioHoy, mesHoy] = hoyISO().split('-').map(Number)
+  const mesCerrado = anio * 100 + mes < anioHoy * 100 + mesHoy
+  const balance = resultado.ingresos - resultado.obligatoriosPagados - gastadoComun
+  const sinMovimientos = resultado.ingresos === 0 && resultado.obligatoriosPagados === 0 && gastadoComun === 0
+  const vacioCerrado = mesCerrado && sinMovimientos
+
   // Hasta qué día puede llegar "lo que tengo hoy": el fin de cada semana desde la actual
   const finesPosibles = resultado.semanaActual
     ? resultado.semanas.slice(resultado.semanaActual - 1).map((s, i) => ({ semanas: (i + 1) as 1 | 2 | 3 | 4, hasta: s.hasta }))
@@ -189,6 +196,21 @@ export function PlanPage() {
                   : 'Según el plan del mes.'}
               </p>
             </>
+          ) : mesCerrado ? (
+            <>
+              <h2 className="billete__etiqueta" id="billete-titulo">
+                {sinMovimientos
+                  ? `Sin movimientos en ${nombreMes(mes)}`
+                  : balance >= 0 ? `En ${nombreMes(mes)} te sobraron` : `En ${nombreMes(mes)} te pasaste por`}
+              </h2>
+              <Monto valor={Math.abs(balance)} className={`billete__monto ${balance < 0 ? 'billete__monto--excedido' : ''}`} />
+              <p className="billete__dia">
+                {sinMovimientos
+                  ? 'No cargaste ingresos ni gastos en este mes.'
+                  : 'Lo que ingresó menos los gastos obligatorios y los demás gastos del mes.'}
+                {resultado.ahorrado > 0 && <> De eso, guardaste <strong>{pesos(resultado.ahorrado)}</strong> como ahorro.</>}
+              </p>
+            </>
           ) : (
             <>
               <h2 className="billete__etiqueta" id="billete-titulo">Libre para gastar en {nombreMes(mes)}</h2>
@@ -197,34 +219,52 @@ export function PlanPage() {
             </>
           )}
         </div>
-        <dl className="billete__lado">
-          {actual && (
-            <>
+        {!vacioCerrado && (
+          <dl className="billete__lado">
+            {!actual && mesCerrado && (
+              <>
+                <div className="billete__dato">
+                  <dt>Ingresos</dt>
+                  <dd><Monto valor={resultado.ingresos} /></dd>
+                </div>
+                <div className="billete__dato">
+                  <dt>Obligatorios</dt>
+                  <dd><Monto valor={resultado.obligatoriosPagados} /></dd>
+                </div>
+                <div className="billete__dato">
+                  <dt>Otros gastos</dt>
+                  <dd><Monto valor={gastadoComun} /></dd>
+                </div>
+              </>
+            )}
+            {actual && (
+              <>
+                <div className="billete__dato">
+                  <dt>Para gastar esta semana</dt>
+                  <dd><Monto valor={actual.asignado} /></dd>
+                </div>
+                <div className="billete__dato">
+                  <dt>Ya gastaste</dt>
+                  <dd><Monto valor={actual.gastado} /></dd>
+                </div>
+                <div className="billete__dato">
+                  <dt>
+                    {queda >= 0
+                      ? desdeHoy ? `Queda hasta el ${desdeHoy.cubreHasta}` : 'Queda en el mes'
+                      : desdeHoy ? `Te pasaste hasta el ${desdeHoy.cubreHasta}` : 'Te pasaste en el mes'}
+                  </dt>
+                  <dd className={queda < 0 ? 'billete__dato--excedido' : undefined}><Monto valor={Math.abs(queda)} /></dd>
+                </div>
+              </>
+            )}
+            {((!actual && !mesCerrado) || resultado.ahorrado > 0) && (
               <div className="billete__dato">
-                <dt>Para gastar esta semana</dt>
-                <dd><Monto valor={actual.asignado} /></dd>
+                <dt>Ahorrado este mes</dt>
+                <dd><Monto valor={resultado.ahorrado} /></dd>
               </div>
-              <div className="billete__dato">
-                <dt>Ya gastaste</dt>
-                <dd><Monto valor={actual.gastado} /></dd>
-              </div>
-              <div className="billete__dato">
-                <dt>
-                  {queda >= 0
-                    ? desdeHoy ? `Queda hasta el ${desdeHoy.cubreHasta}` : 'Queda en el mes'
-                    : desdeHoy ? `Te pasaste hasta el ${desdeHoy.cubreHasta}` : 'Te pasaste en el mes'}
-                </dt>
-                <dd className={queda < 0 ? 'billete__dato--excedido' : undefined}><Monto valor={Math.abs(queda)} /></dd>
-              </div>
-            </>
-          )}
-          {(!actual || resultado.ahorrado > 0) && (
-            <div className="billete__dato">
-              <dt>Ahorrado este mes</dt>
-              <dd><Monto valor={resultado.ahorrado} /></dd>
-            </div>
-          )}
-        </dl>
+            )}
+          </dl>
+        )}
       </section>
 
       {resultado.semanaActual !== null && (
@@ -275,7 +315,14 @@ export function PlanPage() {
         </>
       )}
 
-      {sinIngresos && (
+      {sinIngresos && mesCerrado && !sinMovimientos && (
+        <p className="plan__nota">
+          No cargaste ingresos en {nombreMes(mes)}.{' '}
+          <button type="button" className="boton-texto" onClick={nuevoIngreso}>Cargar un ingreso</button>
+        </p>
+      )}
+
+      {sinIngresos && !mesCerrado && (
         <div className="tarjeta tarjeta--paso">
           <h2 className="tarjeta__titulo">Empezá cargando tus ingresos</h2>
           <p className="tarjeta__texto">El plan reparte lo que ingresa en el mes. Cargá tus ingresos de {nombreMes(mes)} con la fecha en que los cobrás.</p>
@@ -330,19 +377,22 @@ export function PlanPage() {
       )}
 
       {/* ---------- Semanas ---------- */}
-      <section className="seccion" aria-labelledby="titulo-semanas">
-        <h2 className="seccion__titulo" id="titulo-semanas">Semana por semana</h2>
-        <ol className="semanas">
-          {semanasVisibles.map((s) => (
-            <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
-          ))}
-        </ol>
-        {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
-          <p className="semanas__fin">
-            Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
-          </p>
-        )}
-      </section>
+      {/* Un mes cerrado sin movimientos no tiene semanas que mostrar */}
+      {!vacioCerrado && (
+        <section className="seccion" aria-labelledby="titulo-semanas">
+          <h2 className="seccion__titulo" id="titulo-semanas">Semana por semana</h2>
+          <ol className="semanas">
+            {semanasVisibles.map((s) => (
+              <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
+            ))}
+          </ol>
+          {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
+            <p className="semanas__fin">
+              Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ---------- Números del mes y obligatorios ---------- */}
       <div className="plan-columnas">
@@ -428,6 +478,30 @@ const ESTADOS: Record<SemanaPlan['estado'], string> = {
 
 function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan; mes: number; alCambiarDecision: () => void }) {
   const usado = s.asignado > 0 ? Math.min(100, (s.gastado / s.asignado) * 100) : s.gastado > 0 ? 100 : 0
+  // Una semana que todavía no empezó y no tiene gastos solo tiene un dato: cuánto le toca
+  const compacta = s.estado === 'proxima' && s.gastado === 0
+  const ajustes = (
+    <>
+      {s.ajuste < 0 && `Incluye ${pesos(-s.ajuste)} menos por excesos de semanas anteriores.`}
+      {s.ajuste > 0 && `Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`}
+    </>
+  )
+
+  if (compacta) {
+    return (
+      <li className="semana semana--proxima semana--compacta">
+        <div className="semana__encabezado">
+          <h3 className="semana__titulo">Semana {s.numero}</h3>
+          <span className="semana__fechas">{s.desde} al {s.hasta} de {nombreMes(mes)}</span>
+          <span className="etiqueta etiqueta--proxima">{ESTADOS.proxima}</span>
+        </div>
+        <span className="semana__rotulo">Para gastar</span>
+        <Monto valor={s.asignado} className="semana__cifra" />
+        {s.ajuste !== 0 && <p className="semana__nota">{ajustes}</p>}
+      </li>
+    )
+  }
+
   return (
     <li className={`semana semana--${s.estado} ${s.saldo < 0 ? 'semana--excedida' : ''}`}>
       <div className="semana__encabezado">
@@ -455,12 +529,13 @@ function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan;
         <span style={{ width: `${usado}%` }} />
       </div>
 
-      <p className="semana__nota">
-        Acumulado al {s.hasta}: <strong>{pesos(s.acumulado)}</strong>.
-        {s.ajuste < 0 && ` Incluye ${pesos(-s.ajuste)} menos por excesos de semanas anteriores.`}
-        {s.ajuste > 0 && ` Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`}
-        {s.descuentoPorSemanaSiguiente > 0 && ` Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`}
-      </p>
+      {(s.ajuste !== 0 || s.descuentoPorSemanaSiguiente > 0) && (
+        <p className="semana__nota">
+          {ajustes}
+          {s.ajuste !== 0 && s.descuentoPorSemanaSiguiente > 0 && ' '}
+          {s.descuentoPorSemanaSiguiente > 0 && `Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`}
+        </p>
+      )}
 
       {s.decision && s.estado === 'terminada' && s.saldo > 0 && (
         <p className="semana__decision">

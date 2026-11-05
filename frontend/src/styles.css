@@ -788,7 +788,7 @@ kbd {
 .tarjeta__acciones .boton { align-self: auto; }
 
 /* Semanas */
-.semanas { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.semanas { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: start; gap: 14px; }
 .semana {
   display: flex;
   flex-direction: column;
@@ -825,6 +825,9 @@ kbd {
 .semana--excedida .semana__barra span { background: var(--alerta); }
 .semana__nota { font-size: 0.8125rem; color: var(--tinta-3); margin-top: auto; }
 .semana__nota strong { color: var(--tinta-2); }
+.semana--compacta .semana__encabezado { margin-bottom: 10px; }
+.semana--compacta .semana__nota { margin-top: 8px; }
+.plan__nota { margin: 0 0 24px; color: var(--tinta-2); }
 .semana__decision { margin-top: 8px; font-size: 0.8125rem; color: var(--tinta-2); }
 
 .semanas__fin {
