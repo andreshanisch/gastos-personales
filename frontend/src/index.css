@@ -12,14 +12,14 @@
 :root {
   color-scheme: dark;
 
-  --background: oklch(0.15 0.008 285);
-  --foreground: oklch(0.97 0.004 285);
-  --card: oklch(0.205 0.01 285);
-  --card-foreground: oklch(0.97 0.004 285);
-  --popover: oklch(0.23 0.012 285);
-  --popover-foreground: oklch(0.97 0.004 285);
-  --muted: oklch(0.27 0.012 285);
-  --muted-foreground: oklch(0.72 0.012 285);
+  --background: oklch(0.15 0.014 300);
+  --foreground: oklch(0.97 0.005 300);
+  --card: oklch(0.205 0.015 300);
+  --card-foreground: oklch(0.97 0.005 300);
+  --popover: oklch(0.23 0.015 300);
+  --popover-foreground: oklch(0.97 0.005 300);
+  --muted: oklch(0.27 0.016 300);
+  --muted-foreground: oklch(0.73 0.014 300);
   --border: oklch(1 0 0 / 0.1);
   --input: oklch(1 0 0 / 0.14);
   --ring: oklch(0.89 0.2 128);
@@ -93,4 +93,15 @@
   }
   ::selection { background: color-mix(in oklch, var(--primary) 35%, transparent); }
   * { scrollbar-color: var(--muted) transparent; }
+}
+
+/* Movimiento reducido: los montos no cuentan y las barras aparecen ya en su lugar,
+   pero los cambios de estado (foco, hover) siguen viéndose */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }

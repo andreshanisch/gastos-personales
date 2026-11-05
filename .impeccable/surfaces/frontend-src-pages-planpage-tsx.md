@@ -17,8 +17,8 @@ OWN-WORLD: Fondo casi negro con un tinte lila, bloques en gris un punto más cla
 
 STORY: Andres entiende en segundos cuánto le queda esta semana y en el mes, ve qué días se pasó, decide qué hacer con un sobrante y vuelve a cargar gastos.
 
-FIRST VIEWPORT: Barra lateral de siempre a la izquierda. Arriba, título Plan y el mes en píldora. Fila 1: bloque grande de dos columnas con "Esta semana te quedan" en mono grande y la tira de barras día por día del mes; bloque "Calcular con" (píldoras) con lo asignado y lo gastado de la semana; bloque "Queda en el mes" con medidor semicircular. Fila 2: semanas, categorías del mes en barra segmentada y el bloque lima de ahorro.
+FIRST VIEWPORT: Barra lateral de siempre a la izquierda. Arriba, título Plan; a la derecha, "Calcular con" en píldoras (va en el encabezado porque cambia todos los bloques, no solo uno) y el mes en píldora. Fila 1: bloque grande de dos columnas con "Esta semana te quedan" en mono grande, alineado a la izquierda y sin saludo, y la tira de barras día por día del mes con la rayita de lo que tocaba por día; bloque "Esta semana" con lo asignado y lo gastado; bloque "Queda en el mes" con medidor semicircular. Fila 2: semanas, categorías del mes en barra segmentada y el bloque lima de ahorro.
 
-FORM: Tablero bento tomado de la referencia que eligió Andres (Web3Bento); la estructura de navegación y los controles siguen siendo los estándar. seed: none (dirección fijada por Andres)
+FORM: Tablero bento tomado de la referencia que eligió Andres (Web3Bento); la estructura de navegación y los controles siguen siendo los estándar. seed: none (unavailable): no hubo sorteo de concepto; la dirección la fijó Andres con una referencia propia
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

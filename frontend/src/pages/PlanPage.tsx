@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router'
 import { useAcciones } from '../Acciones'
 import { api } from '../api'
@@ -182,6 +182,12 @@ export function PlanPage() {
   const sinMovimientos = resultado.ingresos === 0 && resultado.obligatoriosPagados === 0 && gastadoMes === 0
   const vacioCerrado = mesCerrado && sinMovimientos
 
+  // Cuando las semanas que vienen tienen el mismo ajuste, se explica una sola vez al pie
+  const futurasConAjuste = semanasVisibles.filter((s) => s.estado === 'proxima' && Math.round(s.ajuste) !== 0)
+  const ajusteComun = futurasConAjuste.length >= 2 && futurasConAjuste.every((s) => Math.round(s.ajuste) === Math.round(futurasConAjuste[0].ajuste))
+    ? futurasConAjuste[0].ajuste
+    : null
+
   return (
     <>
       {encabezado}
@@ -191,37 +197,29 @@ export function PlanPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* ---------- Lo principal: cuánto puedo gastar, y cómo fue cada día ---------- */}
         <Tile className="sm:col-span-2 lg:col-span-2" aria-labelledby="titulo-principal">
-          <div aria-live="polite" aria-atomic="true" className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+          <div aria-live="polite" aria-atomic="true">
             {actual ? (
               <>
-                <div className="min-w-0">
-                  <p className="text-[26px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[30px]">
-                    Hola, <span className="text-primary">Andres</span>
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Semana {actual.numero}: del {actual.desde} al {actual.hasta} de {nombreMes(mes)}.
-                  </p>
-                </div>
-                <div className="text-right">
-                  <h2 id="titulo-principal" className="text-[12px] text-muted-foreground">
-                    {actual.saldo >= 0 ? 'Esta semana te quedan' : 'Esta semana te pasaste por'}
-                  </h2>
-                  <Cifra
-                    valor={actual.saldo}
-                    animar
-                    className={cn('text-[40px] font-semibold leading-none tracking-[-0.04em] sm:text-[46px]', actual.saldo < 0 && 'text-secondary')}
-                  />
-                  <p className="mt-1.5 text-[12px] text-muted-foreground">
-                    {porDia > 0
-                      ? <>unos <span className="font-mono text-foreground">{pesos(porDia)}</span> por día hasta el {actual.hasta}</>
-                      : actual.saldo < 0
-                        ? siguiente
-                          ? <>desde el {siguiente.desde} tenés <span className="font-mono text-foreground">{pesos(Math.max(0, siguiente.asignado))}</span> para esa semana</>
-                          : 'ya no quedan semanas para compensarlo'
-                        : `semana del ${actual.desde} al ${actual.hasta}`}
-                    {' · '}{desdeHoy ? 'según lo que tenés hoy' : 'según el plan del mes'}
-                  </p>
-                </div>
+                <h2 id="titulo-principal" className="text-[13px] font-medium text-muted-foreground">
+                  {actual.saldo >= 0 ? 'Esta semana te quedan' : 'Esta semana te pasaste por'}
+                </h2>
+                <Cifra
+                  valor={actual.saldo}
+                  animar
+                  className={cn('mt-1 block text-[46px] font-semibold leading-none tracking-[-0.04em] sm:text-[56px]', actual.saldo < 0 && 'text-secondary')}
+                />
+                <p className="mt-2 text-[13px] text-muted-foreground">
+                  {porDia > 0
+                    ? <>Son unos <span className="font-mono text-foreground">{pesos(porDia)}</span> por día hasta el {actual.hasta}.</>
+                    : actual.saldo < 0
+                      ? siguiente
+                        ? <>Desde el {siguiente.desde} tenés <span className="font-mono text-foreground">{pesos(Math.max(0, siguiente.asignado))}</span> para esa semana, ya descontado el exceso.</>
+                        : 'Ya no quedan semanas para compensarlo.'
+                      : `Semana del ${actual.desde} al ${actual.hasta}.`}
+                </p>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">
+                  Semana {actual.numero}, del {actual.desde} al {actual.hasta} de {nombreMes(mes)} · {desdeHoy ? 'según lo que tenés hoy' : 'según el plan del mes'}
+                </p>
               </>
             ) : mesCerrado ? (
               <div>
@@ -266,7 +264,7 @@ export function PlanPage() {
                 <Dato nombre="Para gastar" valor={actual.asignado} />
                 <Dato nombre="Ya gastaste" valor={actual.gastado} />
               </dl>
-              <BarraUso asignado={actual.asignado} gastado={actual.gastado} className="mt-4 h-2" />
+              <BarraUso asignado={actual.asignado} gastado={actual.gastado} className="mt-4 h-2" etiqueta={`Gastaste ${pesos(actual.gastado)} de ${pesos(actual.asignado)}`} />
               <p className="mt-auto pt-4 text-[12px] text-muted-foreground">
                 {actual.descuentoPorSemanaSiguiente > 0
                   ? <>Se descuentan <span className="font-mono text-foreground">{pesos(actual.descuentoPorSemanaSiguiente)}</span> de cada semana que sigue.</>
@@ -336,11 +334,24 @@ export function PlanPage() {
           <Tile titulo="Semana por semana" className="sm:col-span-2 lg:col-span-2 lg:row-span-2">
             <ol className="flex flex-col divide-y divide-border">
               {semanasVisibles.map((s) => (
-                <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
+                <FilaSemana
+                  key={s.numero}
+                  semana={s}
+                  mes={mes}
+                  ocultarAjuste={ajusteComun !== null && s.estado === 'proxima'}
+                  alCambiarDecision={() => decidir(s.numero, null)}
+                />
               ))}
             </ol>
-            {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
+            {ajusteComun !== null && (
               <p className="mt-auto pt-3 text-[12px] text-muted-foreground">
+                Las semanas {futurasConAjuste[0].numero} a {futurasConAjuste[futurasConAjuste.length - 1].numero} tienen{' '}
+                <span className="font-mono text-foreground">{pesos(Math.abs(ajusteComun))}</span>{' '}
+                {ajusteComun < 0 ? 'menos cada una por excesos de semanas anteriores.' : 'más cada una por sobrantes repartidos.'}
+              </p>
+            )}
+            {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
+              <p className={cn('pt-3 text-[12px] text-muted-foreground', ajusteComun === null && 'mt-auto')}>
                 Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
               </p>
             )}
@@ -436,26 +447,32 @@ function Dato({ nombre, valor, fuerte = false }: { nombre: string; valor: number
 }
 
 /** Barra de lo gastado sobre lo asignado; si se pasó, muestra aparte en lila el tramo del exceso */
-function BarraUso({ asignado, gastado, className }: { asignado: number; gastado: number; className?: string }) {
+function BarraUso({ asignado, gastado, className, etiqueta }: { asignado: number; gastado: number; className?: string; etiqueta?: string }) {
   const montado = useMounted()
   const exceso = gastado > asignado
   const dentro = exceso ? (asignado > 0 ? (asignado / gastado) * 100 : 0) : asignado > 0 ? (gastado / asignado) * 100 : 0
+  const fuera = exceso ? 100 - dentro : 0
+  // Primero crece lo que entra en el plan y después, a continuación, el exceso
+  const ancho = (p: number) => (montado ? `calc(${p}% - 1.5px)` : '0%')
   return (
-    <div className={cn('flex gap-[3px] overflow-hidden rounded-full bg-muted', className)} aria-hidden>
+    <div
+      className={cn('flex gap-[3px] overflow-hidden rounded-full bg-muted', className)}
+      {...(etiqueta ? { role: 'img', 'aria-label': etiqueta } : { 'aria-hidden': true })}
+    >
       {dentro > 0 && (
-        <span
-          className="block h-full rounded-full bg-primary"
-          style={{ width: montado ? `${dentro}%` : 0, transition: `width 900ms ${EASE}` }}
-        />
+        <span className="block h-full shrink-0 rounded-full bg-primary" style={{ width: ancho(dentro), transition: `width 900ms ${EASE}` }} />
       )}
-      {exceso && <span className="block h-full flex-1 rounded-full bg-secondary" />}
+      {exceso && (
+        <span className="block h-full shrink-0 rounded-full bg-secondary" style={{ width: ancho(fuera), transition: `width 700ms ${EASE} 500ms` }} />
+      )}
     </div>
   )
 }
 
 /**
- * Tira de barras día por día del mes (la firma del tablero): la altura es lo gastado ese día
- * en gastos comunes; lima si quedó dentro de lo que le tocaba por día, lila si se pasó.
+ * Tira de barras día por día del mes (la firma del tablero). La altura es lo gastado ese día
+ * en gastos comunes y la rayita marca lo que le tocaba: lima si quedó debajo, lila si la pasó.
+ * Los días que no llegaron son solo un contorno. Se recorre con las flechas: un solo Tab.
  */
 function TiraDiaria({ anio, mes, gastos, obligatorias, semanas, semanasHoy, hoy }: {
   anio: number
@@ -478,10 +495,12 @@ function TiraDiaria({ anio, mes, gastos, obligatorias, semanas, semanasHoy, hoy 
   const diario = (d: number) => {
     const n = semanaDelDia(d)
     const s = semanasHoy?.find((x) => x.numero === n) ?? semanas[n - 1]
-    return s.asignado / (s.hasta - s.desde + 1)
+    return Math.max(0, s.asignado / (s.hasta - s.desde + 1))
   }
   const dias = Array.from({ length: ultimo }, (_, i) => i + 1)
-  const maximo = Math.max(...dias.map((d) => porDia[d]), 1)
+  const pasado = (d: number) => hoy === null || d <= hoy
+  const escala = Math.max(...dias.map((d) => porDia[d]), ...dias.filter(pasado).map(diario), 1)
+  const enfocable = hoy ?? ultimo
   const etiqueta = (d: number) => {
     const dia = new Date(anio, mes - 1, d).toLocaleDateString('es-AR', { weekday: 'short' }).replace('.', '')
     return `${dia} ${d}`
@@ -489,45 +508,73 @@ function TiraDiaria({ anio, mes, gastos, obligatorias, semanas, semanasHoy, hoy 
   const detalle = (d: number) => {
     const g = porDia[d]
     const tope = diario(d)
-    if (hoy !== null && d > hoy) return `${capitalizar(etiqueta(d))}: todavía no llegó · te tocan ${pesos(tope)}`
-    if (g === 0) return `${capitalizar(etiqueta(d))}: sin gastos`
+    if (!pasado(d)) return `${capitalizar(etiqueta(d))}: todavía no llegó · te tocan ${pesos(tope)}`
+    if (g === 0) return `${capitalizar(etiqueta(d))}: sin gastos · te tocaban ${pesos(tope)}`
     return `${capitalizar(etiqueta(d))}: gastaste ${pesos(g)} · ${g > tope ? `${pesos(g - tope)} más de lo del día` : `dentro de los ${pesos(tope)} del día`}`
+  }
+
+  function alTecla(e: KeyboardEvent<HTMLDivElement>) {
+    const botones = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button'))
+    const i = botones.indexOf(document.activeElement as HTMLButtonElement)
+    if (i < 0) return
+    const destino = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? botones.length - 1 : null
+    if (destino === null) return
+    e.preventDefault()
+    botones[Math.max(0, Math.min(botones.length - 1, destino))].focus()
   }
 
   return (
     <div className="mt-auto flex flex-col pt-6">
-      <div className="flex h-24 items-end gap-[3px]" onPointerLeave={() => setFoco(null)}>
+      <div
+        role="group"
+        aria-label="Gasto de cada día del mes"
+        className="flex h-24 items-end gap-[3px]"
+        onPointerLeave={() => setFoco(null)}
+        onKeyDown={alTecla}
+      >
         {dias.map((d, i) => {
           const g = porDia[d]
-          const futuro = hoy !== null && d > hoy
-          const paso = g > diario(d)
-          const alto = futuro ? 6 : g === 0 ? 6 : 14 + (g / maximo) * 86
+          const tope = diario(d)
+          const yaPaso = pasado(d)
+          const color = g === 0 ? 'var(--muted)' : g > tope ? LILA : LIMA
+          const alto = !yaPaso ? 6 : g === 0 ? 6 : Math.max(8, (g / escala) * 100)
           return (
-            <button
-              key={d}
-              type="button"
-              onPointerEnter={() => setFoco(d)}
-              onFocus={() => setFoco(d)}
-              onBlur={() => setFoco(null)}
-              aria-label={detalle(d)}
-              className={cn(
-                'relative flex-1 rounded-[4px] outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                d === hoy && 'ring-1 ring-foreground/60',
+            <div key={d} className="relative flex h-full flex-1 items-end">
+              <button
+                type="button"
+                tabIndex={d === enfocable ? 0 : -1}
+                onPointerEnter={() => setFoco(d)}
+                onFocus={() => setFoco(d)}
+                onBlur={() => setFoco(null)}
+                aria-label={detalle(d)}
+                aria-current={d === hoy ? 'date' : undefined}
+                className={cn(
+                  'w-full rounded-[4px] outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  d === hoy && 'ring-1 ring-foreground/60',
+                )}
+                style={{
+                  height: montado ? `${alto}%` : '6%',
+                  background: yaPaso ? color : 'transparent',
+                  boxShadow: yaPaso ? undefined : 'inset 0 0 0 1px var(--muted)',
+                  opacity: foco === null || foco === d ? 1 : 0.3,
+                  transition: `height 900ms ${EASE} ${i * 14}ms, opacity 200ms ease`,
+                }}
+              />
+              {yaPaso && tope > 0 && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 h-[2px] rounded-full bg-foreground/45"
+                  style={{ bottom: `${(tope / escala) * 100}%` }}
+                />
               )}
-              style={{
-                height: montado ? `${alto}%` : '6%',
-                background: futuro || g === 0 ? 'var(--muted)' : paso ? LILA : LIMA,
-                opacity: foco === null ? (futuro ? 0.6 : 1) : foco === d ? 1 : 0.3,
-                transition: `height 900ms ${EASE} ${i * 14}ms, opacity 200ms ease`,
-              }}
-            />
+            </div>
           )
         })}
       </div>
       <div className="mt-2 flex items-center justify-between gap-3 text-[12px] text-muted-foreground">
         <span className="font-mono">1</span>
         <span className="truncate text-foreground" aria-live="polite">
-          {foco !== null ? detalle(foco) : 'Gasto de cada día · lima: dentro de lo del día · lila: te pasaste'}
+          {foco !== null ? detalle(foco) : 'Gasto de cada día · la rayita es lo que te tocaba'}
         </span>
         <span className="font-mono">{ultimo}</span>
       </div>
@@ -535,33 +582,37 @@ function TiraDiaria({ anio, mes, gastos, obligatorias, semanas, semanasHoy, hoy 
   )
 }
 
-/** Medidor semicircular de lo que queda del período */
+/** Medidor semicircular: el arco lima es lo que queda; lo ya usado se apaga. Lila si te pasaste. */
 function MedidorQueda({ queda, total, titulo }: { queda: number; total: number; titulo: string }) {
   const montado = useMounted()
   const usado = total > 0 ? Math.min(1, Math.max(0, (total - queda) / total)) : queda < 0 ? 1 : 0
   const R = 62
   const largo = Math.PI * R
-  const angulo = -90 + (montado ? usado : 0) * 180
-  const color = queda < 0 ? LILA : LIMA
+  const mostrado = montado ? usado : 0
+  const angulo = -90 + mostrado * 180
+  const paso = queda < 0
+  const ARCO = 'M 13 78 A 62 62 0 0 1 137 78'
   return (
-    <Tile titulo={queda >= 0 ? titulo : titulo.replace('Queda', 'Te pasaste')}>
+    <Tile titulo={paso ? titulo.replace('Queda', 'Te pasaste') : titulo}>
       <div className="flex flex-1 flex-col items-center justify-center">
         <svg width="150" height="86" viewBox="0 0 150 86" aria-hidden>
-          <path d="M 13 78 A 62 62 0 0 1 137 78" fill="none" strokeWidth="10" strokeLinecap="round" style={{ stroke: 'var(--muted)' }} />
-          <path
-            d="M 13 78 A 62 62 0 0 1 137 78"
-            fill="none"
-            strokeWidth="10"
-            strokeLinecap="round"
-            strokeDasharray={largo}
-            style={{ stroke: color, strokeDashoffset: largo * (1 - (montado ? usado : 0)), transition: `stroke-dashoffset 900ms ${EASE}` }}
-          />
+          <path d={ARCO} fill="none" strokeWidth="10" strokeLinecap="round" style={{ stroke: paso ? LILA : LIMA }} />
+          {!paso && (
+            <path
+              d={ARCO}
+              fill="none"
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeDasharray={largo}
+              style={{ stroke: 'var(--muted)', strokeDashoffset: largo * (1 - mostrado), transition: `stroke-dashoffset 900ms ${EASE}` }}
+            />
+          )}
           <g style={{ transform: `rotate(${angulo}deg)`, transformOrigin: '75px 78px', transition: `transform 900ms ${EASE}` }}>
             <line x1="75" y1="78" x2="75" y2="30" strokeWidth="2.5" strokeLinecap="round" style={{ stroke: 'var(--foreground)' }} />
           </g>
           <circle cx="75" cy="78" r="5" style={{ fill: 'var(--foreground)' }} />
         </svg>
-        <Cifra valor={queda} animar className={cn('mt-2 text-[26px] font-semibold leading-none', queda < 0 && 'text-secondary')} />
+        <Cifra valor={queda} animar className={cn('mt-2 text-[26px] font-semibold leading-none', paso && 'text-secondary')} />
         <p className="mt-1 text-[12px] text-muted-foreground">
           {total > 0 ? `usaste el ${Math.round(usado * 100)}% de lo disponible` : 'sin plata asignada'}
         </p>
@@ -576,35 +627,43 @@ const ESTADOS: Record<SemanaPlan['estado'], string> = {
   proxima: 'Próxima',
 }
 
-function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan; mes: number; alCambiarDecision: () => void }) {
+function FilaSemana({ semana: s, mes, ocultarAjuste, alCambiarDecision }: {
+  semana: SemanaPlan
+  mes: number
+  /** El ajuste se explica una sola vez al pie cuando varias semanas comparten el mismo */
+  ocultarAjuste: boolean
+  alCambiarDecision: () => void
+}) {
   const notas = [
-    s.ajuste < 0 && `Incluye ${pesos(-s.ajuste)} menos por excesos anteriores.`,
-    s.ajuste > 0 && `Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`,
-    s.descuentoPorSemanaSiguiente > 0 && `Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`,
+    !ocultarAjuste && s.ajuste < 0 && `Incluye ${pesos(-s.ajuste)} menos por excesos anteriores.`,
+    !ocultarAjuste && s.ajuste > 0 && `Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`,
+    // La semana en curso ya lo dice en el bloque "Esta semana"
+    s.estado !== 'en-curso' && s.descuentoPorSemanaSiguiente > 0 && `Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`,
   ].filter(Boolean)
   const proxima = s.estado === 'proxima' && s.gastado === 0
+  const colorEstado = s.saldo < 0 && !proxima ? LILA : s.estado === 'en-curso' ? LIMA : 'var(--muted-foreground)'
   return (
     <li className="py-3 first:pt-0 last:pb-0">
       <div className="flex items-baseline gap-2">
         <h3 className="text-[14px] font-semibold">Semana {s.numero}</h3>
         <span className="text-[12px] text-muted-foreground">{s.desde} al {s.hasta} de {nombreMes(mes)}</span>
         <span className="ml-auto">
-          <Insignia color={s.estado === 'en-curso' ? LIMA : 'var(--muted-foreground)'}>{ESTADOS[s.estado]}</Insignia>
+          <Insignia color={colorEstado}>{ESTADOS[s.estado]}</Insignia>
         </span>
       </div>
       <div className="mt-2 flex items-end justify-between gap-4">
         <div>
-          <span className="block text-[11px] text-muted-foreground">Para gastar</span>
+          <span className="block text-[12px] text-muted-foreground">Para gastar</span>
           <Cifra valor={s.asignado} className="text-[18px] font-semibold" />
         </div>
         {!proxima && (
           <>
             <div>
-              <span className="block text-[11px] text-muted-foreground">Gastado</span>
+              <span className="block text-[12px] text-muted-foreground">Gastado</span>
               <Cifra valor={s.gastado} className="text-[18px] font-semibold" />
             </div>
             <div className="text-right">
-              <span className="block text-[11px] text-muted-foreground">{s.saldo >= 0 ? (s.estado === 'terminada' ? 'Sobró' : 'Queda') : 'Te pasaste'}</span>
+              <span className="block text-[12px] text-muted-foreground">{s.saldo >= 0 ? (s.estado === 'terminada' ? 'Sobró' : 'Queda') : 'Te pasaste'}</span>
               <Cifra valor={s.saldo} className={cn('text-[18px] font-semibold', s.saldo < 0 && 'text-secondary')} />
             </div>
           </>
@@ -742,7 +801,7 @@ function Ahorro({ ahorrado, pendiente, otrasPendientes, mes, semanas, alDecidir 
           <button
             type="button"
             onClick={() => alDecidir(pendiente.numero, 'Ahorrar')}
-            className="w-full rounded-2xl py-3 text-sm font-semibold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:scale-[0.98]"
+            className="w-full rounded-2xl py-3 text-sm font-semibold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--primary-foreground)] focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:scale-[0.98]"
             style={{ background: tinta, color: 'var(--primary)' }}
           >
             Guardar como ahorro
@@ -751,7 +810,7 @@ function Ahorro({ ahorrado, pendiente, otrasPendientes, mes, semanas, alDecidir 
             <button
               type="button"
               onClick={() => alDecidir(pendiente.numero, 'Repartir')}
-              className="w-full rounded-2xl border py-2.5 text-sm font-semibold outline-none focus-visible:ring-2"
+              className="w-full rounded-2xl border py-2.5 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-foreground)]"
               style={{ borderColor: 'oklch(0.24 0.06 135 / 0.35)' }}
             >
               Sumar a las semanas que quedan
