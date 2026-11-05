@@ -76,11 +76,6 @@
 
   --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --animate-crecer: crecer 500ms cubic-bezier(0.3, 1.5, 0.6, 1);
-  @keyframes crecer {
-    from { transform: scaleY(0); }
-    to { transform: scaleY(1); }
-  }
 }
 
 @layer base {

@@ -286,8 +286,11 @@ La barra de uso muestra lo gastado sobre lo asignado: lima hasta el límite y, s
 ### Movimiento
 Una sola curva de salida, `cubic-bezier(0.22, 1, 0.36, 1)`, para todo lo que crece en el tablero: barras en 900ms, segmentos en 1000ms, montos que cuentan en 1100ms, filas de lista que suben 6px y aparecen escalonadas. Con movimiento reducido no hay cuenta ni crecimiento, pero el foco y el hover siguen.
 
-### Pantallas todavía sin bloques
-Gastos, Ingresos, Resumen, Historial, Buscar y Categorías usan los colores, las fuentes y las píldoras de este sistema, pero todavía no están armadas con las piezas del tablero (Tile, Pills, Insignia, Cifra): siguen con sus paneles, filas y controles propios.
+### Pantallas
+Todas las pantallas (Plan, Gastos, Ingresos, Resumen, Historial, Buscar y Categorías) están armadas con las piezas del tablero: Tile, Pills, Insignia y Cifra. Cada una abre con un bloque grande con la cifra que responde su pregunta y sigue con bloques de detalle; las listas de movimientos son filas con el punto de la categoría en un cuadrado `muted`, el texto y el monto en mono. Las tarjetas de categoría muestran su color como punto, nunca como franja.
+
+### Lo que sigue con clases propias
+La barra lateral, los botones (`.boton`), los campos y chips de los diálogos, los diálogos (`.dialogo`, centrados con `margin: auto`), los avisos y el esqueleto de carga siguen en `styles.css`, con los mismos colores del tema.
 
 ## Do's and Don'ts
 

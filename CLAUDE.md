@@ -21,7 +21,7 @@ App personal de Andres para registrar y planificar sus gastos mensuales. Corre s
   - `src/formato.ts`: formato de montos argentino (`1.234.567,50`).
   - Estilo: tablero de bloques oscuro (siempre oscuro), lima para lo principal y lo que alcanza, lila para excesos, rojo solo para borrar y errores; cifras en Geist Mono. Detalle en `DESIGN.md`.
   - `src/index.css`: tema con Tailwind 4 y variables al estilo shadcn (`@theme inline`). Alias `@/` → `src/`; estructura shadcn en `components.json`, `src/lib/utils.ts` (`cn`) y `src/components/ui/` (`bento.tsx`, `cifra.tsx`).
-  - `src/styles.css`: clases propias de las pantallas que todavía no pasaron a Tailwind; se importa en la capa `components`, así las utilidades de Tailwind le ganan.
+  - `src/styles.css`: barra lateral, botones, diálogos, campos y avisos con clases propias (las pantallas ya están en Tailwind); se importa en la capa `components`, así las utilidades de Tailwind le ganan.
 - **Scripts de Windows** (CRLF, UTF-8 con BOM): `iniciar.cmd/.ps1` (levanta Docker, copia diaria a OneDrive con `copias.ps1`, compila si hubo cambios y abre la app), `restaurar.cmd/.ps1`.
 
 ## Comandos
