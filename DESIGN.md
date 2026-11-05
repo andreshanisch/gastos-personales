@@ -7,7 +7,7 @@ colors:
   superficie-2: "#f5f7f3"
   tinta: "#16211c"
   tinta-2: "#4b5a53"
-  tinta-3: "#78857e"
+  tinta-3: "#5e6a64"
   linea: "#d6ddd7"
   linea-suave: "#e6ebe6"
   billete: "#1d5a48"
@@ -268,7 +268,7 @@ Firmes y sin estridencias: el color dice qué tan importante es la acción.
 - **Botón texto:** verde billete sin fondo, subrayado al pasar el mouse, para acciones secundarias dentro de un texto.
 - **Botón ícono:** 36×36, transparente.
 - **Foco:** anillo de latón de 3px con 2px de separación. La transición es de 120ms, solo de color, y se desactiva con movimiento reducido.
-- **Atajos:** "Nuevo gasto" y "Nuevo ingreso" muestran su tecla (N, I) en una cajita con borde al 60 % de opacidad, alineada a la derecha.
+- **Atajos:** "Nuevo gasto" y "Nuevo ingreso" muestran su tecla (N, I) en una cajita al 80 % de opacidad con borde suave, alineada a la derecha.
 
 ### Chips
 - **Estilo:** píldora blanca de 38px con borde `linea` de 1.5px y, para las categorías, un punto de color de 10px.

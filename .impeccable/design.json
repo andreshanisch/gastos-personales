@@ -331,7 +331,7 @@
           "oklch(80% 0.008 160)",
           "oklch(95% 0.002 160)"
         ],
-        "dark": "#7d8c85"
+        "dark": "#8a9992"
       },
       "linea": {
         "role": "neutral",
@@ -469,7 +469,7 @@
       "refersTo": "boton-secundario",
       "description": "Acciones de apoyo: Nuevo ingreso, Exportar.",
       "html": "<button class=\"ds-boton ds-boton--secundario\">Exportar a Excel</button>",
-      "css": ".ds-boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:8px;border:1.5px solid transparent;font:700 0.9375rem/1.5 \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer;transition:border-color 120ms ease}.ds-boton:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-boton--secundario{background:var(--superficie,#fff);border-color:var(--linea,#d6ddd7);color:var(--tinta,#16211c)}.ds-boton--secundario:hover{border-color:var(--tinta-3,#78857e)}"
+      "css": ".ds-boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:8px;border:1.5px solid transparent;font:700 0.9375rem/1.5 \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer;transition:border-color 120ms ease}.ds-boton:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-boton--secundario{background:var(--superficie,#fff);border-color:var(--linea,#d6ddd7);color:var(--tinta,#16211c)}.ds-boton--secundario:hover{border-color:var(--tinta-3,#5e6a64)}"
     },
     {
       "name": "Botón peligro",
@@ -485,7 +485,7 @@
       "refersTo": "campo",
       "description": "Campo de texto o selector con etiqueta arriba.",
       "html": "<label class=\"ds-campo\"><span class=\"ds-campo__etiqueta\">Descripción <span class=\"ds-campo__opcional\">(opcional)</span></span><input placeholder=\"Supermercado\"></label>",
-      "css": ".ds-campo{display:flex;flex-direction:column;gap:6px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-campo__etiqueta{font-size:0.8125rem;font-weight:700;color:var(--tinta-2,#4b5a53)}.ds-campo__opcional{font-weight:400;color:var(--tinta-3,#78857e)}.ds-campo input{min-height:44px;padding:0 12px;border:1.5px solid var(--linea,#d6ddd7);border-radius:8px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:inherit}.ds-campo input:focus-visible{outline:none;border-color:var(--billete,#1d5a48);box-shadow:0 0 0 3px color-mix(in srgb,var(--laton,#c3922a) 45%,transparent)}"
+      "css": ".ds-campo{display:flex;flex-direction:column;gap:6px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-campo__etiqueta{font-size:0.8125rem;font-weight:700;color:var(--tinta-2,#4b5a53)}.ds-campo__opcional{font-weight:400;color:var(--tinta-3,#5e6a64)}.ds-campo input{min-height:44px;padding:0 12px;border:1.5px solid var(--linea,#d6ddd7);border-radius:8px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:inherit}.ds-campo input:focus-visible{outline:none;border-color:var(--billete,#1d5a48);box-shadow:0 0 0 3px color-mix(in srgb,var(--laton,#c3922a) 45%,transparent)}"
     },
     {
       "name": "Campo de monto",
@@ -493,7 +493,7 @@
       "refersTo": "campo",
       "description": "El monto grande del diálogo de gasto o ingreso.",
       "html": "<label class=\"ds-monto\"><span class=\"ds-monto__simbolo\">$</span><input inputmode=\"decimal\" placeholder=\"0,00\" value=\"12.450,00\"></label>",
-      "css": ".ds-monto{display:flex;align-items:center;gap:14px;padding:4px 0 8px;border-bottom:2px solid var(--linea,#d6ddd7)}.ds-monto:focus-within{border-bottom-color:var(--billete,#1d5a48)}.ds-monto__simbolo{font:500 1.5rem \"Barlow Condensed\",\"Arial Narrow\",sans-serif;color:var(--tinta-3,#78857e)}.ds-monto input{flex:1;min-width:0;border:0;background:transparent;color:var(--tinta,#16211c);font:600 3.25rem/1.1 \"Barlow Condensed\",\"Arial Narrow\",sans-serif;font-variant-numeric:tabular-nums;text-align:right}.ds-monto input:focus-visible{outline:none}"
+      "css": ".ds-monto{display:flex;align-items:center;gap:14px;padding:4px 0 8px;border-bottom:2px solid var(--linea,#d6ddd7)}.ds-monto:focus-within{border-bottom-color:var(--billete,#1d5a48)}.ds-monto__simbolo{font:500 1.5rem \"Barlow Condensed\",\"Arial Narrow\",sans-serif;color:var(--tinta-3,#5e6a64)}.ds-monto input{flex:1;min-width:0;border:0;background:transparent;color:var(--tinta,#16211c);font:600 3.25rem/1.1 \"Barlow Condensed\",\"Arial Narrow\",sans-serif;font-variant-numeric:tabular-nums;text-align:right}.ds-monto input:focus-visible{outline:none}"
     },
     {
       "name": "Chip de categoría",
@@ -501,7 +501,7 @@
       "refersTo": "chip",
       "description": "Elegir la categoría de un gasto.",
       "html": "<div class=\"ds-chips\"><label class=\"ds-chip ds-chip--activo\"><i style=\"background:#1d5a48\"></i>Supermercado</label><label class=\"ds-chip\"><i style=\"background:#c3922a\"></i>Transporte</label></div>",
-      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px}.ds-chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1.5px solid var(--linea,#d6ddd7);border-radius:999px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:0.9375rem \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer}.ds-chip:hover{border-color:var(--tinta-3,#78857e)}.ds-chip i{width:10px;height:10px;border-radius:50%}.ds-chip--activo{border-color:var(--billete,#1d5a48);background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}"
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px}.ds-chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1.5px solid var(--linea,#d6ddd7);border-radius:999px;background:var(--superficie,#fff);color:var(--tinta,#16211c);font:0.9375rem \"Schibsted Grotesk\",system-ui,sans-serif;cursor:pointer}.ds-chip:hover{border-color:var(--tinta-3,#5e6a64)}.ds-chip i{width:10px;height:10px;border-radius:50%}.ds-chip--activo{border-color:var(--billete,#1d5a48);background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}"
     },
     {
       "name": "Navegación lateral",
@@ -509,7 +509,7 @@
       "refersTo": "enlace-lateral-activo",
       "description": "Enlaces agrupados de la barra lateral.",
       "html": "<nav class=\"ds-nav\"><p class=\"ds-nav__grupo\">Este mes</p><a class=\"ds-nav__enlace ds-nav__enlace--activo\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4.5\" width=\"16\" height=\"14\" rx=\"2.5\"/><path d=\"M3 9.5h16M7.5 2.5v4M14.5 2.5v4M7 13.5h3\"/></svg>Plan</a><a class=\"ds-nav__enlace\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 3.5h12v15l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z\"/><path d=\"M8 8h6M8 11.5h6\"/></svg>Gastos</a></nav>",
-      "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:216px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-nav__grupo{margin:0;padding:0 10px 6px;font-size:0.8125rem;font-weight:500;color:var(--tinta-3,#78857e)}.ds-nav__enlace{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;color:var(--tinta-2,#4b5a53);font-weight:500;text-decoration:none}.ds-nav__enlace svg{color:var(--tinta-3,#78857e)}.ds-nav__enlace:hover{background:var(--superficie-2,#f5f7f3);color:var(--tinta,#16211c)}.ds-nav__enlace:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-nav__enlace--activo{background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}.ds-nav__enlace--activo svg{color:var(--billete,#1d5a48)}"
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:216px;font-family:\"Schibsted Grotesk\",system-ui,sans-serif}.ds-nav__grupo{margin:0;padding:0 10px 6px;font-size:0.8125rem;font-weight:500;color:var(--tinta-3,#5e6a64)}.ds-nav__enlace{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;color:var(--tinta-2,#4b5a53);font-weight:500;text-decoration:none}.ds-nav__enlace svg{color:var(--tinta-3,#5e6a64)}.ds-nav__enlace:hover{background:var(--superficie-2,#f5f7f3);color:var(--tinta,#16211c)}.ds-nav__enlace:focus-visible{outline:3px solid var(--laton,#c3922a);outline-offset:2px}.ds-nav__enlace--activo{background:var(--billete-tinte,#e1ede6);color:var(--billete,#1d5a48);font-weight:700}.ds-nav__enlace--activo svg{color:var(--billete,#1d5a48)}"
     },
     {
       "name": "Panel con lista de datos",

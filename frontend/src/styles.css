@@ -11,7 +11,7 @@
   --superficie-2: #f5f7f3;
   --tinta: #16211c;
   --tinta-2: #4b5a53;
-  --tinta-3: #78857e;
+  --tinta-3: #5e6a64; /* 4,6:1 o más sobre todos los fondos claros */
   --linea: #d6ddd7;
   --linea-suave: #e6ebe6;
 
@@ -57,7 +57,7 @@
     --superficie-2: #1a2622;
     --tinta: #e4ece8;
     --tinta-2: #a8b7b0;
-    --tinta-3: #7d8c85;
+    --tinta-3: #8a9992; /* 4,7:1 o más sobre todos los fondos oscuros */
     --linea: #2a3832;
     --linea-suave: #22302a;
 
@@ -137,10 +137,10 @@ kbd {
   min-width: 22px;
   padding: 1px 6px;
   border-radius: 5px;
-  border: 1px solid currentColor;
+  border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
   font: 600 0.75rem/1.4 var(--fuente-ui);
   text-align: center;
-  opacity: 0.6;
+  opacity: 0.8; /* el texto del atajo queda en 5,8:1 o más sobre los botones */
 }
 
 /* ---------- Estructura: barra lateral + contenido ---------- */
@@ -178,7 +178,8 @@ kbd {
 .lateral__marca img { border-radius: 9px; }
 
 .lateral__acciones { display: flex; flex-direction: column; gap: 8px; }
-.lateral__nuevo { justify-content: flex-start; gap: 10px; padding: 0 14px; }
+/* .boton.lateral__nuevo: más específico que .boton, que viene después y si no pisaría estos valores */
+.boton.lateral__nuevo { justify-content: flex-start; gap: 10px; padding: 0 14px; }
 
 .lateral__nav { display: flex; flex-direction: column; gap: 18px; }
 .lateral__grupo-nombre {
@@ -232,7 +233,7 @@ kbd {
   .lateral__marca { font-size: 1.25rem; padding: 0; }
   .lateral__marca img { width: 28px; height: 28px; }
   .lateral__acciones { flex-direction: row; margin-left: auto; }
-  .lateral__nuevo { width: auto; min-height: 38px; }
+  .boton.lateral__nuevo { width: auto; min-height: 38px; }
   .lateral__nuevo kbd { display: none; }
   .lateral__nav { flex: 1 0 100%; flex-direction: row; gap: 4px; overflow-x: auto; }
   .lateral__grupo-nombre { display: none; }
@@ -241,7 +242,7 @@ kbd {
   .contenido { padding: 24px 16px 80px; }
 }
 @media (max-width: 560px) {
-  .lateral__nuevo { font-size: 0; gap: 0; padding: 0 12px; }
+  .boton.lateral__nuevo { font-size: 0; gap: 0; padding: 0 12px; }
   .lateral__nuevo svg { width: 20px; height: 20px; }
 }
 
@@ -514,10 +515,12 @@ kbd {
   text-align: right;
 }
 .campo-monto__input:focus-visible { outline: none; }
-.campo-monto__input::placeholder { color: var(--linea); }
+.campo-monto__input::placeholder { color: var(--tinta-3); }
 
 .segmentado {
   display: inline-flex;
+  flex-wrap: wrap; /* en ventanas muy angostas las opciones bajan de línea en vez de desbordar */
+  max-width: 100%;
   padding: 3px;
   border-radius: 10px;
   background: var(--superficie-2);
