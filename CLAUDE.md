@@ -8,6 +8,7 @@ App personal de Andres para registrar y planificar sus gastos mensuales. Corre s
 - **Privacidad:** el repo es público y tiene solo código. Los datos viven en la base de Docker local; no se suben datos reales, dumps ni capturas con montos reales.
 - No leas ni muestres `.env.local` (tiene credenciales viejas de Neon) ni otros archivos de secretos.
 - La app escucha solo en `localhost` y no tiene login; mantenelo así.
+- El iPhone de Andres entra por **Tailscale** (red privada, solo sus dispositivos): `tailscale serve --bg 5080` publica la app en `https://<compu>.<tailnet>.ts.net` solo dentro de su red y la reenvía a `localhost:5080`. Por eso `AllowedHosts` acepta `localhost;*.ts.net`. Nunca uses `tailscale funnel` ni abras la app a internet.
 - Hacé los cambios en una rama, verificá (ver abajo) y recién después mergeá a `main`.
 
 ## Arquitectura

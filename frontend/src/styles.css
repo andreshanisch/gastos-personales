@@ -315,7 +315,7 @@ kbd {
 
 /* ---------- Formularios ---------- */
 .campo { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
-.campo--crece { flex: 1; }
+.campo--crece { flex: 1; min-width: 12rem; }
 .campo__etiqueta { font-size: 0.8125rem; font-weight: 700; color: var(--tinta-2); padding: 0; }
 .campo__opcional { font-weight: 400; color: var(--tinta-3); }
 .campo__ayuda { font-size: 0.8125rem; color: var(--tinta-3); }
@@ -568,3 +568,8 @@ kbd {
 .interruptor__texto { display: flex; flex-direction: column; }
 .interruptor__texto small { color: var(--tinta-3); font-size: 0.8125rem; }
 @media (prefers-reduced-motion: reduce) { .interruptor__pista, .interruptor__pista::after { transition: none; } }
+
+/* En pantallas táctiles (el iPhone) no hay teclado físico: las pistas de atajos sobran */
+@media (hover: none) and (pointer: coarse) {
+  kbd, .solo-teclado { display: none; }
+}

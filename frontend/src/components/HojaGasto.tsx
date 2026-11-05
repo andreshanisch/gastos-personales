@@ -223,7 +223,7 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
 
         <fieldset className="campo">
           <legend className="campo__etiqueta">
-            Categoría <span className="campo__opcional">escribí la inicial para saltar</span>
+            Categoría <span className="campo__opcional solo-teclado">escribí la inicial para saltar</span>
           </legend>
           {opciones.length === 0 ? (
             <p className="campo__ayuda">Todavía no hay categorías. Creá una en la sección Categorías.</p>
