@@ -477,6 +477,9 @@ kbd {
 .campo__etiqueta { font-size: 0.8125rem; font-weight: 700; color: var(--tinta-2); padding: 0; }
 .campo__opcional { font-weight: 400; color: var(--tinta-3); }
 .campo__ayuda { font-size: 0.8125rem; color: var(--tinta-3); }
+.campo__ayuda--error { color: var(--alerta); }
+.campo--fecha { flex: 0 1 11rem; }
+.campo--fecha .campo__ayuda::first-letter { text-transform: uppercase; }
 .campos-en-fila { display: flex; flex-wrap: wrap; gap: 14px; }
 
 .campo input:not([type='radio']):not([type='checkbox']),
@@ -612,6 +615,10 @@ kbd {
 .dialogo__encabezado { display: flex; justify-content: space-between; align-items: center; margin: -4px -8px -4px 0; }
 .dialogo__titulo { font-size: 1.1875rem; font-weight: 700; }
 .dialogo__texto { color: var(--tinta-2); margin-top: -8px; }
+.dialogo__resumen { margin-top: 2px; font-size: 0.875rem; color: var(--tinta-2); }
+.dialogo__resumen .monto { font-size: 1.0625rem; font-weight: 600; color: var(--tinta); }
+.dialogo__resumen--excedido, .dialogo__resumen--excedido .monto { color: var(--alerta); }
+.dialogo__acciones kbd { margin-left: 4px; }
 .dialogo__acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
 .dialogo__acciones .boton--peligro, .dialogo__acciones .boton--fantasma:first-child { margin-right: auto; }
 .dialogo--confirmar .dialogo__acciones .boton--fantasma:first-child { margin-right: 0; }

@@ -80,6 +80,46 @@ export function montoParaEditar(monto: number): string {
   return formatearAlEscribir(String(monto).replace('.', ','))
 }
 
+const iso = (a: number, m: number, d: number) =>
+  `${a}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+
+/**
+ * Interpreta una fecha escrita a mano, tomando lo que falta de `referencia` (yyyy-MM-dd):
+ * "12" -> día 12 del mismo mes, "12/10" -> 12 de octubre del mismo año, "12/10/25" o "12/10/2025".
+ * También acepta "-" o "." como separador. Devuelve yyyy-MM-dd o null si no es una fecha válida.
+ */
+export function interpretarFecha(texto: string, referencia: string): string | null {
+  const partes = /^(\d{1,2})(?:[/.-](\d{1,2})(?:[/.-](\d{2}|\d{4}))?)?$/.exec(texto.trim())
+  if (!partes) return null
+  const [anioRef, mesRef] = referencia.split('-').map(Number)
+  const dia = Number(partes[1])
+  const mes = partes[2] ? Number(partes[2]) : mesRef
+  const anio = partes[3] ? (partes[3].length === 2 ? 2000 + Number(partes[3]) : Number(partes[3])) : anioRef
+  const fecha = new Date(anio, mes - 1, dia)
+  if (fecha.getFullYear() !== anio || fecha.getMonth() !== mes - 1 || fecha.getDate() !== dia) return null
+  return iso(anio, mes, dia)
+}
+
+/** yyyy-MM-dd -> "12/11", o "12/11/2025" si no es del año en curso */
+export function fechaCorta(fechaISO: string): string {
+  const [a, m, d] = fechaISO.split('-').map(Number)
+  return a === new Date().getFullYear() ? `${d}/${m}` : `${d}/${m}/${a}`
+}
+
+/** Suma (o resta) días a una fecha yyyy-MM-dd */
+export function sumarDias(fechaISO: string, dias: number): string {
+  const [a, m, d] = fechaISO.split('-').map(Number)
+  const fecha = new Date(a, m - 1, d + dias)
+  return iso(fecha.getFullYear(), fecha.getMonth() + 1, fecha.getDate())
+}
+
+/** yyyy-MM-dd -> "jueves 12 de noviembre" (con el año si no es el actual) */
+export function fechaLarga(fechaISO: string): string {
+  const [a, m, d] = fechaISO.split('-').map(Number)
+  const dia = new Date(a, m - 1, d).toLocaleDateString('es-AR', { weekday: 'long' })
+  return `${dia} ${d} de ${nombreMes(m)}${a === new Date().getFullYear() ? '' : ` de ${a}`}`
+}
+
 /** "Noviembre 2026" */
 export function nombreMesAnio(anio: number, mes: number) {
   return `${capitalizar(nombreMes(mes))} ${anio}`

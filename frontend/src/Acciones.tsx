@@ -51,7 +51,9 @@ export function AccionesProvider({ children }: { children: ReactNode }) {
     function alApretar(e: KeyboardEvent) {
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return
       const objetivo = e.target as HTMLElement
-      if (objetivo.closest('input, textarea, select, [contenteditable="true"]')) return
+      const escribiendo = objetivo.closest('input, textarea, select, [contenteditable="true"]')
+      // Un campo dentro de un diálogo ya cerrado no cuenta: quedó con el foco pero no se ve
+      if (escribiendo && !escribiendo.closest('dialog:not([open])')) return
       if (document.querySelector('dialog[open]')) return
       const tecla = e.key.toLowerCase()
       if (tecla === 'n') { e.preventDefault(); acciones.nuevoGasto() }

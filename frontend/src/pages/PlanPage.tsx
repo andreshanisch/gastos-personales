@@ -10,6 +10,7 @@ import { Monto } from '../components/Monto'
 import { formatearMonto, hoyISO, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
 import { calcularDesdeHoy, calcularPlan, type Decision, type EntradaPlan, type SemanaPlan } from '../plan'
+import { armarEntrada, CLAVE_MODO, CLAVE_SEMANAS, guardarPreferencia, leerNumero, type Modo } from '../semana'
 import { alTeclaEnGrupo } from '../teclado'
 import type { Categoria, Gasto, Ingreso, PlanMes } from '../types'
 
@@ -21,24 +22,6 @@ interface Datos {
 }
 
 const pesos = (n: number) => formatearMonto(Math.round(n))
-
-/** 'mes' = plan de todo el mes; un número = repartir lo que hay hoy en esa cantidad de semanas */
-type Modo = 'mes' | 1 | 2 | 3 | 4
-const CLAVE_MODO = 'gastos.plan.modo'
-/** Hasta qué semana se repartió "lo que tengo hoy" la última vez, para volver a eso al elegirlo */
-const CLAVE_SEMANAS = 'gastos.plan.semanas'
-
-function leerNumero(clave: string): 1 | 2 | 3 | 4 | null {
-  try {
-    const valor = localStorage.getItem(clave)
-    if (valor === '1' || valor === '2' || valor === '3' || valor === '4') return Number(valor) as 1 | 2 | 3 | 4
-  } catch { /* sin almacenamiento: se usa el valor por defecto */ }
-  return null
-}
-
-function guardarPreferencia(clave: string, valor: string) {
-  try { localStorage.setItem(clave, valor) } catch { /* no pasa nada si no se guarda */ }
-}
 
 export function PlanPage() {
   const { anio, mes } = useMes()
@@ -80,18 +63,7 @@ export function PlanPage() {
 
   const obligatorias = useMemo(() => datos?.categorias.filter((c) => c.obligatoria) ?? [], [datos])
 
-  const entradaPlan = useMemo<EntradaPlan | null>(() => {
-    if (!datos) return null
-    return {
-      anio,
-      mes,
-      hoy: hoyISO(),
-      ingresos: datos.ingresos.filter((i) => i.moneda === 'ARS'),
-      gastos: datos.gastos.filter((g) => g.moneda === 'ARS'),
-      obligatorias: new Set(obligatorias.map((c) => c.id)),
-      decisiones: new Map(datos.plan.decisiones.map((d) => [d.semana, d.decision])),
-    }
-  }, [datos, obligatorias, anio, mes])
+  const entradaPlan = useMemo<EntradaPlan | null>(() => (datos ? armarEntrada(anio, mes, datos) : null), [datos, anio, mes])
 
   const resultado = useMemo(() => (entradaPlan ? calcularPlan(entradaPlan) : null), [entradaPlan])
 

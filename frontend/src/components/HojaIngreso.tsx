@@ -40,6 +40,8 @@ export function HojaIngreso({ abierta, ingreso, fechaPorDefecto, alCerrar, alGua
       d.showModal()
       requestAnimationFrame(() => (d.querySelector('#monto-ingreso') as HTMLInputElement | null)?.focus())
     } else if (!abierta && d.open) {
+      // Si el foco quedó en un campo del diálogo, se suelta: si no, los atajos N e I creen que se está escribiendo
+      if (d.contains(document.activeElement)) (document.activeElement as HTMLElement).blur()
       d.close()
     }
   }, [abierta, ingreso, fechaPorDefecto])
