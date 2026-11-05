@@ -111,6 +111,9 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
       ref={dialogo}
       className="dialogo dialogo--hoja"
       onClose={alCerrar}
+      // Esc: el navegador cierra el diálogo por su cuenta y a veces no avisa con "close";
+      // sin esto la app lo sigue dando por abierto y N deja de funcionar
+      onCancel={(e) => { e.preventDefault(); alCerrar() }}
       onClick={(e) => { if (e.target === dialogo.current) alCerrar() }}
       aria-labelledby="hoja-gasto-titulo"
     >

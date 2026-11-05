@@ -5,6 +5,7 @@ import { Esqueleto } from '../components/Esqueleto'
 import { GraficoBarras } from '../components/GraficoBarras'
 import { Monto } from '../components/Monto'
 import { capitalizar, formatearMonto, nombreMes } from '../formato'
+import { alTeclaEnGrupo } from '../teclado'
 import type { Historial } from '../types'
 
 const RANGOS = [6, 12, 24] as const
@@ -45,9 +46,9 @@ export function HistorialPage() {
       titulo="Historial"
       subtitulo="Cómo vienen tus ingresos y gastos, mes a mes."
       acciones={
-        <div className="segmentado" role="radiogroup" aria-label="Período">
+        <div className="segmentado" role="radiogroup" aria-label="Período" onKeyDown={alTeclaEnGrupo}>
           {RANGOS.map((r) => (
-            <button key={r} type="button" role="radio" aria-checked={rango === r} className="segmentado__opcion" onClick={() => setRango(r)}>
+            <button key={r} type="button" role="radio" aria-checked={rango === r} tabIndex={rango === r ? 0 : -1} className="segmentado__opcion" onClick={() => setRango(r)}>
               {r} meses
             </button>
           ))}

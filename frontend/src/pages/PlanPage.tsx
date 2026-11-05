@@ -10,6 +10,7 @@ import { Monto } from '../components/Monto'
 import { formatearMonto, hoyISO, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
 import { calcularDesdeHoy, calcularPlan, type Decision, type EntradaPlan, type SemanaPlan } from '../plan'
+import { alTeclaEnGrupo } from '../teclado'
 import type { Categoria, Gasto, Ingreso, PlanMes } from '../types'
 
 interface Datos {
@@ -163,14 +164,15 @@ export function PlanPage() {
       {error && <div className="aviso" role="alert"><p>{error}</p></div>}
 
       {/* ---------- Lo principal: cuánto puedo gastar ---------- */}
-      <section className="billete" aria-label="Lo que podés gastar">
+      <section className="billete" aria-labelledby="billete-titulo">
         <Guilloche />
-        <div>
+        {/* Cuando cambia el monto (otro mes, otro modo, un gasto nuevo) el lector de pantalla lo lee entero */}
+        <div aria-live="polite" aria-atomic="true">
           {actual ? (
             <>
-              <p className="billete__etiqueta">
+              <h2 className="billete__etiqueta" id="billete-titulo">
                 {actual.saldo >= 0 ? 'Esta semana todavía podés gastar' : 'Esta semana te pasaste por'}
-              </p>
+              </h2>
               <Monto
                 valor={Math.abs(actual.saldo)}
                 className={`billete__monto ${actual.saldo < 0 ? 'billete__monto--excedido' : ''}`}
@@ -188,7 +190,7 @@ export function PlanPage() {
             </>
           ) : (
             <>
-              <p className="billete__etiqueta">Libre para gastar en {nombreMes(mes)}</p>
+              <h2 className="billete__etiqueta" id="billete-titulo">Libre para gastar en {nombreMes(mes)}</h2>
               <Monto valor={resultado.libre} className="billete__monto" />
               <p className="billete__dia">Ingresos del mes menos los gastos obligatorios.</p>
             </>
@@ -218,11 +220,12 @@ export function PlanPage() {
         <>
           <div className="modo">
             <p className="modo__pregunta" id="modo-titulo">Administrar</p>
-            <div className="segmentado" role="radiogroup" aria-labelledby="modo-titulo">
+            <div className="segmentado" role="radiogroup" aria-labelledby="modo-titulo" onKeyDown={alTeclaEnGrupo}>
               <button
                 type="button"
                 role="radio"
                 aria-checked={modo === 'mes' || !desdeHoy}
+                tabIndex={modo === 'mes' || !desdeHoy ? 0 : -1}
                 className="segmentado__opcion"
                 onClick={() => cambiarModo('mes')}
               >
@@ -234,6 +237,7 @@ export function PlanPage() {
                   type="button"
                   role="radio"
                   aria-checked={desdeHoy?.semanasElegidas === n}
+                  tabIndex={desdeHoy?.semanasElegidas === n ? 0 : -1}
                   className="segmentado__opcion"
                   onClick={() => cambiarModo(n as Modo)}
                 >

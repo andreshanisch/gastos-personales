@@ -1,4 +1,5 @@
 import { formatearAlEscribir } from '../formato'
+import { alTeclaEnGrupo } from '../teclado'
 import type { Moneda } from '../types'
 
 interface Props {
@@ -14,13 +15,14 @@ interface Props {
 export function CampoMonto({ id, valor, alCambiar, moneda, alCambiarMoneda, autoFocus }: Props) {
   return (
     <div className="campo-monto">
-      <div className="segmentado segmentado--chico" role="radiogroup" aria-label="Moneda">
+      <div className="segmentado segmentado--chico" role="radiogroup" aria-label="Moneda" onKeyDown={alTeclaEnGrupo}>
         {(['ARS', 'USD'] as const).map((m) => (
           <button
             key={m}
             type="button"
             role="radio"
             aria-checked={moneda === m}
+            tabIndex={moneda === m ? 0 : -1}
             className="segmentado__opcion"
             onClick={() => alCambiarMoneda(m)}
           >

@@ -93,6 +93,9 @@ export function HojaIngreso({ abierta, ingreso, fechaPorDefecto, alCerrar, alGua
       ref={dialogo}
       className="dialogo dialogo--hoja"
       onClose={alCerrar}
+      // Esc: el navegador cierra el diálogo por su cuenta y a veces no avisa con "close";
+      // sin esto la app lo sigue dando por abierto e I deja de funcionar
+      onCancel={(e) => { e.preventDefault(); alCerrar() }}
       onClick={(e) => { if (e.target === dialogo.current) alCerrar() }}
       aria-labelledby="hoja-ingreso-titulo"
     >

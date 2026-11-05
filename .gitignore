@@ -34,3 +34,8 @@ Thumbs.db
 
 # ---------- Claude Code (ajustes personales) ----------
 .claude/settings.local.json
+
+# ---------- Impeccable (material de trabajo, no se versiona) ----------
+.impeccable/critique/
+.impeccable/live/
+.impeccable/config.local.json
