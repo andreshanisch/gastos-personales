@@ -5,13 +5,13 @@ import { api } from '../api'
 import { useAvisos } from '../components/Avisos'
 import { EncabezadoPagina } from '../components/EncabezadoPagina'
 import { Esqueleto } from '../components/Esqueleto'
-import { Guilloche } from '../components/Guilloche'
-import { Monto } from '../components/Monto'
-import { formatearMonto, hoyISO, nombreMes } from '../formato'
+import { EASE, Insignia, Pills, Tile, useMounted } from '@/components/ui/bento'
+import { Cifra } from '@/components/ui/cifra'
+import { cn } from '@/lib/utils'
+import { capitalizar, formatearMonto, hoyISO, nombreMes } from '../formato'
 import { useMes } from '../MesContext'
-import { calcularDesdeHoy, calcularPlan, type Decision, type EntradaPlan, type SemanaPlan } from '../plan'
+import { calcularDesdeHoy, calcularPlan, semanaDelDia, type Decision, type EntradaPlan, type SemanaPlan } from '../plan'
 import { armarEntrada, CLAVE_MODO, CLAVE_SEMANAS, guardarPreferencia, leerNumero, type Modo } from '../semana'
-import { alTeclaEnGrupo } from '../teclado'
 import type { Categoria, Gasto, Ingreso, PlanMes } from '../types'
 
 interface Datos {
@@ -22,10 +22,12 @@ interface Datos {
 }
 
 const pesos = (n: number) => formatearMonto(Math.round(n))
+const LIMA = 'var(--primary)'
+const LILA = 'var(--secondary)'
 
 export function PlanPage() {
   const { anio, mes } = useMes()
-  const { version, nuevoGasto, nuevoIngreso } = useAcciones()
+  const { version, nuevoGasto, nuevoIngreso, editarGasto } = useAcciones()
   const avisar = useAvisos()
   const [datos, setDatos] = useState<Datos | null>(null)
   const [error, setError] = useState('')
@@ -62,9 +64,7 @@ export function PlanPage() {
   useEffect(() => { cargar() }, [cargar, version])
 
   const obligatorias = useMemo(() => datos?.categorias.filter((c) => c.obligatoria) ?? [], [datos])
-
   const entradaPlan = useMemo<EntradaPlan | null>(() => (datos ? armarEntrada(anio, mes, datos) : null), [datos, anio, mes])
-
   const resultado = useMemo(() => (entradaPlan ? calcularPlan(entradaPlan) : null), [entradaPlan])
 
   // "Lo que tengo hoy, en N semanas": solo para el mes en curso
@@ -85,11 +85,46 @@ export function PlanPage() {
     }
   }
 
+  const esMesEnCurso = resultado?.semanaActual != null
+  const maximoSemanas = resultado?.semanaActual ? 5 - resultado.semanaActual : 0
+  const semanasHoy = (desdeHoy?.semanasElegidas ?? Math.max(1, Math.min(leerNumero(CLAVE_SEMANAS) ?? maximoSemanas, maximoSemanas))) as 1 | 2 | 3 | 4
+  // Hasta qué día puede llegar "lo que tengo hoy": el fin de cada semana desde la actual
+  const finesPosibles = resultado?.semanaActual
+    ? resultado.semanas.slice(resultado.semanaActual - 1).map((s, i) => ({ semanas: (i + 1) as 1 | 2 | 3 | 4, hasta: s.hasta }))
+    : []
+
   const encabezado = (
     <EncabezadoPagina
       titulo="Plan"
       subtitulo="Cuánto podés gastar, semana por semana."
       conMes
+      acciones={esMesEnCurso && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span id="calcular-con" className="text-[13px] text-muted-foreground">Calcular con</span>
+          <Pills
+            etiqueta="Calcular con"
+            valor={desdeHoy ? 'hoy' : 'mes'}
+            opciones={[{ valor: 'mes', texto: 'El plan del mes' }, { valor: 'hoy', texto: 'Lo que tengo hoy' }]}
+            alCambiar={(v) => cambiarModo(v === 'mes' ? 'mes' : semanasHoy)}
+          />
+          {desdeHoy && finesPosibles.length > 1 && (
+            <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
+              hasta el
+              <select
+                value={desdeHoy.semanasElegidas}
+                onChange={(e) => cambiarModo(Number(e.target.value) as Modo)}
+                className="h-8 rounded-full border border-border bg-card px-3 text-[13px] font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {finesPosibles.map((f) => (
+                  <option key={f.semanas} value={f.semanas}>
+                    {f.hasta} de {nombreMes(mes)}{f.semanas === 1 ? ' (fin de semana)' : f.semanas === finesPosibles.length ? ' (fin de mes)' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+      )}
     />
   )
 
@@ -120,17 +155,13 @@ export function PlanPage() {
     ? desdeHoy.semanas[0]
     : resultado.semanaActual ? resultado.semanas[resultado.semanaActual - 1] : null
   const semanasVisibles = desdeHoy ? desdeHoy.semanas : resultado.semanas
-  const maximoSemanas = resultado.semanaActual ? 5 - resultado.semanaActual : 0
   // Las decisiones van en orden: repartir el sobrante de una semana cambia lo que le sobra a la siguiente
-  const pendientes = resultado.semanas.filter((s) => s.decisionPendiente).slice(0, 1)
-  const otrasPendientes = resultado.semanas.filter((s) => s.decisionPendiente).length - pendientes.length
+  const pendientes = resultado.semanas.filter((s) => s.decisionPendiente)
 
   // Cuánto se puede gastar por día en lo que queda de la semana actual
-  const diasRestantes = actual && actual.estado === 'en-curso'
-    ? actual.hasta - Number(hoyISO().slice(8, 10)) + 1
-    : 0
+  const hoyDia = Number(hoyISO().slice(8, 10))
+  const diasRestantes = actual && actual.estado === 'en-curso' ? actual.hasta - hoyDia + 1 : 0
   const porDia = actual && diasRestantes > 0 && actual.saldo > 0 ? actual.saldo / diasRestantes : 0
-
   // La semana que sigue a la actual: ya trae descontado el exceso de esta
   const siguiente = desdeHoy
     ? desdeHoy.semanas[1] ?? null
@@ -141,19 +172,15 @@ export function PlanPage() {
   const queda = desdeHoy
     ? desdeHoy.disponible - gastadoComun
     : resultado.libre - gastadoComun - resultado.ahorrado
+  const totalPeriodo = desdeHoy ? desdeHoy.disponible : resultado.libre - resultado.ahorrado
 
   // Un mes que ya terminó no se planifica: se resume cómo cerró
   const [anioHoy, mesHoy] = hoyISO().split('-').map(Number)
   const mesCerrado = anio * 100 + mes < anioHoy * 100 + mesHoy
-  const balance = resultado.ingresos - resultado.obligatoriosPagados - gastadoComun
-  const sinMovimientos = resultado.ingresos === 0 && resultado.obligatoriosPagados === 0 && gastadoComun === 0
+  const gastadoMes = resultado.semanas.reduce((s, x) => s + x.gastado, 0)
+  const balance = resultado.ingresos - resultado.obligatoriosPagados - gastadoMes
+  const sinMovimientos = resultado.ingresos === 0 && resultado.obligatoriosPagados === 0 && gastadoMes === 0
   const vacioCerrado = mesCerrado && sinMovimientos
-
-  // Hasta qué día puede llegar "lo que tengo hoy": el fin de cada semana desde la actual
-  const finesPosibles = resultado.semanaActual
-    ? resultado.semanas.slice(resultado.semanaActual - 1).map((s, i) => ({ semanas: (i + 1) as 1 | 2 | 3 | 4, hasta: s.hasta }))
-    : []
-  const semanasHoy = (desdeHoy?.semanasElegidas ?? Math.max(1, Math.min(leerNumero(CLAVE_SEMANAS) ?? maximoSemanas, maximoSemanas))) as 1 | 2 | 3 | 4
 
   return (
     <>
@@ -161,309 +188,385 @@ export function PlanPage() {
 
       {error && <div className="aviso" role="alert"><p>{error}</p></div>}
 
-      {/* ---------- Lo principal: cuánto puedo gastar ---------- */}
-      <section className="billete" aria-labelledby="billete-titulo">
-        <Guilloche />
-        {/* Cuando cambia el monto (otro mes, otro modo, un gasto nuevo) el lector de pantalla lo lee entero */}
-        <div aria-live="polite" aria-atomic="true">
-          {actual ? (
-            <>
-              <h2 className="billete__etiqueta" id="billete-titulo">
-                {actual.saldo >= 0 ? 'Esta semana todavía podés gastar' : 'Esta semana te pasaste por'}
-              </h2>
-              <Monto
-                valor={Math.abs(actual.saldo)}
-                className={`billete__monto ${actual.saldo < 0 ? 'billete__monto--excedido' : ''}`}
-              />
-              <p className="billete__dia">
-                {porDia > 0
-                  ? <>Son unos <strong>{pesos(porDia)}</strong> por día hasta el {actual.hasta} de {nombreMes(mes)}.</>
-                  : actual.saldo < 0
-                    ? siguiente
-                      ? <>Desde el {siguiente.desde} tenés <strong>{pesos(Math.max(0, siguiente.asignado))}</strong> para esa semana, ya descontado el exceso.</>
-                      : desdeHoy
-                        ? <>Te {queda >= 0 ? 'quedan' : 'faltan'} <strong>{pesos(Math.abs(queda))}</strong> hasta el {desdeHoy.cubreHasta} de {nombreMes(mes)}.</>
-                        : 'Es la última semana: ya no quedan semanas para compensarlo.'
-                    : `Semana del ${actual.desde} al ${actual.hasta} de ${nombreMes(mes)}.`}
-              </p>
-              <BarraUso asignado={actual.asignado} gastado={actual.gastado} className="billete__barra" />
-              <p className="billete__base">
-                {desdeHoy
-                  ? 'Según lo que tenés hoy.'
-                  : 'Según el plan del mes.'}
-              </p>
-            </>
-          ) : mesCerrado ? (
-            <>
-              <h2 className="billete__etiqueta" id="billete-titulo">
-                {sinMovimientos
-                  ? `Sin movimientos en ${nombreMes(mes)}`
-                  : balance >= 0 ? `En ${nombreMes(mes)} te sobraron` : `En ${nombreMes(mes)} te pasaste por`}
-              </h2>
-              <Monto valor={Math.abs(balance)} className={`billete__monto ${balance < 0 ? 'billete__monto--excedido' : ''}`} />
-              <p className="billete__dia">
-                {sinMovimientos
-                  ? 'No cargaste ingresos ni gastos en este mes.'
-                  : 'Lo que ingresó menos los gastos obligatorios y los demás gastos del mes.'}
-                {resultado.ahorrado > 0 && <> De eso, guardaste <strong>{pesos(resultado.ahorrado)}</strong> como ahorro.</>}
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="billete__etiqueta" id="billete-titulo">Libre para gastar en {nombreMes(mes)}</h2>
-              <Monto valor={resultado.libre} className="billete__monto" />
-              <p className="billete__dia">Ingresos del mes menos los gastos obligatorios.</p>
-            </>
-          )}
-        </div>
-        {!vacioCerrado && (
-          <dl className="billete__lado">
-            {!actual && mesCerrado && (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ---------- Lo principal: cuánto puedo gastar, y cómo fue cada día ---------- */}
+        <Tile className="sm:col-span-2 lg:col-span-2" aria-labelledby="titulo-principal">
+          <div aria-live="polite" aria-atomic="true" className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+            {actual ? (
               <>
-                <div className="billete__dato">
-                  <dt>Ingresos</dt>
-                  <dd><Monto valor={resultado.ingresos} /></dd>
+                <div className="min-w-0">
+                  <p className="text-[26px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[30px]">
+                    Hola, <span className="text-primary">Andres</span>
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Semana {actual.numero}: del {actual.desde} al {actual.hasta} de {nombreMes(mes)}.
+                  </p>
                 </div>
-                <div className="billete__dato">
-                  <dt>Obligatorios</dt>
-                  <dd><Monto valor={resultado.obligatoriosPagados} /></dd>
-                </div>
-                <div className="billete__dato">
-                  <dt>Otros gastos</dt>
-                  <dd><Monto valor={gastadoComun} /></dd>
+                <div className="text-right">
+                  <h2 id="titulo-principal" className="text-[12px] text-muted-foreground">
+                    {actual.saldo >= 0 ? 'Esta semana te quedan' : 'Esta semana te pasaste por'}
+                  </h2>
+                  <Cifra
+                    valor={actual.saldo}
+                    animar
+                    className={cn('text-[40px] font-semibold leading-none tracking-[-0.04em] sm:text-[46px]', actual.saldo < 0 && 'text-secondary')}
+                  />
+                  <p className="mt-1.5 text-[12px] text-muted-foreground">
+                    {porDia > 0
+                      ? <>unos <span className="font-mono text-foreground">{pesos(porDia)}</span> por día hasta el {actual.hasta}</>
+                      : actual.saldo < 0
+                        ? siguiente
+                          ? <>desde el {siguiente.desde} tenés <span className="font-mono text-foreground">{pesos(Math.max(0, siguiente.asignado))}</span> para esa semana</>
+                          : 'ya no quedan semanas para compensarlo'
+                        : `semana del ${actual.desde} al ${actual.hasta}`}
+                    {' · '}{desdeHoy ? 'según lo que tenés hoy' : 'según el plan del mes'}
+                  </p>
                 </div>
               </>
-            )}
-            {actual && (
-              <>
-                <div className="billete__dato">
-                  <dt>Para gastar esta semana</dt>
-                  <dd><Monto valor={actual.asignado} /></dd>
-                </div>
-                <div className="billete__dato">
-                  <dt>Ya gastaste</dt>
-                  <dd><Monto valor={actual.gastado} /></dd>
-                </div>
-                <div className="billete__dato">
-                  <dt>
-                    {queda >= 0
-                      ? desdeHoy ? `Queda hasta el ${desdeHoy.cubreHasta}` : 'Queda en el mes'
-                      : desdeHoy ? `Te pasaste hasta el ${desdeHoy.cubreHasta}` : 'Te pasaste en el mes'}
-                  </dt>
-                  <dd className={queda < 0 ? 'billete__dato--excedido' : undefined}><Monto valor={Math.abs(queda)} /></dd>
-                </div>
-              </>
-            )}
-            {((!actual && !mesCerrado) || resultado.ahorrado > 0) && (
-              <div className="billete__dato">
-                <dt>Ahorrado este mes</dt>
-                <dd><Monto valor={resultado.ahorrado} /></dd>
+            ) : mesCerrado ? (
+              <div>
+                <h2 id="titulo-principal" className="text-[12px] text-muted-foreground">
+                  {sinMovimientos
+                    ? `Sin movimientos en ${nombreMes(mes)}`
+                    : balance >= 0 ? `En ${nombreMes(mes)} te sobraron` : `En ${nombreMes(mes)} te pasaste por`}
+                </h2>
+                <Cifra valor={balance} animar className={cn('text-[40px] font-semibold leading-none tracking-[-0.04em]', balance < 0 && 'text-secondary')} />
+                <p className="mt-1.5 text-[12px] text-muted-foreground">
+                  {sinMovimientos
+                    ? 'No cargaste ingresos ni gastos en este mes.'
+                    : 'Lo que ingresó menos los gastos obligatorios y los demás gastos del mes.'}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h2 id="titulo-principal" className="text-[12px] text-muted-foreground">Libre para gastar en {nombreMes(mes)}</h2>
+                <Cifra valor={resultado.libre} animar className="text-[40px] font-semibold leading-none tracking-[-0.04em]" />
+                <p className="mt-1.5 text-[12px] text-muted-foreground">Ingresos del mes menos los gastos obligatorios.</p>
               </div>
             )}
-          </dl>
+          </div>
+          {!vacioCerrado && (
+            <TiraDiaria
+              anio={anio}
+              mes={mes}
+              gastos={datos.gastos}
+              obligatorias={new Set(obligatorias.map((c) => c.id))}
+              semanas={resultado.semanas}
+              semanasHoy={desdeHoy?.semanas ?? null}
+              hoy={esMesEnCurso ? hoyDia : null}
+            />
+          )}
+        </Tile>
+
+        {actual ? (
+          <>
+            {/* ---------- Esta semana ---------- */}
+            <Tile titulo="Esta semana" accion={<Insignia color={actual.saldo < 0 ? LILA : LIMA}>{actual.saldo < 0 ? 'Te pasaste' : 'En curso'}</Insignia>}>
+              <dl className="space-y-3">
+                <Dato nombre="Para gastar" valor={actual.asignado} />
+                <Dato nombre="Ya gastaste" valor={actual.gastado} />
+              </dl>
+              <BarraUso asignado={actual.asignado} gastado={actual.gastado} className="mt-4 h-2" />
+              <p className="mt-auto pt-4 text-[12px] text-muted-foreground">
+                {actual.descuentoPorSemanaSiguiente > 0
+                  ? <>Se descuentan <span className="font-mono text-foreground">{pesos(actual.descuentoPorSemanaSiguiente)}</span> de cada semana que sigue.</>
+                  : actual.saldo >= 0 ? `Del ${actual.desde} al ${actual.hasta} de ${nombreMes(mes)}.` : 'El exceso sale de las semanas que quedan.'}
+              </p>
+            </Tile>
+
+            {/* ---------- Lo que queda del período ---------- */}
+            <MedidorQueda
+              queda={queda}
+              total={totalPeriodo}
+              titulo={desdeHoy ? `Queda hasta el ${desdeHoy.cubreHasta}` : 'Queda en el mes'}
+            />
+          </>
+        ) : !vacioCerrado ? (
+          <Tile titulo={`Cómo cerró ${nombreMes(mes)}`} className="sm:col-span-2 lg:col-span-2">
+            <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Dato nombre="Ingresos" valor={resultado.ingresos} />
+              <Dato nombre="Obligatorios" valor={resultado.obligatoriosPagados} />
+              <Dato nombre="Otros gastos" valor={gastadoMes} />
+            </dl>
+            {sinIngresos && (
+              <p className="mt-auto pt-4 text-[13px] text-muted-foreground">
+                No cargaste ingresos en {nombreMes(mes)}.{' '}
+                <button type="button" className="font-semibold text-primary hover:underline" onClick={nuevoIngreso}>Cargar un ingreso</button>
+              </p>
+            )}
+          </Tile>
+        ) : null}
+
+        {/* ---------- Pasos pendientes: ingresos y obligatorios ---------- */}
+        {sinIngresos && !mesCerrado && (
+          <Tile titulo="Primer paso" className="sm:col-span-2 lg:col-span-4">
+            <p className="text-lg font-semibold tracking-tight">Empezá cargando tus ingresos</p>
+            <p className="mt-1 max-w-[60ch] text-sm text-muted-foreground">
+              El plan reparte lo que ingresa en el mes. Cargá tus ingresos de {nombreMes(mes)} con la fecha en que los cobrás.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <button type="button" className="boton boton--primario" onClick={nuevoIngreso}>Cargar un ingreso</button>
+              <Link to="/ingresos" className="boton-texto">Ver ingresos</Link>
+            </div>
+          </Tile>
         )}
-      </section>
 
-      {resultado.semanaActual !== null && (
-        <>
-          <div className="modo">
-            <p className="modo__pregunta" id="modo-titulo">Calcular con</p>
-            <div className="segmentado" role="radiogroup" aria-labelledby="modo-titulo" onKeyDown={alTeclaEnGrupo}>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={!desdeHoy}
-                tabIndex={!desdeHoy ? 0 : -1}
-                className="segmentado__opcion"
-                onClick={() => cambiarModo('mes')}
-              >
-                El plan del mes
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={!!desdeHoy}
-                tabIndex={desdeHoy ? 0 : -1}
-                className="segmentado__opcion"
-                onClick={() => cambiarModo(semanasHoy)}
-              >
-                Lo que tengo hoy
-              </button>
-            </div>
-            {desdeHoy && finesPosibles.length > 1 && (
-              <label className="modo__hasta">
-                <span>repartido hasta el</span>
-                <select value={desdeHoy.semanasElegidas} onChange={(e) => cambiarModo(Number(e.target.value) as Modo)}>
-                  {finesPosibles.map((f) => (
-                    <option key={f.semanas} value={f.semanas}>
-                      {f.hasta} de {nombreMes(mes)}{f.semanas === 1 ? ' (fin de esta semana)' : f.semanas === finesPosibles.length ? ' (fin de mes)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-          </div>
-          <p className="modo__ayuda">
-            {desdeHoy
-              ? <>Reparte en partes iguales lo que tenés hoy ({pesos(desdeHoy.disponible)}): lo cobrado menos los obligatorios, lo gastado en semanas anteriores y lo ahorrado.
-                {desdeHoy.porCobrar > 0 && <> No cuenta {pesos(desdeHoy.porCobrar)} que todavía no cobraste.</>}</>
-              : 'Reparte todos los ingresos del mes entre las 4 semanas, cada uno desde la semana en que entra.'}
+        {(sinObligatorias || eligiendo) && (
+          <ElegirObligatorias
+            categorias={datos.categorias}
+            primeraVez={sinObligatorias}
+            alTerminar={async () => { setEligiendo(false); avisar('Categorías obligatorias guardadas'); await cargar() }}
+            alCancelar={sinObligatorias ? undefined : () => setEligiendo(false)}
+          />
+        )}
+
+        {!desdeHoy && resultado.obligatoriosSinCubrir > 0 && (
+          <p className="aviso aviso--suave !m-0 sm:col-span-2 lg:col-span-4">
+            Tus ingresos de {nombreMes(mes)} no alcanzan para los gastos obligatorios que pagaste: faltan {pesos(resultado.obligatoriosSinCubrir)}.
           </p>
-        </>
-      )}
+        )}
+        {!desdeHoy && resultado.excesoSinCubrir > 0 && (
+          <p className="aviso aviso--suave !m-0 sm:col-span-2 lg:col-span-4">
+            En la última semana te pasaste por {pesos(resultado.excesoSinCubrir)} y ya no quedan semanas para compensarlo.
+          </p>
+        )}
 
-      {sinIngresos && mesCerrado && !sinMovimientos && (
-        <p className="plan__nota">
-          No cargaste ingresos en {nombreMes(mes)}.{' '}
-          <button type="button" className="boton-texto" onClick={nuevoIngreso}>Cargar un ingreso</button>
-        </p>
-      )}
+        {/* ---------- Semanas ---------- */}
+        {!vacioCerrado && (
+          <Tile titulo="Semana por semana" className="sm:col-span-2 lg:col-span-2 lg:row-span-2">
+            <ol className="flex flex-col divide-y divide-border">
+              {semanasVisibles.map((s) => (
+                <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
+              ))}
+            </ol>
+            {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
+              <p className="mt-auto pt-3 text-[12px] text-muted-foreground">
+                Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
+              </p>
+            )}
+          </Tile>
+        )}
 
-      {sinIngresos && !mesCerrado && (
-        <div className="tarjeta tarjeta--paso">
-          <h2 className="tarjeta__titulo">Empezá cargando tus ingresos</h2>
-          <p className="tarjeta__texto">El plan reparte lo que ingresa en el mes. Cargá tus ingresos de {nombreMes(mes)} con la fecha en que los cobrás.</p>
-          <div className="tarjeta__acciones">
-            <button type="button" className="boton boton--primario" onClick={nuevoIngreso}>Cargar un ingreso</button>
-            <Link to="/ingresos" className="boton-texto">Ver ingresos</Link>
-          </div>
-        </div>
-      )}
+        {/* ---------- En qué se va ---------- */}
+        <Categorias gastos={datos.gastos} />
 
-      {(sinObligatorias || eligiendo) && (
-        <ElegirObligatorias
-          categorias={datos.categorias}
-          primeraVez={sinObligatorias}
-          alTerminar={async () => { setEligiendo(false); avisar('Categorías obligatorias guardadas'); await cargar() }}
-          alCancelar={sinObligatorias ? undefined : () => setEligiendo(false)}
+        {/* ---------- Ahorro y decisiones sobre sobrantes ---------- */}
+        <Ahorro
+          ahorrado={resultado.ahorrado}
+          pendiente={pendientes[0] ?? null}
+          otrasPendientes={Math.max(0, pendientes.length - 1)}
+          mes={mes}
+          semanas={resultado.semanas}
+          alDecidir={decidir}
         />
-      )}
 
-      {/* ---------- Sobrantes que esperan una decisión ---------- */}
-      {pendientes.map((s) => (
-        <div key={s.numero} className="tarjeta tarjeta--decision" role="status">
-          <h2 className="tarjeta__titulo">Te sobraron {pesos(s.saldo)} de la semana {s.numero}</h2>
-          <p className="tarjeta__texto">Del {s.desde} al {s.hasta} de {nombreMes(mes)} gastaste menos de lo planeado. ¿Qué hacemos con esa plata?</p>
-          <div className="tarjeta__acciones">
-            <button type="button" className="boton boton--primario" onClick={() => decidir(s.numero, 'Ahorrar')}>
-              Guardar como ahorro
-            </button>
-            {s.numero < 4 && (
-              <button type="button" className="boton boton--secundario" onClick={() => decidir(s.numero, 'Repartir')}>
-                Sumar a las semanas que quedan
-              </button>
-            )}
-          </div>
-          {otrasPendientes > 0 && (
-            <p className="tarjeta__nota">
-              Después, {otrasPendientes === 1 ? 'queda 1 semana más' : `quedan ${otrasPendientes} semanas más`} por decidir.
-            </p>
-          )}
-        </div>
-      ))}
-
-      {!desdeHoy && resultado.obligatoriosSinCubrir > 0 && (
-        <p className="aviso aviso--suave">
-          Tus ingresos de {nombreMes(mes)} no alcanzan para los gastos obligatorios que pagaste: faltan {pesos(resultado.obligatoriosSinCubrir)}.
-        </p>
-      )}
-      {!desdeHoy && resultado.excesoSinCubrir > 0 && (
-        <p className="aviso aviso--suave">
-          En la última semana te pasaste por {pesos(resultado.excesoSinCubrir)} y ya no quedan semanas para compensarlo.
-        </p>
-      )}
-
-      {/* ---------- Semanas ---------- */}
-      {/* Un mes cerrado sin movimientos no tiene semanas que mostrar */}
-      {!vacioCerrado && (
-        <section className="seccion" aria-labelledby="titulo-semanas">
-          <h2 className="seccion__titulo" id="titulo-semanas">Semana por semana</h2>
-          <ol className="semanas">
-            {semanasVisibles.map((s) => (
-              <FilaSemana key={s.numero} semana={s} mes={mes} alCambiarDecision={() => decidir(s.numero, null)} />
-            ))}
-          </ol>
-          {desdeHoy && desdeHoy.cubreHasta < resultado.semanas[3].hasta && (
-            <p className="semanas__fin">
-              Después del {desdeHoy.cubreHasta} de {nombreMes(mes)} no hay plata asignada: queda para tu próximo ingreso.
-            </p>
-          )}
-        </section>
-      )}
-
-      {/* ---------- Números del mes y obligatorios ---------- */}
-      <div className="plan-columnas">
-        <section className="panel" aria-labelledby="titulo-numeros">
-          <div className="panel__encabezado">
-            <h2 className="panel__titulo" id="titulo-numeros">{desdeHoy ? 'Lo que tenés hoy' : `Números de ${nombreMes(mes)}`}</h2>
-          </div>
-          <ul className="lista-datos">
-            {desdeHoy ? (
-              <>
-                <FilaDato nombre="Cobrado hasta hoy" valor={desdeHoy.cobrado} />
-                <FilaDato nombre="Obligatorios pagados" valor={-desdeHoy.obligatoriosPagados} />
-                {desdeHoy.gastadoAntes > 0 && <FilaDato nombre="Gastado en semanas anteriores" valor={-desdeHoy.gastadoAntes} />}
-                {desdeHoy.ahorrado > 0 && <FilaDato nombre="Ahorrado" valor={-desdeHoy.ahorrado} />}
-                <FilaDato nombre="Para repartir" valor={desdeHoy.disponible} fuerte />
-              </>
-            ) : (
-              <>
-                <FilaDato nombre="Ingresos del mes" valor={resultado.ingresos} />
-                <FilaDato nombre="Obligatorios pagados" valor={-resultado.obligatoriosPagados} />
-                <FilaDato nombre="Libre para gastar" valor={resultado.libre} fuerte />
-                {resultado.ahorrado > 0 && <FilaDato nombre="Ahorrado" valor={resultado.ahorrado} positivo />}
-              </>
-            )}
-          </ul>
-          <p className="nota">Los ingresos y gastos en dólares no entran en el plan.</p>
-        </section>
-
+        {/* ---------- Obligatorios ---------- */}
         {!sinObligatorias && (
-          <section className="panel" aria-labelledby="titulo-obligatorios">
-            <div className="panel__encabezado">
-              <h2 className="panel__titulo" id="titulo-obligatorios">Gastos obligatorios</h2>
-              {!eligiendo && (
-                <button type="button" className="boton-texto boton-texto--chico" onClick={() => setEligiendo(true)}>Cambiar</button>
-              )}
-            </div>
-            <p className="panel__ayuda">
-              Salen de lo que cargás en estas categorías. Cada pago se descuenta desde la semana en que lo hiciste.
-            </p>
-            <ul className="lista-datos">
+          <Tile
+            titulo="Gastos obligatorios"
+            accion={!eligiendo && (
+              <button type="button" className="text-[12px] font-semibold text-primary hover:underline" onClick={() => setEligiendo(true)}>Cambiar</button>
+            )}
+          >
+            <ul className="-my-1">
               {obligatorias.map((c) => {
                 const pagado = resultado.obligatorias.find((o) => o.categoriaId === c.id)?.pagado ?? 0
                 return (
-                  <li key={c.id}>
-                    <span className="fila__punto" style={{ background: c.color }} aria-hidden="true" />
-                    <span className="lista-datos__nombre">{c.nombre}</span>
+                  <li key={c.id} className="flex items-center gap-2.5 py-1.5 text-[13px]">
+                    <span className="size-2 shrink-0 rounded-full" style={{ background: c.color }} aria-hidden />
+                    <span className="min-w-0 flex-1 truncate">{c.nombre}</span>
                     {pagado === 0
-                      ? <span className="lista-datos__vacio">Sin pagos todavía</span>
-                      : <Monto valor={pagado} className="lista-datos__valor" />}
+                      ? <span className="text-[12px] text-muted-foreground">Sin pagos</span>
+                      : <Cifra valor={pagado} className="text-[13px] font-medium" />}
                   </li>
                 )
               })}
             </ul>
-            <div className="panel__pie">
-              <span>Total: <Monto valor={resultado.obligatoriosPagados} className="lista-datos__valor lista-datos__valor--fuerte" /></span>
+            <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-3">
+              <span className="text-[12px] text-muted-foreground">
+                Total <Cifra valor={resultado.obligatoriosPagados} className="ml-1 text-[13px] font-semibold text-foreground" />
+              </span>
               <button type="button" className="boton boton--secundario boton--chico" onClick={nuevoGasto}>Cargar un pago</button>
             </div>
-          </section>
+          </Tile>
         )}
+
+        {/* ---------- Números del mes ---------- */}
+        <Tile titulo={desdeHoy ? 'Lo que tenés hoy' : `Números de ${nombreMes(mes)}`} className="sm:col-span-2 lg:col-span-2">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
+            {desdeHoy ? (
+              <>
+                <Dato nombre="Cobrado hasta hoy" valor={desdeHoy.cobrado} />
+                <Dato nombre="Obligatorios" valor={desdeHoy.obligatoriosPagados} />
+                <Dato nombre="Semanas anteriores" valor={desdeHoy.gastadoAntes} />
+                <Dato nombre="Para repartir" valor={desdeHoy.disponible} fuerte />
+              </>
+            ) : (
+              <>
+                <Dato nombre="Ingresos del mes" valor={resultado.ingresos} />
+                <Dato nombre="Obligatorios" valor={resultado.obligatoriosPagados} />
+                <Dato nombre="Libre para gastar" valor={resultado.libre} fuerte />
+                <Dato nombre="Ahorrado" valor={resultado.ahorrado} />
+              </>
+            )}
+          </dl>
+          <p className="mt-auto pt-4 text-[12px] text-muted-foreground">Los ingresos y gastos en dólares no entran en el plan.</p>
+        </Tile>
+
+        {/* ---------- Últimos gastos ---------- */}
+        <UltimosGastos gastos={datos.gastos} alEditar={editarGasto} />
       </div>
     </>
   )
 }
 
-function FilaDato({ nombre, valor, fuerte = false, positivo = false }: { nombre: string; valor: number; fuerte?: boolean; positivo?: boolean }) {
+/* ------------------------------------------------------------------ */
+/*  Piezas                                                             */
+/* ------------------------------------------------------------------ */
+
+function Dato({ nombre, valor, fuerte = false }: { nombre: string; valor: number; fuerte?: boolean }) {
   return (
-    <li>
-      <span className="lista-datos__nombre">{fuerte ? <strong>{nombre}</strong> : nombre}</span>
-      <Monto
-        valor={valor}
-        conSigno
-        className={`lista-datos__valor ${fuerte ? 'lista-datos__valor--fuerte' : ''} ${positivo ? 'lista-datos__positivo' : ''}`}
-      />
-    </li>
+    <div className="min-w-0">
+      <dt className="text-[12px] text-muted-foreground">{nombre}</dt>
+      <dd className="mt-0.5">
+        <Cifra valor={valor} className={cn('text-[20px] font-semibold tracking-[-0.02em]', fuerte && 'text-primary')} />
+      </dd>
+    </div>
+  )
+}
+
+/** Barra de lo gastado sobre lo asignado; si se pasó, muestra aparte en lila el tramo del exceso */
+function BarraUso({ asignado, gastado, className }: { asignado: number; gastado: number; className?: string }) {
+  const montado = useMounted()
+  const exceso = gastado > asignado
+  const dentro = exceso ? (asignado > 0 ? (asignado / gastado) * 100 : 0) : asignado > 0 ? (gastado / asignado) * 100 : 0
+  return (
+    <div className={cn('flex gap-[3px] overflow-hidden rounded-full bg-muted', className)} aria-hidden>
+      {dentro > 0 && (
+        <span
+          className="block h-full rounded-full bg-primary"
+          style={{ width: montado ? `${dentro}%` : 0, transition: `width 900ms ${EASE}` }}
+        />
+      )}
+      {exceso && <span className="block h-full flex-1 rounded-full bg-secondary" />}
+    </div>
+  )
+}
+
+/**
+ * Tira de barras día por día del mes (la firma del tablero): la altura es lo gastado ese día
+ * en gastos comunes; lima si quedó dentro de lo que le tocaba por día, lila si se pasó.
+ */
+function TiraDiaria({ anio, mes, gastos, obligatorias, semanas, semanasHoy, hoy }: {
+  anio: number
+  mes: number
+  gastos: Gasto[]
+  obligatorias: Set<number>
+  semanas: SemanaPlan[]
+  semanasHoy: SemanaPlan[] | null
+  hoy: number | null
+}) {
+  const montado = useMounted()
+  const [foco, setFoco] = useState<number | null>(null)
+  const ultimo = new Date(anio, mes, 0).getDate()
+  const porDia = Array.from({ length: ultimo + 1 }, () => 0)
+  for (const g of gastos) {
+    if (g.moneda !== 'ARS' || obligatorias.has(g.categoriaId)) continue
+    porDia[Number(g.fecha.slice(8, 10))] += g.monto
+  }
+  // Lo que le toca a cada día: lo asignado a su semana repartido entre sus días
+  const diario = (d: number) => {
+    const n = semanaDelDia(d)
+    const s = semanasHoy?.find((x) => x.numero === n) ?? semanas[n - 1]
+    return s.asignado / (s.hasta - s.desde + 1)
+  }
+  const dias = Array.from({ length: ultimo }, (_, i) => i + 1)
+  const maximo = Math.max(...dias.map((d) => porDia[d]), 1)
+  const etiqueta = (d: number) => {
+    const dia = new Date(anio, mes - 1, d).toLocaleDateString('es-AR', { weekday: 'short' }).replace('.', '')
+    return `${dia} ${d}`
+  }
+  const detalle = (d: number) => {
+    const g = porDia[d]
+    const tope = diario(d)
+    if (hoy !== null && d > hoy) return `${capitalizar(etiqueta(d))}: todavía no llegó · te tocan ${pesos(tope)}`
+    if (g === 0) return `${capitalizar(etiqueta(d))}: sin gastos`
+    return `${capitalizar(etiqueta(d))}: gastaste ${pesos(g)} · ${g > tope ? `${pesos(g - tope)} más de lo del día` : `dentro de los ${pesos(tope)} del día`}`
+  }
+
+  return (
+    <div className="mt-auto flex flex-col pt-6">
+      <div className="flex h-24 items-end gap-[3px]" onPointerLeave={() => setFoco(null)}>
+        {dias.map((d, i) => {
+          const g = porDia[d]
+          const futuro = hoy !== null && d > hoy
+          const paso = g > diario(d)
+          const alto = futuro ? 6 : g === 0 ? 6 : 14 + (g / maximo) * 86
+          return (
+            <button
+              key={d}
+              type="button"
+              onPointerEnter={() => setFoco(d)}
+              onFocus={() => setFoco(d)}
+              onBlur={() => setFoco(null)}
+              aria-label={detalle(d)}
+              className={cn(
+                'relative flex-1 rounded-[4px] outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                d === hoy && 'ring-1 ring-foreground/60',
+              )}
+              style={{
+                height: montado ? `${alto}%` : '6%',
+                background: futuro || g === 0 ? 'var(--muted)' : paso ? LILA : LIMA,
+                opacity: foco === null ? (futuro ? 0.6 : 1) : foco === d ? 1 : 0.3,
+                transition: `height 900ms ${EASE} ${i * 14}ms, opacity 200ms ease`,
+              }}
+            />
+          )
+        })}
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3 text-[12px] text-muted-foreground">
+        <span className="font-mono">1</span>
+        <span className="truncate text-foreground" aria-live="polite">
+          {foco !== null ? detalle(foco) : 'Gasto de cada día · lima: dentro de lo del día · lila: te pasaste'}
+        </span>
+        <span className="font-mono">{ultimo}</span>
+      </div>
+    </div>
+  )
+}
+
+/** Medidor semicircular de lo que queda del período */
+function MedidorQueda({ queda, total, titulo }: { queda: number; total: number; titulo: string }) {
+  const montado = useMounted()
+  const usado = total > 0 ? Math.min(1, Math.max(0, (total - queda) / total)) : queda < 0 ? 1 : 0
+  const R = 62
+  const largo = Math.PI * R
+  const angulo = -90 + (montado ? usado : 0) * 180
+  const color = queda < 0 ? LILA : LIMA
+  return (
+    <Tile titulo={queda >= 0 ? titulo : titulo.replace('Queda', 'Te pasaste')}>
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <svg width="150" height="86" viewBox="0 0 150 86" aria-hidden>
+          <path d="M 13 78 A 62 62 0 0 1 137 78" fill="none" strokeWidth="10" strokeLinecap="round" style={{ stroke: 'var(--muted)' }} />
+          <path
+            d="M 13 78 A 62 62 0 0 1 137 78"
+            fill="none"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={largo}
+            style={{ stroke: color, strokeDashoffset: largo * (1 - (montado ? usado : 0)), transition: `stroke-dashoffset 900ms ${EASE}` }}
+          />
+          <g style={{ transform: `rotate(${angulo}deg)`, transformOrigin: '75px 78px', transition: `transform 900ms ${EASE}` }}>
+            <line x1="75" y1="78" x2="75" y2="30" strokeWidth="2.5" strokeLinecap="round" style={{ stroke: 'var(--foreground)' }} />
+          </g>
+          <circle cx="75" cy="78" r="5" style={{ fill: 'var(--foreground)' }} />
+        </svg>
+        <Cifra valor={queda} animar className={cn('mt-2 text-[26px] font-semibold leading-none', queda < 0 && 'text-secondary')} />
+        <p className="mt-1 text-[12px] text-muted-foreground">
+          {total > 0 ? `usaste el ${Math.round(usado * 100)}% de lo disponible` : 'sin plata asignada'}
+        </p>
+      </div>
+    </Tile>
   )
 }
 
@@ -474,70 +577,231 @@ const ESTADOS: Record<SemanaPlan['estado'], string> = {
 }
 
 function FilaSemana({ semana: s, mes, alCambiarDecision }: { semana: SemanaPlan; mes: number; alCambiarDecision: () => void }) {
-  // Una semana que todavía no empezó y no tiene gastos solo tiene un dato: cuánto le toca
-  const compacta = s.estado === 'proxima' && s.gastado === 0
-  const ajustes = (
-    <>
-      {s.ajuste < 0 && `Incluye ${pesos(-s.ajuste)} menos por excesos de semanas anteriores.`}
-      {s.ajuste > 0 && `Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`}
-    </>
-  )
-
-  if (compacta) {
-    return (
-      <li className="semana semana--proxima semana--compacta">
-        <div className="semana__encabezado">
-          <h3 className="semana__titulo">Semana {s.numero}</h3>
-          <span className="semana__fechas">{s.desde} al {s.hasta} de {nombreMes(mes)}</span>
-          <span className="etiqueta etiqueta--proxima">{ESTADOS.proxima}</span>
-        </div>
-        <span className="semana__rotulo">Para gastar</span>
-        <Monto valor={s.asignado} className="semana__cifra" />
-        {s.ajuste !== 0 && <p className="semana__nota">{ajustes}</p>}
-      </li>
-    )
-  }
-
+  const notas = [
+    s.ajuste < 0 && `Incluye ${pesos(-s.ajuste)} menos por excesos anteriores.`,
+    s.ajuste > 0 && `Incluye ${pesos(s.ajuste)} más por sobrantes repartidos.`,
+    s.descuentoPorSemanaSiguiente > 0 && `Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`,
+  ].filter(Boolean)
+  const proxima = s.estado === 'proxima' && s.gastado === 0
   return (
-    <li className={`semana semana--${s.estado} ${s.saldo < 0 ? 'semana--excedida' : ''}`}>
-      <div className="semana__encabezado">
-        <h3 className="semana__titulo">Semana {s.numero}</h3>
-        <span className="semana__fechas">{s.desde} al {s.hasta} de {nombreMes(mes)}</span>
-        <span className={`etiqueta etiqueta--${s.estado}`}>{ESTADOS[s.estado]}</span>
+    <li className="py-3 first:pt-0 last:pb-0">
+      <div className="flex items-baseline gap-2">
+        <h3 className="text-[14px] font-semibold">Semana {s.numero}</h3>
+        <span className="text-[12px] text-muted-foreground">{s.desde} al {s.hasta} de {nombreMes(mes)}</span>
+        <span className="ml-auto">
+          <Insignia color={s.estado === 'en-curso' ? LIMA : 'var(--muted-foreground)'}>{ESTADOS[s.estado]}</Insignia>
+        </span>
       </div>
-
-      <div className="semana__montos">
+      <div className="mt-2 flex items-end justify-between gap-4">
         <div>
-          <span className="semana__rotulo">Para gastar</span>
-          <Monto valor={s.asignado} className="semana__cifra" />
+          <span className="block text-[11px] text-muted-foreground">Para gastar</span>
+          <Cifra valor={s.asignado} className="text-[18px] font-semibold" />
         </div>
-        <div>
-          <span className="semana__rotulo">Gastado</span>
-          <Monto valor={s.gastado} className="semana__cifra" />
-        </div>
-        <div>
-          <span className="semana__rotulo">{s.saldo >= 0 ? (s.estado === 'terminada' ? 'Sobró' : 'Queda') : 'Te pasaste'}</span>
-          <Monto valor={Math.abs(s.saldo)} className={`semana__cifra ${s.saldo < 0 ? 'semana__cifra--negativa' : ''}`} />
-        </div>
+        {!proxima && (
+          <>
+            <div>
+              <span className="block text-[11px] text-muted-foreground">Gastado</span>
+              <Cifra valor={s.gastado} className="text-[18px] font-semibold" />
+            </div>
+            <div className="text-right">
+              <span className="block text-[11px] text-muted-foreground">{s.saldo >= 0 ? (s.estado === 'terminada' ? 'Sobró' : 'Queda') : 'Te pasaste'}</span>
+              <Cifra valor={s.saldo} className={cn('text-[18px] font-semibold', s.saldo < 0 && 'text-secondary')} />
+            </div>
+          </>
+        )}
       </div>
-
-      <BarraUso asignado={s.asignado} gastado={s.gastado} className="semana__barra" />
-
-      {(s.ajuste !== 0 || s.descuentoPorSemanaSiguiente > 0) && (
-        <p className="semana__nota">
-          {ajustes}
-          {s.ajuste !== 0 && s.descuentoPorSemanaSiguiente > 0 && ' '}
-          {s.descuentoPorSemanaSiguiente > 0 && `Se descuentan ${pesos(s.descuentoPorSemanaSiguiente)} de cada semana siguiente.`}
-        </p>
-      )}
-
+      {!proxima && <BarraUso asignado={s.asignado} gastado={s.gastado} className="mt-2 h-1.5" />}
+      {notas.length > 0 && <p className="mt-1.5 text-[12px] text-muted-foreground">{notas.join(' ')}</p>}
       {s.decision && s.estado === 'terminada' && s.saldo > 0 && (
-        <p className="semana__decision">
-          {s.decision === 'Ahorrar' ? `Guardaste ${pesos(s.saldo)} como ahorro.` : `Repartiste ${pesos(s.saldo)} entre las semanas siguientes.`}
-          {' '}<button type="button" className="boton-texto boton-texto--chico" onClick={alCambiarDecision}>Cambiar</button>
+        <p className="mt-1.5 text-[12px] text-muted-foreground">
+          {s.decision === 'Ahorrar' ? `Guardaste ${pesos(s.saldo)} como ahorro.` : `Repartiste ${pesos(s.saldo)} entre las semanas siguientes.`}{' '}
+          <button type="button" className="font-semibold text-primary hover:underline" onClick={alCambiarDecision}>Cambiar</button>
         </p>
       )}
     </li>
+  )
+}
+
+/** En qué se va la plata del mes: barra segmentada por categoría */
+function Categorias({ gastos }: { gastos: Gasto[] }) {
+  const montado = useMounted()
+  const [foco, setFoco] = useState<number | null>(null)
+  const porCategoria = new Map<number, { nombre: string; color: string; total: number }>()
+  for (const g of gastos) {
+    if (g.moneda !== 'ARS') continue
+    const c = porCategoria.get(g.categoriaId) ?? { nombre: g.categoriaNombre, color: g.categoriaColor, total: 0 }
+    c.total += g.monto
+    porCategoria.set(g.categoriaId, c)
+  }
+  const lista = [...porCategoria.values()].sort((a, b) => b.total - a.total)
+  const total = lista.reduce((s, c) => s + c.total, 0)
+
+  return (
+    <Tile titulo="En qué se va" accion={<Link to="/resumen" className="text-[12px] font-semibold text-primary hover:underline">Ver resumen</Link>}>
+      {total === 0 ? (
+        <p className="text-[13px] text-muted-foreground">Todavía no hay gastos este mes.</p>
+      ) : (
+        <>
+          <Cifra valor={total} className="text-[22px] font-semibold" />
+          <div className="mt-4 flex h-9 gap-1" onPointerLeave={() => setFoco(null)} aria-hidden>
+            {lista.map((c, i) => (
+              <span
+                key={c.nombre}
+                onPointerEnter={() => setFoco(i)}
+                className="min-w-[4px] rounded-[8px]"
+                style={{
+                  flexBasis: montado ? `${(c.total / total) * 100}%` : `${100 / lista.length}%`,
+                  background: c.color,
+                  opacity: foco === null || foco === i ? 1 : 0.3,
+                  transition: `flex-basis 1000ms ${EASE} ${200 + i * 60}ms, opacity 200ms ease`,
+                }}
+              />
+            ))}
+          </div>
+          <ul className="mt-4 grid grid-cols-1 gap-y-1.5">
+            {lista.slice(0, 5).map((c, i) => (
+              <li
+                key={c.nombre}
+                className="flex items-center justify-between gap-2 text-[12px]"
+                onPointerEnter={() => setFoco(i)}
+                onPointerLeave={() => setFoco(null)}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="size-2 shrink-0 rounded-full" style={{ background: c.color }} aria-hidden />
+                  <span className="truncate">{c.nombre}</span>
+                </span>
+                <span className="font-mono tabular-nums text-muted-foreground">{((c.total / total) * 100).toFixed(0)}%</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </Tile>
+  )
+}
+
+/** Bloque lima: lo ahorrado y la decisión pendiente sobre el sobrante de una semana */
+function Ahorro({ ahorrado, pendiente, otrasPendientes, mes, semanas, alDecidir }: {
+  ahorrado: number
+  pendiente: SemanaPlan | null
+  otrasPendientes: number
+  mes: number
+  semanas: SemanaPlan[]
+  alDecidir: (semana: number, decision: Decision) => void
+}) {
+  const tinta = 'var(--primary-foreground)'
+  const decididas = semanas.filter((s) => s.estado === 'terminada' && s.saldo > 0 && s.decision)
+  return (
+    <section
+      aria-labelledby="titulo-ahorro"
+      className="relative flex min-w-0 flex-col overflow-hidden rounded-tile bg-primary p-5 lg:row-span-2"
+      style={{ color: tinta }}
+    >
+      <header className="flex items-center justify-between">
+        <h2 id="titulo-ahorro" className="text-[13px] font-semibold opacity-75">Ahorro del mes</h2>
+        {pendiente && (
+          <span className="flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'oklch(0.24 0.06 135 / 0.12)' }}>
+            <span className="size-1.5 rounded-full" style={{ background: tinta }} aria-hidden />
+            Para decidir
+          </span>
+        )}
+      </header>
+
+      <Cifra valor={ahorrado} animar className="mt-5 text-[46px] font-semibold leading-none tracking-[-0.05em]" simboloClassName="text-current opacity-60" />
+      <p className="mt-1 text-[12px] font-medium opacity-70">guardado en {nombreMes(mes)}</p>
+
+      {pendiente ? (
+        <div className="mt-5 rounded-2xl p-3" style={{ background: 'oklch(0.24 0.06 135 / 0.1)' }} role="status">
+          <p className="text-[13px] font-semibold">
+            Te sobraron {pesos(pendiente.saldo)} de la semana {pendiente.numero}
+          </p>
+          <p className="mt-0.5 text-[12px] opacity-75">Del {pendiente.desde} al {pendiente.hasta}: ¿qué hacemos con esa plata?</p>
+          {otrasPendientes > 0 && (
+            <p className="mt-1 text-[11px] opacity-70">Después, {otrasPendientes === 1 ? 'queda 1 semana más' : `quedan ${otrasPendientes} semanas más`} por decidir.</p>
+          )}
+        </div>
+      ) : (
+        <p className="mt-5 text-[12px] opacity-75">
+          Cuando una semana termina con plata de sobra, acá elegís si la guardás o la sumás a las semanas que quedan.
+        </p>
+      )}
+
+      {decididas.length > 0 && (
+        <dl className="mt-4 space-y-1 text-[12px]">
+          {decididas.map((s) => (
+            <div key={s.numero} className="flex justify-between gap-2">
+              <dt className="opacity-70">Semana {s.numero} · {s.decision === 'Ahorrar' ? 'ahorrado' : 'repartido'}</dt>
+              <dd className="font-mono font-semibold tabular-nums">{pesos(s.saldo)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {pendiente && (
+        <div className="mt-auto flex flex-col gap-2 pt-6">
+          <button
+            type="button"
+            onClick={() => alDecidir(pendiente.numero, 'Ahorrar')}
+            className="w-full rounded-2xl py-3 text-sm font-semibold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-primary active:scale-[0.98]"
+            style={{ background: tinta, color: 'var(--primary)' }}
+          >
+            Guardar como ahorro
+          </button>
+          {pendiente.numero < 4 && (
+            <button
+              type="button"
+              onClick={() => alDecidir(pendiente.numero, 'Repartir')}
+              className="w-full rounded-2xl border py-2.5 text-sm font-semibold outline-none focus-visible:ring-2"
+              style={{ borderColor: 'oklch(0.24 0.06 135 / 0.35)' }}
+            >
+              Sumar a las semanas que quedan
+            </button>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function UltimosGastos({ gastos, alEditar }: { gastos: Gasto[]; alEditar: (g: Gasto) => void }) {
+  const montado = useMounted()
+  const ultimos = [...gastos].sort((a, b) => (a.fecha === b.fecha ? b.id - a.id : a.fecha < b.fecha ? 1 : -1)).slice(0, 5)
+  return (
+    <Tile
+      titulo="Últimos gastos"
+      className="sm:col-span-2 lg:col-span-2"
+      accion={<Link to="/gastos" className="text-[12px] font-semibold text-primary hover:underline">Ver todos</Link>}
+    >
+      {ultimos.length === 0 ? (
+        <p className="text-[13px] text-muted-foreground">Todavía no cargaste gastos este mes. Apretá N para cargar uno.</p>
+      ) : (
+        <ul className="-mx-2 -my-1">
+          {ultimos.map((g, i) => (
+            <li
+              key={g.id}
+              style={{ opacity: montado ? 1 : 0, transform: montado ? 'none' : 'translateY(6px)', transition: `opacity 500ms ease ${200 + i * 60}ms, transform 500ms ${EASE} ${200 + i * 60}ms` }}
+            >
+              <button
+                type="button"
+                onClick={() => alEditar(g)}
+                className="flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted">
+                  <span className="size-2.5 rounded-full" style={{ background: g.categoriaColor }} aria-hidden />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-medium">{g.descripcion || g.categoriaNombre}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {g.categoriaNombre} · {Number(g.fecha.slice(8, 10))} de {nombreMes(Number(g.fecha.slice(5, 7)))}
+                  </span>
+                </span>
+                <span className="font-mono text-[13px] font-medium tabular-nums">{formatearMonto(g.monto, g.moneda)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Tile>
   )
 }
 
@@ -565,13 +829,13 @@ function ElegirObligatorias({ categorias, primeraVez, alTerminar, alCancelar }: 
   }
 
   return (
-    <div className="tarjeta tarjeta--paso">
-      <h2 className="tarjeta__titulo">¿Qué gastos no podés evitar?</h2>
-      <p className="tarjeta__texto">
+    <Tile titulo="Gastos obligatorios" className="sm:col-span-2 lg:col-span-4">
+      <p className="text-lg font-semibold tracking-tight">¿Qué gastos no podés evitar?</p>
+      <p className="mt-1 max-w-[70ch] text-sm text-muted-foreground">
         Marcá las categorías obligatorias, como alquiler, servicios, suscripciones o tarjeta.
         {primeraVez && ' Lo que pagues en ellas se descuenta del plan y el resto de tus ingresos se reparte entre las semanas.'}
       </p>
-      <div className="chips">
+      <div className="chips mt-4">
         {categorias.map((c) => (
           <label key={c.id} className="chip">
             <input
@@ -589,31 +853,13 @@ function ElegirObligatorias({ categorias, primeraVez, alTerminar, alCancelar }: 
           </label>
         ))}
       </div>
-      {error && <p className="error" role="alert">{error}</p>}
-      <div className="tarjeta__acciones">
+      {error && <p className="error mt-3" role="alert">{error}</p>}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <button type="button" className="boton boton--primario" onClick={guardar} disabled={guardando}>
           {guardando ? 'Guardando…' : 'Guardar categorías'}
         </button>
         {alCancelar && <button type="button" className="boton-texto" onClick={alCancelar}>Cancelar</button>}
       </div>
-    </div>
-  )
-}
-
-/** Barra de lo gastado sobre lo asignado; si se pasó, muestra aparte la parte del exceso */
-function BarraUso({ asignado, gastado, className }: { asignado: number; gastado: number; className: string }) {
-  if (gastado > asignado) {
-    const dentro = asignado > 0 ? (asignado / gastado) * 100 : 0
-    return (
-      <div className={className} aria-hidden="true">
-        {dentro > 0 && <span style={{ width: `${dentro}%` }} />}
-        <span className="barra__exceso" style={{ flex: 1 }} />
-      </div>
-    )
-  }
-  return (
-    <div className={className} aria-hidden="true">
-      <span style={{ width: `${asignado > 0 ? (gastado / asignado) * 100 : 0}%` }} />
-    </div>
+    </Tile>
   )
 }

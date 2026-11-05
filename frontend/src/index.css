@@ -1,0 +1,96 @@
+/* =============================================================================
+   Mis gastos — tema (Tailwind 4 + variables al estilo shadcn)
+   Siempre oscuro: fondo casi negro levemente lila, bloques con esquinas grandes,
+   lima para lo principal y lo que va bien, lila para excesos y lo secundario,
+   cifras en Geist Mono.
+   ========================================================================== */
+@import 'tailwindcss';
+/* Las pantallas que todavía usan sus clases propias: en la capa de componentes, así
+   las utilidades de Tailwind siempre les ganan */
+@import './styles.css' layer(components);
+
+:root {
+  color-scheme: dark;
+
+  --background: oklch(0.15 0.008 285);
+  --foreground: oklch(0.97 0.004 285);
+  --card: oklch(0.205 0.01 285);
+  --card-foreground: oklch(0.97 0.004 285);
+  --popover: oklch(0.23 0.012 285);
+  --popover-foreground: oklch(0.97 0.004 285);
+  --muted: oklch(0.27 0.012 285);
+  --muted-foreground: oklch(0.72 0.012 285);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.14);
+  --ring: oklch(0.89 0.2 128);
+
+  /* Acentos */
+  --primary: oklch(0.89 0.2 128); /* lima: lo principal, lo que alcanza */
+  --primary-foreground: oklch(0.24 0.06 135); /* tinta oscura sobre lima */
+  --secondary: oklch(0.74 0.12 300); /* lila: excesos, lo que se pasó */
+  --secondary-foreground: oklch(0.2 0.05 295);
+  --destructive: oklch(0.7 0.19 22); /* rojo: solo borrar y errores */
+  --destructive-foreground: oklch(0.98 0 0);
+
+  /* Series de gráficos */
+  --chart-1: oklch(0.89 0.2 128);
+  --chart-2: oklch(0.74 0.12 300);
+  --chart-3: oklch(0.78 0.04 280);
+  --chart-4: oklch(0.6 0.03 280);
+  --chart-5: oklch(0.42 0.02 280);
+
+  --radius: 26px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-tile: var(--radius);
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-crecer: crecer 500ms cubic-bezier(0.3, 1.5, 0.6, 1);
+  @keyframes crecer {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+}
+
+@layer base {
+  html { background: var(--background); }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: color-mix(in oklch, var(--primary) 35%, transparent); }
+  * { scrollbar-color: var(--muted) transparent; }
+}

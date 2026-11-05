@@ -1,11 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import '@fontsource/schibsted-grotesk/400.css'
-import '@fontsource/schibsted-grotesk/500.css'
-import '@fontsource/schibsted-grotesk/700.css'
-import '@fontsource/barlow-condensed/500.css'
-import '@fontsource/barlow-condensed/600.css'
-import './styles.css'
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
+import './index.css'
 import { App } from './App'
 
 createRoot(document.getElementById('root')!).render(
