@@ -854,7 +854,7 @@ function UltimosGastos({ gastos, alEditar }: { gastos: Gasto[]; alEditar: (g: Ga
                     {g.categoriaNombre} · {Number(g.fecha.slice(8, 10))} de {nombreMes(Number(g.fecha.slice(5, 7)))}
                   </span>
                 </span>
-                <span className="font-mono text-[13px] font-medium tabular-nums">{formatearMonto(g.monto, g.moneda)}</span>
+                <span className="font-mono text-[13px] font-medium tabular-nums">{montoFila(g)}</span>
               </button>
             </li>
           ))}
@@ -921,4 +921,9 @@ function ElegirObligatorias({ categorias, primeraVez, alTerminar, alCancelar }: 
       </div>
     </Tile>
   )
+}
+
+/** Pesos sin centavos, como en el resto del tablero; dólares con sus centavos */
+function montoFila(g: Gasto) {
+  return formatearMonto(g.moneda === 'ARS' ? Math.round(g.monto) : g.monto, g.moneda)
 }

@@ -357,19 +357,10 @@ kbd {
 }
 .titular__secundario { font-family: var(--fuente-cifras); font-size: 1.375rem; font-weight: 500; color: var(--tinta-2); }
 
-.saldo { margin-top: 12px; color: var(--tinta-2); }
-.saldo .monto { font-size: 1.375rem; font-weight: 600; color: var(--positivo); }
-.saldo--excedido .monto:first-child { color: var(--alerta); }
-.saldo__enlace { font-weight: 700; }
 
 .comparacion { margin-top: 4px; font-size: 0.875rem; color: var(--tinta-3); }
 .comparacion--sube { color: var(--alerta); }
 
-/* Barra por categoría */
-.regla { display: flex; gap: 2px; height: 12px; margin-top: 18px; }
-.regla__tramo { min-width: 5px; border-radius: 3px; }
-.regla__tramo--disponible { background: transparent; box-shadow: inset 0 0 0 1.5px var(--linea); }
-.regla--vacia { background: var(--linea-suave); border-radius: 3px; }
 
 /* ---------- Cifras (datos clave) ---------- */
 .cifras {
@@ -874,7 +865,6 @@ kbd {
 
 /* ---------- Ajustes de páginas ---------- */
 .titular__monto--ingreso { color: var(--positivo); }
-.saldo .saldo__ingreso { font-size: 1.0625rem; font-weight: 500; color: var(--tinta-2); }
 
 .ranking__gastos li { border-bottom: 1px solid var(--linea-suave); }
 .ranking__gastos li:last-child { border-bottom: 0; }
