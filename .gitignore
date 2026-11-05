@@ -31,3 +31,6 @@ dev-dist/
 .DS_Store
 Thumbs.db
 .neon
+
+# ---------- Claude Code (ajustes personales) ----------
+.claude/settings.local.json
