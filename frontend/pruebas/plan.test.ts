@@ -209,6 +209,29 @@ test('lo gastado esta semana se ve como gastado, y lo de semanas anteriores ya s
   ])
 })
 
+test('si esta semana se pasa, el exceso se descuenta de las semanas elegidas que siguen', () => {
+  const r = calcularDesdeHoy(entrada({
+    hoy: '2026-11-03',
+    gastos: [alquilerDia1, { fecha: '2026-11-02', monto: 210_000, categoriaId: SUPER }],
+  }), 4, 0)!
+  // 600.000 en 4 semanas = 150.000; la semana 1 se pasa por 60.000: 20.000 menos en cada una de las otras 3
+  assert.equal(r.semanas[0].saldo, -60_000)
+  assert.equal(r.semanas[0].descuentoPorSemanaSiguiente, 20_000)
+  assert.deepEqual(r.semanas.map((s) => s.asignado), [150_000, 130_000, 130_000, 130_000])
+  // Lo que suman las semanas que siguen es lo que de verdad queda
+  const queda = r.disponible - r.semanas.reduce((s, x) => s + x.gastado, 0)
+  assert.equal(r.semanas.slice(1).reduce((s, x) => s + x.asignado, 0), queda)
+})
+
+test('el exceso solo se reparte entre las semanas elegidas', () => {
+  const r = calcularDesdeHoy(entrada({
+    hoy: '2026-11-03',
+    gastos: [alquilerDia1, { fecha: '2026-11-02', monto: 330_000, categoriaId: SUPER }],
+  }), 2, 0)!
+  // 600.000 en 2 semanas = 300.000; la semana 1 se pasa por 30.000, todo sale de la semana 2
+  assert.deepEqual(r.semanas.map((s) => [s.numero, s.asignado, s.saldo]), [[1, 300_000, -30_000], [2, 270_000, 270_000]])
+})
+
 test('lo ahorrado no se vuelve a repartir', () => {
   const r = calcularDesdeHoy(entrada({ hoy: '2026-11-10' }), 1, 60_000)!
   assert.equal(r.disponible, 540_000)

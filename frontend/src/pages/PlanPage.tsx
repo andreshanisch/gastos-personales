@@ -160,8 +160,10 @@ export function PlanPage() {
     : 0
   const porDia = actual && diasRestantes > 0 && actual.saldo > 0 ? actual.saldo / diasRestantes : 0
 
-  // La semana que sigue a la actual en el plan del mes: ya trae descontado el exceso de esta
-  const siguiente = !desdeHoy && actual && actual.numero < 4 ? resultado.semanas[actual.numero] : null
+  // La semana que sigue a la actual: ya trae descontado el exceso de esta
+  const siguiente = desdeHoy
+    ? desdeHoy.semanas[1] ?? null
+    : actual && actual.numero < 4 ? resultado.semanas[actual.numero] : null
 
   // Lo que queda para el resto del período que se está mirando (puede ser negativo si se pasó)
   const gastadoComun = semanasVisibles.reduce((s, x) => s + x.gastado, 0)

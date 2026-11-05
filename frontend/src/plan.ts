@@ -262,7 +262,8 @@ export interface ResultadoDesdeHoy {
 /**
  * Reparte la plata que hay hoy en las próximas N semanas, empezando por la actual.
  * No cuenta ingresos que todavía no se cobraron. Lo gastado en la semana actual se muestra
- * como gastado de esa semana (no se resta antes), así se puede seguir como en el plan del mes.
+ * como gastado de esa semana (no se resta antes), así se puede seguir como en el plan del mes,
+ * y si se pasa, el exceso se descuenta de las semanas elegidas que siguen.
  * Solo tiene sentido para el mes en curso: si no, devuelve null.
  */
 export function calcularDesdeHoy(e: EntradaPlan, semanas: number, ahorrado: number): ResultadoDesdeHoy | null {
@@ -294,26 +295,38 @@ export function calcularDesdeHoy(e: EntradaPlan, semanas: number, ahorrado: numb
   const disponible = Math.max(0, cobrado - obligatoriosPagados - gastadoAntes - ahorrado)
   const porSemana = disponible / n
 
+  // Igual que en el plan del mes: si una semana se pasa, el exceso se descuenta en partes iguales
+  // de las semanas elegidas que quedan
+  const ajuste = [0, 0, 0, 0, 0]
+  const ultima = actual + n - 1
   let acumulado = 0
   const resultado: SemanaPlan[] = []
-  for (let k = actual; k < actual + n; k++) {
+  for (let k = actual; k <= ultima; k++) {
     const r = rangos[k - 1]
     const gastado = gastadoSemana[k]
-    acumulado += porSemana
+    const asignado = porSemana + ajuste[k]
+    const saldo = asignado - gastado
+    const restantes = ultima - k
+    let descuentoPorSemanaSiguiente = 0
+    if (saldo < 0 && restantes > 0) {
+      descuentoPorSemanaSiguiente = -saldo / restantes
+      for (let j = k + 1; j <= ultima; j++) ajuste[j] -= descuentoPorSemanaSiguiente
+    }
+    acumulado += asignado
     resultado.push({
       numero: r.numero,
       desde: r.desde,
       hasta: r.hasta,
       estado: k === actual ? 'en-curso' : 'proxima',
       base: centavos(porSemana),
-      ajuste: 0,
-      asignado: centavos(porSemana),
+      ajuste: centavos(ajuste[k]),
+      asignado: centavos(asignado),
       gastado: centavos(gastado),
-      saldo: centavos(porSemana - gastado),
+      saldo: centavos(saldo),
       acumulado: centavos(acumulado),
       decisionPendiente: false,
       decision: null,
-      descuentoPorSemanaSiguiente: 0,
+      descuentoPorSemanaSiguiente: centavos(descuentoPorSemanaSiguiente),
     })
   }
 
