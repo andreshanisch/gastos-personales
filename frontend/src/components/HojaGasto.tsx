@@ -94,10 +94,12 @@ export function HojaGasto({ abierta, gasto, categorias, alCerrar, alGuardar }: P
     setError('')
     try {
       const datos = { fecha: fechaValida, monto: valor, moneda, descripcion: descripcion.trim(), categoriaId }
-      if (gasto) await api.editarGasto(gasto.id, datos)
-      else await api.crearGasto(datos)
-      const categoria = opciones.find((c) => c.id === categoriaId)?.nombre
-      avisar(gasto ? 'Cambios guardados' : `Guardado: ${formatearMonto(valor, moneda)} en ${categoria}`)
+      const categoria = opciones.find((c) => c.id === categoriaId)
+      const guardado = gasto ? await api.editarGasto(gasto.id, datos, categoria) : await api.crearGasto(datos, categoria)
+      // Sin conexión con la compu, queda en el teléfono y se manda solo cuando la compu vuelve
+      avisar(guardado.pendiente
+        ? `Guardado en el teléfono: ${formatearMonto(valor, moneda)}. Se manda cuando la compu esté prendida.`
+        : gasto ? 'Cambios guardados' : `Guardado: ${formatearMonto(valor, moneda)} en ${categoria?.nombre}`)
       alGuardar()
       if (seguir) {
         // Queda abierto para cargar el siguiente, con la misma fecha

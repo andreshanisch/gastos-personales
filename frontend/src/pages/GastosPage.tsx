@@ -108,6 +108,7 @@ export function GastosPage() {
                               <span className="block truncate text-[14px] font-medium">{g.descripcion || g.categoriaNombre}</span>
                               {g.descripcion && <span className="block truncate text-[12px] text-muted-foreground">{g.categoriaNombre}</span>}
                             </span>
+                            {g.pendiente && <Insignia color="var(--muted-foreground)">Pendiente</Insignia>}
                             <span className="font-mono text-[15px] font-medium tabular-nums">{montoFila(g)}</span>
                             <svg className="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
                               <path d="M7.5 4l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

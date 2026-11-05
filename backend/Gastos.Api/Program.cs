@@ -50,9 +50,10 @@ app.UseStaticFiles(new StaticFileOptions
     OnPrepareResponse = contexto =>
     {
         var encabezados = contexto.Context.Response.Headers;
-        if (contexto.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+        if (contexto.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase)
+            || contexto.File.Name.Equals("sw.js", StringComparison.OrdinalIgnoreCase))
         {
-            // La página principal siempre se pide de nuevo: así cada compilación nueva se ve sin Ctrl+F5
+            // La página principal y el service worker siempre se piden de nuevo: así cada compilación nueva se ve sin Ctrl+F5
             encabezados.CacheControl = "no-cache";
         }
         else if (contexto.Context.Request.Path.StartsWithSegments("/assets"))

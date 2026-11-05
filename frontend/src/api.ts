@@ -1,3 +1,6 @@
+import {
+  agregarPendiente, editarPendiente, marcarConexion, pendientesDelMes, quitarPendiente,
+} from './pendientes'
 import type {
   Categoria, CategoriaRequest, DecisionSobrante, Gasto, GastoRequest, Historial, Ingreso, IngresoRequest, PlanMes,
   ResultadoBusqueda, ResumenMensual,
@@ -6,24 +9,46 @@ import type {
 // La página y la API comparten dirección (http://localhost:5080), así que las rutas son relativas
 
 export class ErrorApi extends Error {
-  constructor(public status: number, mensaje: string) {
+  constructor(public status: number, mensaje: string, public sinConexion = false) {
     super(mensaje)
   }
 }
+
+/** true si el error es porque la compu no contestó (apagada, sin la app abierta o sin red) */
+export function esFaltaDeConexion(err: unknown) {
+  return err instanceof ErrorApi && (err.status === 0 || err.sinConexion)
+}
+
+// En la compu la app y la página son lo mismo; en el teléfono, la compu puede estar apagada
+const enLaCompu = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+const MENSAJE_SIN_CONEXION = enLaCompu
+  ? 'No se pudo conectar con la app. Revisá que la ventana de "Mis gastos" siga abierta.'
+  : 'No hay conexión con la compu. Fijate que esté prendida, con Tailscale y Mis gastos abiertos.'
+// Guardar, editar o borrar con la compu apagada no debe dejar la pantalla esperando para siempre
+const ESPERA_MS = 8000
 
 async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   const headers = new Headers(opciones.headers)
   if (opciones.body) headers.set('Content-Type', 'application/json')
 
   let respuesta: Response
+  const control = new AbortController()
+  const reloj = setTimeout(() => control.abort(), ESPERA_MS)
   try {
-    respuesta = await fetch(ruta, { ...opciones, headers })
+    respuesta = await fetch(ruta, { ...opciones, headers, signal: control.signal })
   } catch {
-    throw new ErrorApi(0, 'No se pudo conectar con la app. Revisá que la ventana de "Mis gastos" siga abierta.')
+    marcarConexion(false)
+    throw new ErrorApi(0, MENSAJE_SIN_CONEXION, true)
+  } finally {
+    clearTimeout(reloj)
   }
 
+  // El service worker marca así lo que viene de la copia guardada en el teléfono
+  const desdeCopia = respuesta.headers.get('X-Sin-Conexion') === '1'
+  marcarConexion(!desdeCopia)
+
   if (!respuesta.ok) {
-    throw new ErrorApi(respuesta.status, await extraerMensaje(respuesta))
+    throw new ErrorApi(respuesta.status, desdeCopia ? MENSAJE_SIN_CONEXION : await extraerMensaje(respuesta), desdeCopia)
   }
 
   if (respuesta.status === 204) return undefined as T
@@ -46,14 +71,36 @@ async function extraerMensaje(respuesta: Response): Promise<string> {
 const json = (cuerpo: unknown) => JSON.stringify(cuerpo)
 
 export const api = {
-  gastos: (anio: number, mes: number) =>
-    pedir<Gasto[]>(`/api/gastos?anio=${anio}&mes=${mes}`),
-  crearGasto: (g: GastoRequest) =>
+  /** Los gastos del mes, más los que quedaron pendientes en el teléfono (con id negativo) */
+  gastos: async (anio: number, mes: number) => {
+    const deLaCompu = await pedir<Gasto[]>(`/api/gastos?anio=${anio}&mes=${mes}`)
+    const pendientes = pendientesDelMes(anio, mes)
+    return pendientes.length ? [...pendientes, ...deLaCompu] : deLaCompu
+  },
+  /** Sin conexión con la compu, el gasto queda pendiente en el teléfono y se manda después */
+  crearGasto: async (g: GastoRequest, categoria?: Pick<Categoria, 'nombre' | 'color'>) => {
+    try {
+      return await pedir<Gasto>('/api/gastos', { method: 'POST', body: json(g) })
+    } catch (err) {
+      if (esFaltaDeConexion(err)) return agregarPendiente(g, categoria)
+      throw err
+    }
+  },
+  /** Solo lo que llega a la compu; la cola de pendientes la vacía Sincronizacion.tsx */
+  enviarGasto: (g: GastoRequest) =>
     pedir<Gasto>('/api/gastos', { method: 'POST', body: json(g) }),
-  editarGasto: (id: number, g: GastoRequest) =>
-    pedir<Gasto>(`/api/gastos/${id}`, { method: 'PUT', body: json(g) }),
-  eliminarGasto: (id: number) =>
-    pedir<void>(`/api/gastos/${id}`, { method: 'DELETE' }),
+  editarGasto: async (id: number, g: GastoRequest, categoria?: Pick<Categoria, 'nombre' | 'color'>) => {
+    if (id < 0) {
+      const editado = editarPendiente(id, g, categoria)
+      if (!editado) throw new ErrorApi(404, 'Ese gasto pendiente ya se mandó a la compu.')
+      return editado
+    }
+    return pedir<Gasto>(`/api/gastos/${id}`, { method: 'PUT', body: json(g) })
+  },
+  eliminarGasto: async (id: number) => {
+    if (id < 0) return quitarPendiente(id)
+    return pedir<void>(`/api/gastos/${id}`, { method: 'DELETE' })
+  },
 
   ingresos: (anio: number, mes: number) =>
     pedir<Ingreso[]>(`/api/ingresos?anio=${anio}&mes=${mes}`),
@@ -91,6 +138,9 @@ export const api = {
     }
     return pedir<ResultadoBusqueda>(`/api/gastos/buscar?${parametros}`)
   },
+
+  /** Para saber si la compu volvió a contestar */
+  salud: () => pedir<{ estado: string }>('/health'),
 
   resumen: (anio: number, mes: number) =>
     pedir<ResumenMensual>(`/api/resumen?anio=${anio}&mes=${mes}`),

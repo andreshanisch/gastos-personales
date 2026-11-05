@@ -854,6 +854,7 @@ function UltimosGastos({ gastos, alEditar }: { gastos: Gasto[]; alEditar: (g: Ga
                     {g.categoriaNombre} · {Number(g.fecha.slice(8, 10))} de {nombreMes(Number(g.fecha.slice(5, 7)))}
                   </span>
                 </span>
+                {g.pendiente && <Insignia color="var(--muted-foreground)">Pendiente</Insignia>}
                 <span className="font-mono text-[13px] font-medium tabular-nums">{montoFila(g)}</span>
               </button>
             </li>

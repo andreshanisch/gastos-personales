@@ -2,6 +2,7 @@ import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router'
 import { AccionesProvider, useAcciones } from './Acciones'
 import { AvisosProvider } from './components/Avisos'
 import { ConfirmarProvider } from './components/Confirmar'
+import { EstadoConexion } from './components/EstadoConexion'
 import { MesProvider } from './MesContext'
 import { BuscarPage } from './pages/BuscarPage'
 import { CategoriasPage } from './pages/CategoriasPage'
@@ -21,6 +22,7 @@ export function App() {
               <div className="app">
                 <BarraLateral />
                 <main className="contenido" id="contenido">
+                  <EstadoConexion />
                   <Routes>
                     <Route path="/" element={<PlanPage />} />
                     <Route path="/gastos" element={<GastosPage />} />

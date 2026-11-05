@@ -18,6 +18,8 @@ export interface Gasto {
   categoriaId: number
   categoriaNombre: string
   categoriaColor: string
+  /** Cargado en el teléfono sin conexión: todavía no llegó a la compu (ver pendientes.ts) */
+  pendiente?: boolean
 }
 
 export interface GastoRequest {
