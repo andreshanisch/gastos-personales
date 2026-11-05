@@ -40,7 +40,23 @@ for (var intento = 1; ; intento++)
 
 // La página (React compilado en wwwroot) se sirve desde la misma dirección que la API
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = contexto =>
+    {
+        var encabezados = contexto.Context.Response.Headers;
+        if (contexto.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+        {
+            // La página principal siempre se pide de nuevo: así cada compilación nueva se ve sin Ctrl+F5
+            encabezados.CacheControl = "no-cache";
+        }
+        else if (contexto.Context.Request.Path.StartsWithSegments("/assets"))
+        {
+            // Los archivos de assets llevan un hash en el nombre: si cambian, cambia el nombre
+            encabezados.CacheControl = "public, max-age=31536000, immutable";
+        }
+    }
+});
 
 app.MapGet("/health", () => Results.Ok(new { estado = "ok" }));
 app.MapControllers();

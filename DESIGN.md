@@ -223,7 +223,7 @@ Una noche gris lila con dos acentos de sentido fijo: lima para lo que alcanza y 
 
 ## Layout
 
-La estructura es una barra lateral fija de 248px a la izquierda y el contenido a la derecha, con hasta 1120px de ancho útil y 36px arriba y 48px a los costados. Por debajo de 900px la barra lateral pasa arriba, pegada, con la navegación en una fila que se desplaza de costado, y el contenido baja a 16px de margen. Por debajo de 560px el botón de cargar queda solo con el ícono.
+La estructura es una barra lateral fija de 248px a la izquierda y el contenido a la derecha, con hasta 1440px de ancho útil, centrado en el espacio que queda a la derecha de la barra, y 36px arriba y 48px a los costados. Por debajo de 900px la barra lateral pasa arriba, pegada, con la navegación en una fila que se desplaza de costado, y el contenido baja a 16px de margen. Por debajo de 560px el botón de cargar queda solo con el ícono.
 
 El Plan es una grilla bento: una columna en ventana angosta, dos desde 640px y cuatro desde 1024px, con un canal de 12px entre bloques. Los bloques ocupan una, dos o cuatro columnas, y algunos dos filas, según cuánto tengan que mostrar. Adentro, cada bloque tiene 20px de relleno, el título chico arriba con 16px hasta el contenido, y la nota al pie empujada al fondo del bloque para que las filas queden parejas.
 

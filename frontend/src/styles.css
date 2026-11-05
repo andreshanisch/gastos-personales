@@ -42,7 +42,7 @@
   --radio: 16px;
   --radio-grande: 26px;
   --ancho-lateral: 248px;
-  --ancho-contenido: 1120px;
+  --ancho-contenido: 1440px;
 }
 
 /* ---------- Base ---------- */
@@ -173,6 +173,7 @@ kbd {
 
 .contenido {
   width: 100%;
+  margin-inline: auto; /* en pantallas anchas el contenido queda centrado en el espacio a la derecha de la barra */
   max-width: calc(var(--ancho-contenido) + 96px);
   padding: 36px 48px 96px;
 }
