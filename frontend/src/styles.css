@@ -632,43 +632,6 @@ kbd {
 .etiqueta--en-curso { background: var(--billete); color: var(--billete-texto); border-color: transparent; }
 .etiqueta--obligatoria { margin-left: 0; background: var(--laton-tinte); border-color: transparent; color: var(--tinta); }
 
-/* ---------- Resumen: ranking desplegable ---------- */
-.ranking { display: flex; flex-direction: column; gap: 4px; margin: 0 -10px; }
-.ranking__boton {
-  display: block;
-  width: 100%;
-  padding: 10px 10px 12px;
-  border: 0;
-  border-radius: var(--radio);
-  background: transparent;
-  text-align: left;
-}
-.ranking__boton:hover { background: var(--superficie-2); }
-.ranking__linea { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.ranking__nombre { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
-.ranking__flecha { flex: none; color: var(--tinta-3); transition: transform 150ms ease; }
-.ranking__fila--abierta .ranking__flecha { transform: rotate(90deg); }
-.ranking__monto { font-size: 1.375rem; font-weight: 500; }
-.ranking__barra { height: 8px; margin: 8px 0 6px; border-radius: 4px; background: var(--linea-suave); }
-.ranking__barra span { display: block; height: 100%; min-width: 4px; border-radius: 4px; }
-.ranking__detalle { font-size: 0.8125rem; color: var(--tinta-3); }
-@media (prefers-reduced-motion: reduce) { .ranking__flecha { transition: none; } }
-
-.ranking__gastos { margin: 2px 10px 10px 30px; border-left: 2px solid var(--linea); }
-.ranking__gasto {
-  display: grid;
-  grid-template-columns: 4.5em minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 12px;
-  padding: 7px 0 7px 14px;
-  border-bottom: 1px solid var(--linea-suave);
-}
-.ranking__gasto:last-child { border-bottom: 0; }
-.ranking__gasto-fecha { font-size: 0.8125rem; color: var(--tinta-3); }
-.ranking__gasto-descripcion { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ranking__gasto-descripcion--vacia { color: var(--tinta-3); font-style: italic; }
-.ranking__gasto-monto { font-size: 1.125rem; font-weight: 500; }
-
 /* ---------- Historial ---------- */
 .leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.875rem; color: var(--tinta-2); }
 .leyenda li { display: flex; align-items: center; gap: 8px; }
@@ -836,17 +799,6 @@ kbd {
 
 /* ---------- Ajustes de páginas ---------- */
 
-.ranking__gastos li { border-bottom: 1px solid var(--linea-suave); }
-.ranking__gastos li:last-child { border-bottom: 0; }
-button.ranking__gasto {
-  width: 100%;
-  border: 0;
-  border-bottom: 0;
-  background: transparent;
-  text-align: left;
-  border-radius: var(--radio-chico);
-}
-button.ranking__gasto:hover { background: var(--superficie-2); }
 
 .tabla__fila-clic { cursor: pointer; }
 .tabla__enlace {
