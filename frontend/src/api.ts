@@ -44,7 +44,9 @@ async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   }
 
   // El service worker marca así lo que viene de la copia guardada en el teléfono
+  // Tailscale contesta 502/503/504 cuando la compu está prendida pero Mis gastos no está abierta
   const desdeCopia = respuesta.headers.get('X-Sin-Conexion') === '1'
+    || (!enLaCompu && [502, 503, 504].includes(respuesta.status))
   marcarConexion(!desdeCopia)
 
   if (!respuesta.ok) {

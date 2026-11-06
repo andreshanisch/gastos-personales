@@ -8,6 +8,8 @@ const CACHE = 'mis-gastos-v1'
 const BASICOS = ['/', '/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png']
 // Si la compu no contesta en este tiempo, se usa lo guardado
 const ESPERA_MS = 4000
+// Lo que contesta Tailscale cuando la compu está prendida pero Mis gastos no está abierta
+const SIN_LA_APP = new Set([502, 503, 504])
 
 self.addEventListener('install', (evento) => {
   evento.waitUntil(caches.open(CACHE).then((c) => c.addAll(BASICOS)).then(() => self.skipWaiting()))
@@ -32,6 +34,9 @@ async function primeroLaRed(pedido, claveCache) {
   const cache = await caches.open(CACHE)
   try {
     const respuesta = await conEspera(pedido)
+    // Con la compu prendida pero sin la app abierta, Tailscale contesta 502 vacío:
+    // eso también es "sin conexión", así que se usa la copia guardada
+    if (SIN_LA_APP.has(respuesta.status)) throw new Error('la app no está abierta')
     if (respuesta.ok) cache.put(claveCache ?? pedido, respuesta.clone())
     return respuesta
   } catch {
